@@ -83,7 +83,7 @@ export default function SettingsClient({ clientId, clientName }) {
           <button
             type="submit"
             disabled={busy}
-            className="mt-1 rounded-lg bg-emerald-500 py-2.5 font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
+            className="mt-1 rounded-lg bg-brand-600 py-2.5 font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
           >
             {busy ? 'Saving…' : 'Save'}
           </button>

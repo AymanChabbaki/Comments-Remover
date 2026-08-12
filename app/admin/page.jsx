@@ -3,28 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Users, MessageSquare, Trash2, CheckCircle2, AlertTriangle, Percent } from 'lucide-react';
 import AppShell from '../../components/AppShell';
+import StatCard from '../../components/StatCard';
 
 const EMPTY_FORM = { name: '', email: '', password: '' };
-
-const STAT_STYLES = {
-  slate: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-  red: 'bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400',
-  emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400',
-  amber: 'bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400',
-  blue: 'bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400',
-};
-
-function StatCard({ label, value, icon: Icon, color = 'slate' }) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-xl ${STAT_STYLES[color]}`}>
-        <Icon size={18} strokeWidth={2.25} />
-      </div>
-      <div className="text-2xl font-bold tracking-tight">{value}</div>
-      <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{label}</div>
-    </div>
-  );
-}
 
 function ActivityChart({ events }) {
   const buckets = 24;
@@ -221,12 +202,12 @@ export default function AdminPage() {
   return (
     <AppShell isAdmin subtitle="Every client, at a glance" wide>
       <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <StatCard label="Clients" value={clientCounts.total} icon={Users} color="slate" />
-        <StatCard label="Comments moderated" value={overview.stats.total} icon={MessageSquare} color="slate" />
-        <StatCard label="Deleted" value={overview.stats.deleted} icon={Trash2} color="red" />
-        <StatCard label="Kept" value={overview.stats.kept} icon={CheckCircle2} color="emerald" />
-        <StatCard label="Errors" value={overview.stats.errors} icon={AlertTriangle} color="amber" />
-        <StatCard label="Delete rate" value={`${rate}%`} icon={Percent} color="blue" />
+        <StatCard label="Clients" value={clientCounts.total} icon={Users} color="slate" delay={0} />
+        <StatCard label="Comments moderated" value={overview.stats.total} icon={MessageSquare} color="slate" delay={50} />
+        <StatCard label="Deleted" value={overview.stats.deleted} icon={Trash2} color="red" delay={100} />
+        <StatCard label="Kept" value={overview.stats.kept} icon={CheckCircle2} color="emerald" delay={150} />
+        <StatCard label="Errors" value={overview.stats.errors} icon={AlertTriangle} color="amber" delay={200} />
+        <StatCard label="Delete rate" value={`${rate}%`} icon={Percent} color="blue" delay={250} />
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-5 lg:grid-cols-3">
@@ -306,7 +287,7 @@ export default function AdminPage() {
                     </span>
                   </td>
                   <td className="py-2.5">
-                    <a href={`/clients/${c.id}/dashboard`} target="_blank" rel="noreferrer" className="text-xs text-emerald-600 dark:text-emerald-400">
+                    <a href={`/clients/${c.id}/dashboard`} target="_blank" rel="noreferrer" className="text-xs text-brand-600 dark:text-brand-400">
                       Open →
                     </a>
                   </td>

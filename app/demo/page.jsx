@@ -40,14 +40,14 @@ export default function DemoPage() {
   }
 
   const ctaBanner = (
-    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-emerald-300 bg-gradient-to-r from-emerald-50 to-teal-50 p-4 text-sm shadow-sm dark:border-emerald-500/40 dark:from-emerald-500/10 dark:to-teal-500/10">
+    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand-300 bg-gradient-to-r from-brand-50 to-rose-50 p-4 text-sm shadow-sm dark:border-brand-500/40 dark:from-brand-500/10 dark:to-rose-500/10">
       <div>
         <strong className="font-semibold">This is a live interactive demo</strong> — sample data, nothing connected.
         Click &ldquo;Delete&rdquo; or &ldquo;Unblock&rdquo; below, it&apos;s fully interactive.
       </div>
       <Link
         href="mailto:hello@techermanos.org?subject=Comment%20moderation%20-%20get%20started"
-        className="whitespace-nowrap rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white hover:bg-emerald-700"
+        className="whitespace-nowrap rounded-lg bg-brand-600 px-4 py-2 font-semibold text-white hover:bg-brand-700"
       >
         Get started with your Page →
       </Link>

@@ -88,7 +88,7 @@ export default function OnboardingClient({ clientId, clientName }) {
             href="https://developers.facebook.com/tools/explorer"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-600 dark:text-brand-400"
           >
             Open Graph API Explorer <ExternalLink size={14} />
           </a>
@@ -188,7 +188,7 @@ export default function OnboardingClient({ clientId, clientName }) {
           <div
             key={i}
             className={`h-1.5 w-10 rounded-full transition-colors ${
-              i <= step ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-800'
+              i <= step ? 'bg-brand-600' : 'bg-slate-200 dark:bg-slate-800'
             }`}
           />
         ))}
@@ -203,7 +203,7 @@ export default function OnboardingClient({ clientId, clientName }) {
             <button
               type="button"
               onClick={() => setStep((s) => s - 1)}
-              className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold hover:border-emerald-400 dark:border-slate-700"
+              className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold hover:border-brand-400 dark:border-slate-700"
             >
               <ArrowLeft size={16} /> Back
             </button>
@@ -212,7 +212,7 @@ export default function OnboardingClient({ clientId, clientName }) {
             type="button"
             disabled={busy}
             onClick={handleNext}
-            className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
           >
             {current.nextLabel} {!current.isLast && <ArrowRight size={16} />}
           </button>

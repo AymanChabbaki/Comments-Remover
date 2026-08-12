@@ -44,26 +44,6 @@ function VerdictBadge({ event }) {
   );
 }
 
-const STAT_STYLES = {
-  slate: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-  red: 'bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400',
-  emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400',
-  amber: 'bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400',
-  blue: 'bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400',
-};
-
-function StatCard({ label, value, icon: Icon, color = 'slate' }) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-xl ${STAT_STYLES[color]}`}>
-        <Icon size={18} strokeWidth={2.25} />
-      </div>
-      <div className="text-2xl font-bold tracking-tight">{value}</div>
-      <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{label}</div>
-    </div>
-  );
-}
-
 function ActivityChart({ events }) {
   const buckets = 24;
   const now = Date.now();
@@ -164,7 +144,7 @@ function BlocklistPanel({ blocked, onUnblock }) {
                           await onUnblock(b);
                           setBusyId(null);
                         }}
-                        className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-500 hover:border-emerald-400 hover:text-slate-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                        className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-500 hover:border-brand-400 hover:text-slate-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                       >
                         {busyId === b.authorId ? 'Unblocking…' : 'Unblock'}
                       </button>
@@ -255,12 +235,12 @@ export default function ModerationDashboard({ events, blocked, onDelete, onUnblo
       {ctaBanner}
 
       <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <StatCard label="Total" value={stats.total} icon={MessageSquare} color="slate" />
-        <StatCard label="Deleted" value={stats.deleted} icon={Trash2} color="red" />
-        <StatCard label="Kept" value={stats.kept} icon={CheckCircle2} color="emerald" />
-        <StatCard label="Errors" value={stats.errors} icon={AlertTriangle} color="amber" />
-        <StatCard label="Delete rate" value={`${stats.rate}%`} icon={Percent} color="blue" />
-        <StatCard label="FB / IG" value={`${stats.facebook} / ${stats.instagram}`} icon={Globe2} color="slate" />
+        <StatCard label="Total" value={stats.total} icon={MessageSquare} color="slate" delay={0} />
+        <StatCard label="Deleted" value={stats.deleted} icon={Trash2} color="red" delay={50} />
+        <StatCard label="Kept" value={stats.kept} icon={CheckCircle2} color="emerald" delay={100} />
+        <StatCard label="Errors" value={stats.errors} icon={AlertTriangle} color="amber" delay={150} />
+        <StatCard label="Delete rate" value={`${stats.rate}%`} icon={Percent} color="blue" delay={200} />
+        <StatCard label="FB / IG" value={`${stats.facebook} / ${stats.instagram}`} icon={Globe2} color="slate" delay={250} />
       </div>
 
       <div className="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
@@ -301,7 +281,7 @@ export default function ModerationDashboard({ events, blocked, onDelete, onUnblo
           <button
             type="button"
             onClick={onRefresh}
-            className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3.5 py-1.5 text-sm font-semibold text-white hover:bg-emerald-600"
+            className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-3.5 py-1.5 text-sm font-semibold text-white transition-transform hover:bg-brand-700 active:scale-95"
           >
             <RefreshCw size={14} /> Refresh
           </button>
@@ -317,7 +297,7 @@ export default function ModerationDashboard({ events, blocked, onDelete, onUnblo
               onClick={() => applyPreset(days)}
               className={`rounded-lg border px-2.5 py-1.5 text-xs ${
                 activePreset === String(days)
-                  ? 'border-emerald-400 bg-emerald-50 text-slate-900 dark:bg-emerald-500/10 dark:text-slate-100'
+                  ? 'border-brand-400 bg-brand-50 text-slate-900 dark:bg-brand-500/10 dark:text-slate-100'
                   : 'border-slate-200 text-slate-500 hover:text-slate-700 dark:border-slate-700 dark:text-slate-400'
               }`}
             >
