@@ -17,7 +17,8 @@ export async function POST(request) {
     return NextResponse.json({ success: false, error: 'This account is paused. Contact support.' }, { status: 403 });
   }
 
-  const res = NextResponse.json({ success: true, clientId: client.id });
+  const connected = !!client.pageId && !!client.pageAccessToken;
+  const res = NextResponse.json({ success: true, clientId: client.id, connected });
   res.cookies.set(CLIENT_COOKIE, signClientToken(client.id), {
     httpOnly: true,
     secure: request.nextUrl.protocol === 'https:',

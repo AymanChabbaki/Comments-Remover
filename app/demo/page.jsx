@@ -46,7 +46,7 @@ export default function DemoPage() {
         Click &ldquo;Delete&rdquo; or &ldquo;Unblock&rdquo; below, it&apos;s fully interactive.
       </div>
       <Link
-        href="/signup"
+        href="mailto:hello@techermanos.org?subject=Comment%20moderation%20-%20get%20started"
         className="whitespace-nowrap rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white hover:bg-emerald-700"
       >
         Get started with your Page →

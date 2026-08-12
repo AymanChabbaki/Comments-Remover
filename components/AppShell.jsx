@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShieldCheck, LayoutDashboard, Settings as SettingsIcon, LogOut, Sparkles } from 'lucide-react';
+import { LayoutDashboard, Settings as SettingsIcon, LogOut, Sparkles } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
+import Logo from './Logo';
 
 function NavItem({ href, icon: Icon, label, active }) {
   return (
@@ -45,11 +46,8 @@ export default function AppShell({ clientId, clientName, subtitle, headerAction,
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
       <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white px-4 py-6 dark:border-slate-800 dark:bg-slate-900 lg:flex">
-        <div className="mb-8 flex items-center gap-2 px-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 text-white">
-            <ShieldCheck size={18} />
-          </div>
-          <span className="font-semibold tracking-tight">ModShield</span>
+        <div className="mb-8 px-2">
+          <Logo height={28} />
         </div>
 
         {base && (
