@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { MessageSquare, Trash2, CheckCircle2, AlertTriangle, Percent, Globe2, RefreshCw } from 'lucide-react';
+import StatCard from './StatCard';
 
 function relativeTime(iso) {
   const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);

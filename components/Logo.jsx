@@ -1,27 +1,15 @@
-'use client';
-
-import { useState } from 'react';
-import { ShieldCheck } from 'lucide-react';
-
 /**
- * Renders /public/logo.png if present, falling back to a generic mark
- * automatically (no code change needed once the real logo file is
- * dropped into public/ -- see the missing-logo note left for the user).
+ * Tech Hermanos logo -- both light and dark versions are rendered and
+ * toggled with the `dark:` variant, avoiding a client-side flash while
+ * the theme is being determined (no useState/onError roundtrip needed).
  */
-export default function Logo({ height = 28, showWordmark = true }) {
-  const [failed, setFailed] = useState(false);
-
-  if (failed) {
-    return (
-      <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 text-white">
-          <ShieldCheck size={18} />
-        </div>
-        {showWordmark && <span className="font-semibold tracking-tight">ModShield</span>}
-      </div>
-    );
-  }
-
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img src="/logo.png" alt="Logo" style={{ height }} onError={() => setFailed(true)} />;
+export default function Logo({ height = 28 }) {
+  return (
+    <>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo-text.png" alt="Tech Hermanos" style={{ height }} className="block dark:hidden" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo-text-white.png" alt="Tech Hermanos" style={{ height }} className="hidden dark:block" />
+    </>
+  );
 }

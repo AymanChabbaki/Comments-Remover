@@ -4,8 +4,49 @@
 
 @theme inline {
   --font-sans: var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-grotesk), var(--font-jakarta), sans-serif;
+}
+
+/* Tech Hermanos brand palette, pulled from the logo (maroon + navy). */
+@theme {
+  --color-brand-50: #fbeced;
+  --color-brand-100: #f3d0d4;
+  --color-brand-400: #a34558;
+  --color-brand-500: #8b3548;
+  --color-brand-600: #7b2c3b;
+  --color-brand-700: #642331;
+  --color-brand-navy-500: #3f4b5e;
+  --color-brand-navy-600: #333c4c;
 }
 
 body {
   font-family: var(--font-sans);
 }
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(20px, -30px) scale(1.08); }
+  66% { transform: translate(-15px, 15px) scale(0.95); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in-up { animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-in { animation: fade-in 0.4s ease both; }
+.animate-blob { animation: blob 10s infinite ease-in-out; }
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-4000 { animation-delay: 4s; }
