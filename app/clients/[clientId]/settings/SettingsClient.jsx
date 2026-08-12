@@ -3,11 +3,13 @@
 import { useEffect, useState } from 'react';
 import AppShell from '../../../../components/AppShell';
 
-export default function SettingsClient({ clientId, clientName }) {
+export default function SettingsClient({ clientId, clientName, igAppId }) {
   const [status, setStatus] = useState(null);
   const [form, setForm] = useState({ pageId: '', pageAccessToken: '', igUserId: '', igAccessToken: '' });
   const [msg, setMsg] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [igResult, setIgResult] = useState(null);
+  const [showManualIg, setShowManualIg] = useState(false);
 
   async function load() {
     const res = await fetch(`/api/clients/${clientId}/settings`);
@@ -18,7 +20,26 @@ export default function SettingsClient({ clientId, clientName }) {
 
   useEffect(() => {
     load();
+    const ig = new URLSearchParams(window.location.search).get('ig');
+    if (ig) {
+      setIgResult(ig);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }, []);
+
+  function connectInstagram() {
+    const redirectUri = `${window.location.origin}/api/oauth/instagram/callback`;
+    const params = new URLSearchParams({
+      enable_fb_login: '0',
+      force_authentication: '1',
+      client_id: igAppId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      scope: 'instagram_business_basic,instagram_business_manage_comments',
+      state: clientId,
+    });
+    window.location.href = `https://www.instagram.com/oauth/authorize?${params.toString()}`;
+  }
 
   function set(key) {
     return (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -59,6 +80,22 @@ export default function SettingsClient({ clientId, clientName }) {
           </div>
         )}
 
+        {igResult === 'connected' && (
+          <div className="mb-4 rounded-lg border border-emerald-400 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-400">
+            Instagram connected.
+          </div>
+        )}
+        {igResult === 'denied' && (
+          <div className="mb-4 rounded-lg border border-amber-400 bg-amber-50 px-3 py-2.5 text-sm text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-400">
+            Instagram connection was cancelled — nothing changed.
+          </div>
+        )}
+        {igResult === 'error' && (
+          <div className="mb-4 rounded-lg border border-red-400 bg-red-50 px-3 py-2.5 text-sm text-red-600 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400">
+            Instagram connection failed. Make sure you&apos;ve accepted the Instagram tester invite, then try again.
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Get these from the Meta setup guide — your Page ID and Page Access Token. Leave a token field blank to
@@ -73,13 +110,45 @@ export default function SettingsClient({ clientId, clientName }) {
           />
           <hr className="my-1 border-slate-200 dark:border-slate-800" />
           <p className="text-xs text-slate-500 dark:text-slate-400">Optional — only if you also want Instagram comments moderated.</p>
-          <Field label="Instagram Account ID" value={form.igUserId} onChange={set('igUserId')} placeholder="17841454947560776" />
-          <Field
-            label={`Instagram Access Token${status?.hasIgToken ? ' (already set — leave blank to keep it)' : ''}`}
-            value={form.igAccessToken}
-            onChange={set('igAccessToken')}
-            placeholder="IGAA..."
-          />
+
+          {igAppId && !showManualIg ? (
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={connectInstagram}
+                className="rounded-lg border border-slate-200 bg-white py-2.5 text-sm font-semibold hover:border-brand-400 dark:border-slate-700 dark:bg-slate-800"
+              >
+                Connect Instagram
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowManualIg(true)}
+                className="self-start text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                Have a token already? Paste it manually
+              </button>
+            </div>
+          ) : (
+            <>
+              <Field label="Instagram Account ID" value={form.igUserId} onChange={set('igUserId')} placeholder="17841454947560776" />
+              <Field
+                label={`Instagram Access Token${status?.hasIgToken ? ' (already set — leave blank to keep it)' : ''}`}
+                value={form.igAccessToken}
+                onChange={set('igAccessToken')}
+                placeholder="IGAA..."
+              />
+              {igAppId && (
+                <button
+                  type="button"
+                  onClick={() => setShowManualIg(false)}
+                  className="self-start text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                >
+                  Use Connect Instagram instead
+                </button>
+              )}
+            </>
+          )}
+
           <button
             type="submit"
             disabled={busy}

@@ -39,7 +39,7 @@ function CodeBlock({ children }) {
 export default function OnboardingClient({ clientId, clientName, clientEmail }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [form, setForm] = useState({ pageId: '', pageAccessToken: '', igUserId: '', igAccessToken: '' });
+  const [form, setForm] = useState({ pageId: '', pageAccessToken: '' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -174,18 +174,10 @@ export default function OnboardingClient({ clientId, clientName, clientEmail }) 
         <div className="max-w-lg space-y-3">
           <Field label="Facebook Page ID" value={form.pageId} onChange={set('pageId')} placeholder="106480395512492" />
           <Field label="Page Access Token" value={form.pageAccessToken} onChange={set('pageAccessToken')} placeholder="EAAW..." />
-          <hr className="my-1 border-slate-200 dark:border-slate-800" />
-          <p className="text-xs text-slate-500 dark:text-slate-400">Optional — only if you also want Instagram comments moderated.</p>
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
-            <p className="mb-1.5 font-semibold text-slate-700 dark:text-slate-300">Getting your Instagram Access Token</p>
-            <p>
-              Instagram token generation happens inside our Meta App Dashboard, which only we have access to — so
-              once you&apos;ve accepted the Instagram tester invite from Step 1, let us know and we&apos;ll generate
-              your Instagram Account ID and Access Token and send them to you to paste in below.
-            </p>
-          </div>
-          <Field label="Instagram Account ID (optional)" value={form.igUserId} onChange={set('igUserId')} placeholder="17841454947560776" />
-          <Field label="Instagram Access Token (optional)" value={form.igAccessToken} onChange={set('igAccessToken')} placeholder="IGAA..." />
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Want Instagram comments moderated too? You can connect that with one click afterward, from Settings —
+            you just need to have accepted the Instagram tester invite from Step 1 first.
+          </p>
           {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
         </div>
       ),

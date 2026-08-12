@@ -64,18 +64,24 @@ the Page Access Token. It signs webhooks with its own App Secret
 (`IG_APP_SECRET` in `.env`) and needs its own access token (`igAccessToken`,
 stored per-client, used against `graph.instagram.com` — see `lib/facebook.js`).
 
-Unlike the Facebook Page token, this **cannot be self-served by the client**
-the way the Page token can via Graph API Explorer. Token generation for
-this product lives on the App Dashboard's own "API setup with Instagram
-login" page (`developers.facebook.com/apps/<id>/instagram-business-login`),
-which only Admins/Developers of the app can open — Instagram Testers do not
-get dashboard access, only the ability to be added there. So the flow is
-admin-assisted:
+The App Dashboard's own "API setup with Instagram login" page (where you'd
+manually add an account and click "Générer un token") only works for
+accounts an Admin/Developer can personally log into — not useful for a
+client's account. So instead, clients connect Instagram themselves via a
+real OAuth flow — a **"Connect Instagram" button** in their Settings page
+(`app/clients/[clientId]/settings/SettingsClient.jsx`) that sends them to
+Instagram's own consent screen and comes back with a token, without you or
+them ever handling raw credentials:
 
-1. Add the client as an Instagram Tester (App Dashboard → Instagram → API setup with Instagram login → Roles → Instagram Testers — distinct from the Facebook Tester list). They accept the invite from inside the Instagram app itself (Settings → Apps and websites → Tester invites), not a Facebook notification.
-2. Once accepted, on the "API setup with Instagram login" page, under **1. Générez des tokens d'accès**, click **Add account**, select their Instagram account, then **Générer un token** — that's the `igAccessToken`. The Instagram Account ID shown next to it (e.g. `17841454947560776`) is `igUserId`.
-3. On the same row, flip **Abonnement Webhooks** to enabled — no separate `subscribed_apps` curl call needed, it's a toggle in this UI (unlike the Page's `feed` subscription, which is API-only).
-4. Send the client their `igUserId`/`igAccessToken` to paste into their own Settings page — same hand-off pattern as everything else, you generate the raw values (unavoidable for this one product) but the client still does the actual connecting.
+1. Add the client as an Instagram Tester (App Dashboard → Instagram → API setup with Instagram login → Roles → Instagram Testers — distinct from the Facebook Tester list). They accept the invite from inside the Instagram app itself (Settings → Apps and websites → Tester invites), not a Facebook notification. This step is still required — while the app is in Development mode, only testers can complete the OAuth consent screen below.
+2. Once accepted, they open their Settings page and click **Connect Instagram**. This sends them to `instagram.com/oauth/authorize` with your `IG_APP_ID`, where they log into their own account and approve `instagram_business_basic` + `instagram_business_manage_comments`.
+3. Instagram redirects back to `/api/oauth/instagram/callback` with a `code`; that route (`lib/instagramAuth.js`) exchanges it server-side for a short-lived token, then a long-lived one (~60 days), saves `igUserId`/`igAccessToken` directly onto that client's row, and calls `POST /<IG_USER_ID>/subscribed_apps?subscribed_fields=comments` with the new token — the API equivalent of the dashboard's "Abonnement Webhooks" toggle, so the whole thing is genuinely one click, no dashboard step needed.
+4. If that last subscribe call fails for some reason (logged, doesn't undo the saved token), the fallback is the same manual toggle: App Dashboard → "API setup with Instagram login" → find their account under **1. Générez des tokens d'accès** → flip **Abonnement Webhooks** to enabled.
+
+This requires `IG_APP_ID` + `IG_APP_SECRET` set, and the redirect URI
+registered in App Dashboard — see `.env.example` for the exact steps. If
+`IG_APP_ID` isn't set, the Settings page falls back to manual `igUserId`/
+`igAccessToken` paste fields instead of showing the button.
 
 If comments don't get processed, set `DEBUG_WEBHOOK_PAYLOAD=true`, redeploy, post a test comment, and check the logs for the real payload shape.
 

@@ -21,5 +21,5 @@ export default async function ClientSettingsPage({ params }) {
     redirect(`/login?next=${encodeURIComponent(`/clients/${clientId}/settings`)}`);
   }
 
-  return <SettingsClient clientId={clientId} clientName={client.name} />;
+  return <SettingsClient clientId={clientId} clientName={client.name} igAppId={process.env.IG_APP_ID || null} />;
 }
