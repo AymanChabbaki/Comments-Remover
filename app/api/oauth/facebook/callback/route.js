@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import * as clients from '../../../../../lib/clients';
 import { isAuthorizedForClient } from '../../../../../lib/auth';
-import { exchangeCodeForUserToken, fetchPages, subscribePageToWebhooks } from '../../../../../lib/facebookAuth';
+import { exchangeCodeForUserToken, fetchPages, fetchGrantedPermissions, subscribePageToWebhooks } from '../../../../../lib/facebookAuth';
 
 export const runtime = 'nodejs';
 
@@ -40,7 +40,16 @@ export async function GET(request) {
 
     const pages = await fetchPages(userAccessToken);
     if (pages.length === 0) {
-      return NextResponse.redirect(settingsUrl('error', 'No Facebook Pages found for this account -- make sure you approved Page access on the consent screen.'));
+      let permSummary = '';
+      try {
+        const perms = await fetchGrantedPermissions(userAccessToken);
+        console.error('Facebook granted permissions on this token:', perms);
+        const granted = perms.filter((p) => p.status === 'granted').map((p) => p.permission).join(', ');
+        permSummary = ` Granted: ${granted || '(none)'}`;
+      } catch (permErr) {
+        console.error('Facebook /me/permissions check failed:', permErr.response?.data || permErr.message);
+      }
+      return NextResponse.redirect(settingsUrl('error', `No Facebook Pages found for this account -- make sure you approved Page access on the consent screen.${permSummary}`));
     }
     // Most clients manage a single Page; connect the first one. Anyone
     // managing several can pick a different one via manual paste.
