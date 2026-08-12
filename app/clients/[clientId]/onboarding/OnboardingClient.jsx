@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, ArrowLeft, ExternalLink, Copy, Check } from 'lucide-react';
+import { ArrowRight, ArrowLeft, ExternalLink, Copy, Check, Mail } from 'lucide-react';
 import Logo from '../../../../components/Logo';
 import ThemeToggle from '../../../../components/ThemeToggle';
 
@@ -36,7 +36,7 @@ function CodeBlock({ children }) {
   );
 }
 
-export default function OnboardingClient({ clientId, clientName }) {
+export default function OnboardingClient({ clientId, clientName, clientEmail }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({ pageId: '', pageAccessToken: '', igUserId: '', igAccessToken: '' });
@@ -81,7 +81,31 @@ export default function OnboardingClient({ clientId, clientName }) {
       nextLabel: 'Get started',
     },
     {
-      title: 'Step 1 — Generate an access token',
+      title: 'Step 1 — Get added as a tester',
+      body: (
+        <div className="max-w-lg space-y-4">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Our app isn&apos;t public on Facebook yet, so before you can generate a token you need to be added as a{' '}
+            <strong>Tester</strong> on it. It&apos;s a one-time, 30-second step on our side — no passwords or tokens
+            involved.
+          </p>
+          <ol className="list-decimal space-y-1.5 pl-4 text-sm text-slate-500 dark:text-slate-400">
+            <li>Send us the email or Facebook profile link for the account you use to manage your Page.</li>
+            <li>We&apos;ll add you as a tester — takes a few minutes.</li>
+            <li>You&apos;ll get a notification from Facebook to accept the tester invite. Accept it, then come back here.</li>
+          </ol>
+          <a
+            href={`mailto:hello@techermanos.org?subject=${encodeURIComponent(`Tester access request — ${clientName}`)}&body=${encodeURIComponent(`Hi,\n\nPlease add me as a tester on your Facebook App so I can generate my Page access token.\n\nName: ${clientName}\nAccount email: ${clientEmail || ''}\nFacebook profile link: \n\nThanks!`)}`}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+          >
+            <Mail size={16} /> Request tester access
+          </a>
+        </div>
+      ),
+      nextLabel: "I've accepted the invite",
+    },
+    {
+      title: 'Step 2 — Generate an access token',
       body: (
         <div className="max-w-lg space-y-4">
           <a
@@ -108,7 +132,7 @@ export default function OnboardingClient({ clientId, clientName }) {
       nextLabel: 'Next',
     },
     {
-      title: 'Step 2 — Get your Page Access Token',
+      title: 'Step 3 — Get your Page Access Token',
       body: (
         <div className="max-w-lg space-y-4">
           <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -124,7 +148,7 @@ export default function OnboardingClient({ clientId, clientName }) {
       nextLabel: 'Next',
     },
     {
-      title: 'Step 3 — Subscribe your Page',
+      title: 'Step 4 — Subscribe your Page',
       body: (
         <div className="max-w-lg space-y-4">
           <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -140,7 +164,7 @@ export default function OnboardingClient({ clientId, clientName }) {
       nextLabel: 'Next',
     },
     {
-      title: 'Step 4 — Connect it here',
+      title: 'Step 5 — Connect it here',
       body: (
         <div className="max-w-lg space-y-3">
           <Field label="Facebook Page ID" value={form.pageId} onChange={set('pageId')} placeholder="106480395512492" />

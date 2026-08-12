@@ -21,5 +21,5 @@ export default async function OnboardingPage({ params }) {
     redirect(`/login?next=${encodeURIComponent(`/clients/${clientId}/onboarding`)}`);
   }
 
-  return <OnboardingClient clientId={clientId} clientName={client.name} />;
+  return <OnboardingClient clientId={clientId} clientName={client.name} clientEmail={client.email} />;
 }
