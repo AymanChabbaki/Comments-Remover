@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, ArrowLeft, Mail, Phone } from 'lucide-react';
+import { ArrowRight, ArrowLeft, ExternalLink, Mail, Phone } from 'lucide-react';
 
 const SUPPORT_PHONE = '0703285402';
+const DEMO_POST_URL = 'https://www.facebook.com/share/v/1SSGAhdBS4/';
 import Logo from '../../../../components/Logo';
 import ThemeToggle from '../../../../components/ThemeToggle';
 
@@ -104,6 +105,43 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
         </p>
       ),
       nextLabel: 'Get started',
+    },
+    {
+      title: 'See it working first',
+      body: (
+        <div className="max-w-lg space-y-4">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Before connecting your own Page, try it on ours — no setup needed on your end.
+          </p>
+          <ol className="list-decimal space-y-1.5 pl-4 text-sm text-slate-500 dark:text-slate-400">
+            <li>
+              Post a comment on{' '}
+              <a
+                href={DEMO_POST_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 font-medium text-brand-600 dark:text-brand-400"
+              >
+                this Facebook post <ExternalLink size={12} />
+              </a>{' '}
+              — try something negative, like &quot;terrible service, don&apos;t recommend&quot;.
+            </li>
+            <li>
+              Open the{' '}
+              <a
+                href="/live-demo"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 font-medium text-brand-600 dark:text-brand-400"
+              >
+                live dashboard <ExternalLink size={12} />
+              </a>{' '}
+              — your comment should show up and get auto-deleted within seconds.
+            </li>
+          </ol>
+        </div>
+      ),
+      nextLabel: "I see it working, let's connect mine",
     },
     {
       title: 'Step 1 — Get added as a tester',
