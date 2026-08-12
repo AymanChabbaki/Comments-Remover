@@ -192,6 +192,7 @@ export default function ModerationDashboard({
   onRefresh,
   liveLabel = 'Live',
   ctaBanner,
+  headerExtra,
 }) {
   const [platform, setPlatform] = useState('');
   const [verdict, setVerdict] = useState('');
@@ -270,6 +271,7 @@ export default function ModerationDashboard({
             <span className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" /> {liveLabel}
             </span>
+            {headerExtra}
             <ThemeToggle />
           </div>
         </header>
