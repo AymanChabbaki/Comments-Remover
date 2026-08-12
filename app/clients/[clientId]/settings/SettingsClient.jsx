@@ -126,6 +126,13 @@ export default function SettingsClient({ clientId, clientName, igAppId, fbAppId,
             Instagram connected.
           </div>
         )}
+        {igResult === 'connected_no_webhook' && (
+          <div className="mb-4 rounded-lg border border-amber-400 bg-amber-50 px-3 py-2.5 text-sm text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-400">
+            Instagram account saved, but comment moderation isn&apos;t active yet — subscribing to webhooks failed.
+            Try reconnecting, or check the account&apos;s &quot;Abonnement Webhooks&quot; toggle in App Dashboard.
+            {igReason && <div className="mt-1 break-words font-mono text-xs opacity-80">{igReason}</div>}
+          </div>
+        )}
         {igResult === 'denied' && (
           <div className="mb-4 rounded-lg border border-amber-400 bg-amber-50 px-3 py-2.5 text-sm text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-400">
             Instagram connection was cancelled — nothing changed.
@@ -141,6 +148,13 @@ export default function SettingsClient({ clientId, clientName, igAppId, fbAppId,
         {fbResult === 'connected' && (
           <div className="mb-4 rounded-lg border border-emerald-400 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-400">
             Facebook Page connected.
+          </div>
+        )}
+        {fbResult === 'connected_no_webhook' && (
+          <div className="mb-4 rounded-lg border border-amber-400 bg-amber-50 px-3 py-2.5 text-sm text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-400">
+            Facebook Page saved, but comment moderation isn&apos;t active yet — subscribing to webhooks failed. Try
+            reconnecting, or re-run the manual subscribe command from the README.
+            {fbReason && <div className="mt-1 break-words font-mono text-xs opacity-80">{fbReason}</div>}
           </div>
         )}
         {fbResult === 'denied' && (

@@ -60,10 +60,14 @@ export async function GET(request) {
     try {
       await subscribePageToWebhooks(page.id, page.access_token);
     } catch (subErr) {
-      // Token is saved either way -- log and still report success; worst
-      // case the Page isn't receiving events yet, fixable by re-running
-      // the manual curl command from the README.
+      // Token is saved either way (fixable by re-running the manual curl
+      // command from the README, or reconnecting) -- but comments won't
+      // actually be moderated yet, so say so instead of silently
+      // reporting a clean "connected" success.
+      const apiError = subErr.response?.data?.error?.message || subErr.response?.data;
+      const reason = apiError ? (typeof apiError === 'string' ? apiError : JSON.stringify(apiError)) : subErr.message;
       console.error('Facebook Page webhook subscribe failed:', subErr.response?.data || subErr.message);
+      return NextResponse.redirect(settingsUrl('connected_no_webhook', reason));
     }
 
     return NextResponse.redirect(settingsUrl('connected'));

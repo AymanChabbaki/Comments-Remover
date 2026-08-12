@@ -52,10 +52,14 @@ export async function GET(request) {
     try {
       await subscribeToWebhooks(userId, accessToken);
     } catch (subErr) {
-      // Token is saved either way -- log and still report success; worst
-      // case the account isn't receiving events yet, fixable by flipping
-      // the "Abonnement Webhooks" toggle manually in App Dashboard.
+      // Token is saved either way (fixable by flipping the "Abonnement
+      // Webhooks" toggle manually in App Dashboard, or reconnecting) --
+      // but this means comments won't actually be moderated yet, so say
+      // so instead of silently reporting a clean "connected" success.
+      const apiError = subErr.response?.data?.error?.message || subErr.response?.data;
+      const reason = apiError ? (typeof apiError === 'string' ? apiError : JSON.stringify(apiError)) : subErr.message;
       console.error('Instagram webhook subscribe failed:', subErr.response?.data || subErr.message);
+      return NextResponse.redirect(settingsUrl('connected_no_webhook', reason));
     }
 
     return NextResponse.redirect(settingsUrl('connected'));
