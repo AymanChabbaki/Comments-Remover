@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import AppShell from '../../../../components/AppShell';
 
-export default function SettingsClient({ clientId, clientName, igAppId }) {
+export default function SettingsClient({ clientId, clientName, igAppId, fbAppId }) {
   const [status, setStatus] = useState(null);
   const [form, setForm] = useState({ pageId: '', pageAccessToken: '', igUserId: '', igAccessToken: '' });
   const [msg, setMsg] = useState(null);
@@ -11,6 +11,9 @@ export default function SettingsClient({ clientId, clientName, igAppId }) {
   const [igResult, setIgResult] = useState(null);
   const [igReason, setIgReason] = useState(null);
   const [showManualIg, setShowManualIg] = useState(false);
+  const [fbResult, setFbResult] = useState(null);
+  const [fbReason, setFbReason] = useState(null);
+  const [showManualFb, setShowManualFb] = useState(false);
 
   async function load() {
     const res = await fetch(`/api/clients/${clientId}/settings`);
@@ -28,6 +31,12 @@ export default function SettingsClient({ clientId, clientName, igAppId }) {
       setIgReason(params.get('ig_reason'));
       window.history.replaceState({}, '', window.location.pathname);
     }
+    const fb = params.get('fb');
+    if (fb) {
+      setFbResult(fb);
+      setFbReason(params.get('fb_reason'));
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }, []);
 
   function connectInstagram() {
@@ -42,6 +51,18 @@ export default function SettingsClient({ clientId, clientName, igAppId }) {
       state: clientId,
     });
     window.location.href = `https://www.instagram.com/oauth/authorize?${params.toString()}`;
+  }
+
+  function connectFacebook() {
+    const redirectUri = `${window.location.origin}/api/oauth/facebook/callback`;
+    const params = new URLSearchParams({
+      client_id: fbAppId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      scope: 'pages_show_list,pages_read_engagement,pages_manage_engagement,pages_read_user_content,pages_manage_metadata',
+      state: clientId,
+    });
+    window.location.href = `https://www.facebook.com/dialog/oauth?${params.toString()}`;
   }
 
   function set(key) {
@@ -109,18 +130,65 @@ export default function SettingsClient({ clientId, clientName, igAppId }) {
           </div>
         )}
 
+        {fbResult === 'connected' && (
+          <div className="mb-4 rounded-lg border border-emerald-400 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-400">
+            Facebook Page connected.
+          </div>
+        )}
+        {fbResult === 'denied' && (
+          <div className="mb-4 rounded-lg border border-amber-400 bg-amber-50 px-3 py-2.5 text-sm text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-400">
+            Facebook connection was cancelled — nothing changed.
+          </div>
+        )}
+        {fbResult === 'error' && (
+          <div className="mb-4 rounded-lg border border-red-400 bg-red-50 px-3 py-2.5 text-sm text-red-600 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400">
+            Facebook connection failed. Make sure you&apos;ve accepted the Facebook tester invite, then try again.
+            {fbReason && <div className="mt-1 break-words font-mono text-xs opacity-80">{fbReason}</div>}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Get these from the Meta setup guide — your Page ID and Page Access Token. Leave a token field blank to
-            keep the one you already saved.
-          </p>
-          <Field label="Facebook Page ID" value={form.pageId} onChange={set('pageId')} placeholder="106480395512492" />
-          <Field
-            label={`Page Access Token${status?.hasPageToken ? ' (already set — leave blank to keep it)' : ''}`}
-            value={form.pageAccessToken}
-            onChange={set('pageAccessToken')}
-            placeholder="EAAW..."
-          />
+          {fbAppId && !showManualFb ? (
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={connectFacebook}
+                className="rounded-lg border border-slate-200 bg-white py-2.5 text-sm font-semibold hover:border-brand-400 dark:border-slate-700 dark:bg-slate-800"
+              >
+                Connect Facebook
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowManualFb(true)}
+                className="self-start text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                Have a token already? Paste it manually
+              </button>
+            </div>
+          ) : (
+            <>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Get these from the Meta setup guide — your Page ID and Page Access Token. Leave a token field blank to
+                keep the one you already saved.
+              </p>
+              <Field label="Facebook Page ID" value={form.pageId} onChange={set('pageId')} placeholder="106480395512492" />
+              <Field
+                label={`Page Access Token${status?.hasPageToken ? ' (already set — leave blank to keep it)' : ''}`}
+                value={form.pageAccessToken}
+                onChange={set('pageAccessToken')}
+                placeholder="EAAW..."
+              />
+              {fbAppId && (
+                <button
+                  type="button"
+                  onClick={() => setShowManualFb(false)}
+                  className="self-start text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                >
+                  Use Connect Facebook instead
+                </button>
+              )}
+            </>
+          )}
           <hr className="my-1 border-slate-200 dark:border-slate-800" />
           <p className="text-xs text-slate-500 dark:text-slate-400">Optional — only if you also want Instagram comments moderated.</p>
 

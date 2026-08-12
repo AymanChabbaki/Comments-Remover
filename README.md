@@ -46,7 +46,11 @@ connect their own Page.
 3. Verify token: same value as `FB_VERIFY_TOKEN`.
 4. Subscribe to the `feed` field.
 
-## Getting a client's Page Access Token (for self-serve signup or manual admin add)
+## Getting a client's Page Access Token
+
+**One-click (preferred)**: if `FB_APP_ID` is set, both Settings and the onboarding wizard show a **"Connect Facebook"** button instead of the manual fields below. It sends the client to Facebook's own Login dialog (`lib/facebookAuth.js` → `app/api/oauth/facebook/callback`), exchanges the returned code for a long-lived user token, takes the first Page from `GET /me/accounts` (its `access_token` is already a Page token), saves `pageId`/`pageAccessToken` on that client, and calls `POST /{page-id}/subscribed_apps?subscribed_fields=feed` automatically — no Graph API Explorer or curl needed. Requires the exact redirect URI `https://<your-domain>/api/oauth/facebook/callback` added under App Dashboard → Facebook Login → Settings → Valid OAuth Redirect URIs. A client managing more than one Page should use the manual fallback below instead, since this connects whichever Page `/me/accounts` returns first.
+
+**Manual fallback** (for self-serve signup or manual admin add, or when `FB_APP_ID` is unset):
 
 1. [Graph API Explorer](https://developers.facebook.com/tools/explorer) → select your app → request a **User** token with scopes: `pages_show_list`, `pages_read_engagement`, `pages_manage_engagement`, `pages_read_user_content`, `pages_manage_metadata` (the last one is required to subscribe the Page to webhook events, next step).
 2. `GET /me/accounts?access_token=<user-token>` → take the `access_token` field for their Page from the response. That's the Page Access Token — not the user token.
