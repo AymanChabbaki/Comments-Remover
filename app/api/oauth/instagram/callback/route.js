@@ -18,7 +18,12 @@ export async function GET(request) {
   const state = url.searchParams.get('state');
   const error = url.searchParams.get('error') || url.searchParams.get('error_reason');
 
-  const settingsUrl = (status) => new URL(`/clients/${state}/settings?ig=${status}`, url.origin);
+  const settingsUrl = (status, reason) => {
+    const dest = new URL(`/clients/${state}/settings`, url.origin);
+    dest.searchParams.set('ig', status);
+    if (reason) dest.searchParams.set('ig_reason', reason.slice(0, 300));
+    return dest;
+  };
 
   if (!state) return NextResponse.json({ error: 'Missing state' }, { status: 400 });
   if (!isAuthorizedForClient(request, state)) {
@@ -44,7 +49,13 @@ export async function GET(request) {
 
     return NextResponse.redirect(settingsUrl('connected'));
   } catch (err) {
-    console.error('Instagram OAuth exchange failed:', err.response?.data || err.message);
-    return NextResponse.redirect(settingsUrl('error'));
+    const apiError = err.response?.data?.error_message || err.response?.data?.error?.message || err.response?.data;
+    const reason = apiError ? (typeof apiError === 'string' ? apiError : JSON.stringify(apiError)) : err.message;
+    console.error('Instagram OAuth exchange failed:', {
+      status: err.response?.status,
+      data: err.response?.data,
+      message: err.message,
+    });
+    return NextResponse.redirect(settingsUrl('error', reason));
   }
 }

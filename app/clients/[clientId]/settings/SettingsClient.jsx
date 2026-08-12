@@ -9,6 +9,7 @@ export default function SettingsClient({ clientId, clientName, igAppId }) {
   const [msg, setMsg] = useState(null);
   const [busy, setBusy] = useState(false);
   const [igResult, setIgResult] = useState(null);
+  const [igReason, setIgReason] = useState(null);
   const [showManualIg, setShowManualIg] = useState(false);
 
   async function load() {
@@ -20,9 +21,11 @@ export default function SettingsClient({ clientId, clientName, igAppId }) {
 
   useEffect(() => {
     load();
-    const ig = new URLSearchParams(window.location.search).get('ig');
+    const params = new URLSearchParams(window.location.search);
+    const ig = params.get('ig');
     if (ig) {
       setIgResult(ig);
+      setIgReason(params.get('ig_reason'));
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
@@ -93,6 +96,7 @@ export default function SettingsClient({ clientId, clientName, igAppId }) {
         {igResult === 'error' && (
           <div className="mb-4 rounded-lg border border-red-400 bg-red-50 px-3 py-2.5 text-sm text-red-600 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400">
             Instagram connection failed. Make sure you&apos;ve accepted the Instagram tester invite, then try again.
+            {igReason && <div className="mt-1 break-words font-mono text-xs opacity-80">{igReason}</div>}
           </div>
         )}
 
