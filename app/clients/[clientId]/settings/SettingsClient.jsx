@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import AppShell from '../../../../components/AppShell';
 
-export default function SettingsClient({ clientId, clientName, igAppId, fbAppId }) {
+export default function SettingsClient({ clientId, clientName, igAppId, fbAppId, fbConfigId }) {
   const [status, setStatus] = useState(null);
   const [form, setForm] = useState({ pageId: '', pageAccessToken: '', igUserId: '', igAccessToken: '' });
   const [msg, setMsg] = useState(null);
@@ -59,9 +59,17 @@ export default function SettingsClient({ clientId, clientName, igAppId, fbAppId 
       client_id: fbAppId,
       redirect_uri: redirectUri,
       response_type: 'code',
-      scope: 'pages_show_list,pages_read_engagement,pages_manage_engagement,pages_read_user_content,pages_manage_metadata',
       state: clientId,
     });
+    // A Configuration (config_id) is the flow Meta documents for Pages
+    // owned by a Business Portfolio -- a plain scope= list left /me/accounts
+    // empty even with every permission granted. Falls back to scope= if no
+    // Configuration has been set up yet.
+    if (fbConfigId) {
+      params.set('config_id', fbConfigId);
+    } else {
+      params.set('scope', 'pages_show_list,pages_read_engagement,pages_manage_engagement,pages_read_user_content,pages_manage_metadata');
+    }
     window.location.href = `https://www.facebook.com/dialog/oauth?${params.toString()}`;
   }
 

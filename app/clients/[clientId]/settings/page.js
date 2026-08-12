@@ -27,6 +27,7 @@ export default async function ClientSettingsPage({ params }) {
       clientName={client.name}
       igAppId={process.env.IG_APP_ID || null}
       fbAppId={process.env.FB_APP_ID || null}
+      fbConfigId={process.env.FB_CONFIG_ID || null}
     />
   );
 }

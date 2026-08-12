@@ -8,7 +8,7 @@ const SUPPORT_PHONE = '0703285402';
 import Logo from '../../../../components/Logo';
 import ThemeToggle from '../../../../components/ThemeToggle';
 
-export default function OnboardingClient({ clientId, clientName, clientEmail, igAppId, fbAppId }) {
+export default function OnboardingClient({ clientId, clientName, clientEmail, igAppId, fbAppId, fbConfigId }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({ pageId: '', pageAccessToken: '' });
@@ -84,9 +84,13 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
       client_id: fbAppId,
       redirect_uri: redirectUri,
       response_type: 'code',
-      scope: 'pages_show_list,pages_read_engagement,pages_manage_engagement,pages_read_user_content,pages_manage_metadata',
       state: clientId,
     });
+    if (fbConfigId) {
+      params.set('config_id', fbConfigId);
+    } else {
+      params.set('scope', 'pages_show_list,pages_read_engagement,pages_manage_engagement,pages_read_user_content,pages_manage_metadata');
+    }
     window.location.href = `https://www.facebook.com/dialog/oauth?${params.toString()}`;
   }
 
