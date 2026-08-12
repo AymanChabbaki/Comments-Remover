@@ -21,5 +21,12 @@ export default async function ClientDashboardPage({ params }) {
     redirect(`/login?next=${encodeURIComponent(`/clients/${clientId}/dashboard`)}`);
   }
 
+  // Own login (not the admin support fallback) and not connected yet --
+  // send them back to the onboarding wizard instead of the empty
+  // dashboard. Typing this URL directly shouldn't be a way around it.
+  if (authedClientId === clientId && !(client.pageId && client.pageAccessToken)) {
+    redirect(`/clients/${clientId}/onboarding`);
+  }
+
   return <DashboardClient clientId={clientId} clientName={client.name} />;
 }

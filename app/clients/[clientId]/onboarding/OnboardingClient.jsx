@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, ArrowLeft, ExternalLink, Copy, Check, Mail } from 'lucide-react';
+import { ArrowRight, ArrowLeft, ExternalLink, Copy, Check, Mail, Phone } from 'lucide-react';
+
+const SUPPORT_PHONE = '0703285402';
 import Logo from '../../../../components/Logo';
 import ThemeToggle from '../../../../components/ThemeToggle';
 
@@ -232,12 +234,17 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
       ),
       nextLabel: busy ? 'Saving…' : 'Finish & go to dashboard',
       isLast: true,
+      // The whole point of this wizard: don't let them reach the
+      // dashboard without an actual Page ID + Access Token saved.
+      requiresFields: true,
     },
   ];
 
   const current = steps[step];
+  const canProceed = !current.requiresFields || (form.pageId.trim() && form.pageAccessToken.trim());
 
   function handleNext() {
+    if (!canProceed) return;
     if (current.isLast) {
       finish();
     } else {
@@ -250,13 +257,12 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
       <header className="flex items-center justify-between px-6 py-5 sm:px-10">
         <Logo height={30} />
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.push(`/clients/${clientId}/dashboard`)}
-            type="button"
-            className="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+          <a
+            href={`tel:${SUPPORT_PHONE}`}
+            className="flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400"
           >
-            Skip for now
-          </button>
+            <Phone size={14} /> Stuck? Call {SUPPORT_PHONE}
+          </a>
           <ThemeToggle />
         </div>
       </header>
@@ -288,13 +294,18 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
           )}
           <button
             type="button"
-            disabled={busy}
+            disabled={busy || !canProceed}
             onClick={handleNext}
-            className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {current.nextLabel} {!current.isLast && <ArrowRight size={16} />}
           </button>
         </div>
+        {current.requiresFields && !canProceed && (
+          <p className="mt-3 text-xs text-amber-600 dark:text-amber-400">
+            Enter your Facebook Page ID and Page Access Token above to finish — this step can&apos;t be skipped.
+          </p>
+        )}
       </main>
     </div>
   );
