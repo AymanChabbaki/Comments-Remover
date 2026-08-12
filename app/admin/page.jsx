@@ -247,7 +247,7 @@ export default function AdminPage() {
           <AdminField label="Email" type="email" value={form.email} onChange={set('email')} required placeholder="owner@business.com" />
           <AdminField label="Password (8+ characters)" type="text" value={form.password} onChange={set('password')} required minLength={8} placeholder="Set something you can tell them" />
           <div className="flex items-center gap-3 sm:col-span-3">
-            <button type="submit" className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600">
+            <button type="submit" className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
               Add client
             </button>
             {formMsg && (

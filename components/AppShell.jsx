@@ -12,7 +12,7 @@ function NavItem({ href, icon: Icon, label, active }) {
       href={href}
       className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors ${
         active
-          ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/30'
+          ? 'bg-brand-600 text-white shadow-sm shadow-brand-600/30'
           : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
       }`}
     >
@@ -73,11 +73,11 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
           <Link
             href="/demo"
             target="_blank"
-            className="flex flex-col gap-2 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 p-4 text-white"
+            className="flex flex-col gap-2 rounded-xl bg-gradient-to-br from-brand-600 to-brand-navy-500 p-4 text-white"
           >
             <Sparkles size={18} />
             <div className="text-sm font-semibold">See it in action</div>
-            <div className="text-xs text-emerald-50">Open the live interactive demo</div>
+            <div className="text-xs text-brand-50">Open the live interactive demo</div>
           </Link>
           {base && (
             <button
