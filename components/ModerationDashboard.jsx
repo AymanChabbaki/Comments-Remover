@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import ThemeToggle from './ThemeToggle';
+import { MessageSquare, Trash2, CheckCircle2, AlertTriangle, Percent, Globe2, RefreshCw } from 'lucide-react';
 
 function relativeTime(iso) {
   const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
@@ -43,15 +43,21 @@ function VerdictBadge({ event }) {
   );
 }
 
-function StatCard({ label, value, accent }) {
-  const colors = {
-    delete: 'text-red-600 dark:text-red-400',
-    keep: 'text-emerald-600 dark:text-emerald-400',
-    error: 'text-amber-600 dark:text-amber-400',
-  };
+const STAT_STYLES = {
+  slate: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
+  red: 'bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400',
+  emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400',
+  amber: 'bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400',
+  blue: 'bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400',
+};
+
+function StatCard({ label, value, icon: Icon, color = 'slate' }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-      <div className={`text-2xl font-bold ${accent ? colors[accent] : ''}`}>{value}</div>
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-xl ${STAT_STYLES[color]}`}>
+        <Icon size={18} strokeWidth={2.25} />
+      </div>
+      <div className="text-2xl font-bold tracking-tight">{value}</div>
       <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{label}</div>
     </div>
   );
@@ -78,10 +84,8 @@ function ActivityChart({ events }) {
   const barW = width / buckets - gap;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-      <div className="mb-3 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-        Activity, last 24h
-      </div>
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="mb-3 text-sm font-semibold">Activity, last 24h</div>
       <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="block h-[90px] w-full overflow-visible">
         {counts.map((c, i) => {
           const x = i * (width / buckets) + gap / 2;
@@ -119,19 +123,17 @@ function BlocklistPanel({ blocked, onUnblock }) {
   const [busyId, setBusyId] = useState(null);
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+    <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <button
         onClick={() => setOpen((o) => !o)}
         type="button"
-        className="flex w-full items-center justify-between p-4 text-left"
+        className="flex w-full items-center justify-between p-5 text-left"
       >
-        <span className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          Blocked authors ({blocked.length})
-        </span>
+        <span className="text-sm font-semibold">Blocked authors ({blocked.length})</span>
         <span className={`text-slate-400 transition-transform ${open ? 'rotate-90' : ''}`}>▶</span>
       </button>
       {open && (
-        <div className="px-4 pb-4">
+        <div className="px-5 pb-5">
           {blocked.length === 0 ? (
             <div className="py-4 text-sm text-slate-500 dark:text-slate-400">
               No blocked authors yet — they&apos;re added automatically the first time one of their comments is deleted.
@@ -161,7 +163,7 @@ function BlocklistPanel({ blocked, onUnblock }) {
                           await onUnblock(b);
                           setBusyId(null);
                         }}
-                        className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-500 hover:border-blue-400 hover:text-slate-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                        className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-500 hover:border-emerald-400 hover:text-slate-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                       >
                         {busyId === b.authorId ? 'Unblocking…' : 'Unblock'}
                       </button>
@@ -178,22 +180,12 @@ function BlocklistPanel({ blocked, onUnblock }) {
 }
 
 /**
- * Shared dashboard UI used both by a real client's authenticated
- * dashboard and by the public /demo sandbox (with fake data and
- * client-side-only mutation callbacks instead of real API calls).
+ * Dashboard content -- meant to render inside <AppShell>, which
+ * provides the sidebar/top bar chrome. Shared between a real client's
+ * authenticated dashboard and the public /demo sandbox (fake data,
+ * local-only mutation callbacks instead of real API calls).
  */
-export default function ModerationDashboard({
-  title,
-  subtitle,
-  events,
-  blocked,
-  onDelete,
-  onUnblock,
-  onRefresh,
-  liveLabel = 'Live',
-  ctaBanner,
-  headerExtra,
-}) {
+export default function ModerationDashboard({ events, blocked, onDelete, onUnblock, onRefresh, ctaBanner }) {
   const [platform, setPlatform] = useState('');
   const [verdict, setVerdict] = useState('');
   const [search, setSearch] = useState('');
@@ -258,174 +250,157 @@ export default function ModerationDashboard({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-7 dark:bg-slate-950 sm:px-8">
-      <div className="mx-auto max-w-6xl">
-        {ctaBanner}
+    <div>
+      {ctaBanner}
 
-        <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-lg font-semibold tracking-tight">
-            {title}
-            <span className="ml-2.5 text-sm font-normal text-slate-500 dark:text-slate-400">{subtitle}</span>
-          </h1>
-          <div className="flex items-center gap-3.5">
-            <span className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" /> {liveLabel}
-            </span>
-            {headerExtra}
-            <ThemeToggle />
-          </div>
-        </header>
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <StatCard label="Total" value={stats.total} icon={MessageSquare} color="slate" />
+        <StatCard label="Deleted" value={stats.deleted} icon={Trash2} color="red" />
+        <StatCard label="Kept" value={stats.kept} icon={CheckCircle2} color="emerald" />
+        <StatCard label="Errors" value={stats.errors} icon={AlertTriangle} color="amber" />
+        <StatCard label="Delete rate" value={`${stats.rate}%`} icon={Percent} color="blue" />
+        <StatCard label="FB / IG" value={`${stats.facebook} / ${stats.instagram}`} icon={Globe2} color="slate" />
+      </div>
 
-        <div className="mb-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
-          <StatCard label="Total" value={stats.total} />
-          <StatCard label="Deleted" value={stats.deleted} accent="delete" />
-          <StatCard label="Kept" value={stats.kept} accent="keep" />
-          <StatCard label="Errors" value={stats.errors} accent="error" />
-          <StatCard label="Delete rate" value={`${stats.rate}%`} />
-          <StatCard label="FB / IG" value={`${stats.facebook} / ${stats.instagram}`} />
-        </div>
-
-        <div className="mb-5">
-          <BlocklistPanel blocked={blocked} onUnblock={onUnblock} />
-        </div>
-
-        <div className="mb-5">
+      <div className="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <div className="lg:col-span-2">
           <ActivityChart events={events} />
         </div>
+        <BlocklistPanel blocked={blocked} onUnblock={onUnblock} />
+      </div>
 
-        <div className="mb-3 flex flex-wrap items-center gap-2">
-          <select
-            value={platform}
-            onChange={(e) => setPlatform(e.target.value)}
-            className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <select
+          value={platform}
+          onChange={(e) => setPlatform(e.target.value)}
+          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
+        >
+          <option value="">All platforms</option>
+          <option value="facebook">Facebook</option>
+          <option value="instagram">Instagram</option>
+        </select>
+        <select
+          value={verdict}
+          onChange={(e) => setVerdict(e.target.value)}
+          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
+        >
+          <option value="">All verdicts</option>
+          <option value="DELETE">Deleted</option>
+          <option value="KEEP">Kept</option>
+          <option value="ERROR">Errors</option>
+        </select>
+        <input
+          type="search"
+          placeholder="Search comment text or author…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="min-w-[160px] flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
+        />
+        {onRefresh && (
+          <button
+            type="button"
+            onClick={onRefresh}
+            className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3.5 py-1.5 text-sm font-semibold text-white hover:bg-emerald-600"
           >
-            <option value="">All platforms</option>
-            <option value="facebook">Facebook</option>
-            <option value="instagram">Instagram</option>
-          </select>
-          <select
-            value={verdict}
-            onChange={(e) => setVerdict(e.target.value)}
-            className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
-          >
-            <option value="">All verdicts</option>
-            <option value="DELETE">Deleted</option>
-            <option value="KEEP">Kept</option>
-            <option value="ERROR">Errors</option>
-          </select>
-          <input
-            type="search"
-            placeholder="Search comment text or author…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="min-w-[160px] flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
-          />
-          {onRefresh && (
+            <RefreshCw size={14} /> Refresh
+          </button>
+        )}
+      </div>
+
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <div className="flex gap-1">
+          {[['Today', 1], ['7 days', 7], ['30 days', 30], ['All time', 0]].map(([label, days]) => (
             <button
+              key={label}
               type="button"
-              onClick={onRefresh}
-              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm hover:border-blue-400 dark:border-slate-700 dark:bg-slate-800"
+              onClick={() => applyPreset(days)}
+              className={`rounded-lg border px-2.5 py-1.5 text-xs ${
+                activePreset === String(days)
+                  ? 'border-emerald-400 bg-emerald-50 text-slate-900 dark:bg-emerald-500/10 dark:text-slate-100'
+                  : 'border-slate-200 text-slate-500 hover:text-slate-700 dark:border-slate-700 dark:text-slate-400'
+              }`}
             >
-              Refresh
+              {label}
             </button>
-          )}
+          ))}
         </div>
+        <input
+          type="date"
+          value={dateFrom}
+          onChange={(e) => { setDateFrom(e.target.value); setActivePreset(''); }}
+          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
+        />
+        <span className="text-xs text-slate-400">–</span>
+        <input
+          type="date"
+          value={dateTo}
+          onChange={(e) => { setDateTo(e.target.value); setActivePreset(''); }}
+          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
+        />
+        <span className="ml-auto text-xs text-slate-500 dark:text-slate-400">
+          {filtered.length} of {events.length} shown
+        </span>
+      </div>
 
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <div className="flex gap-1">
-            {[['Today', 1], ['7 days', 7], ['30 days', 30], ['All time', 0]].map(([label, days]) => (
-              <button
-                key={label}
-                type="button"
-                onClick={() => applyPreset(days)}
-                className={`rounded-lg border px-2.5 py-1.5 text-xs ${
-                  activePreset === String(days)
-                    ? 'border-blue-400 bg-blue-50 text-slate-900 dark:bg-blue-500/10 dark:text-slate-100'
-                    : 'border-slate-200 text-slate-500 hover:text-slate-700 dark:border-slate-700 dark:text-slate-400'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <input
-            type="date"
-            value={dateFrom}
-            onChange={(e) => { setDateFrom(e.target.value); setActivePreset(''); }}
-            className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
-          />
-          <span className="text-xs text-slate-400">–</span>
-          <input
-            type="date"
-            value={dateTo}
-            onChange={(e) => { setDateTo(e.target.value); setActivePreset(''); }}
-            className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
-          />
-          <span className="ml-auto text-xs text-slate-500 dark:text-slate-400">
-            {filtered.length} of {events.length} shown
-          </span>
-        </div>
-
-        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
-          <table className="w-full min-w-[720px] text-sm">
-            <thead>
-              <tr className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-900 dark:text-slate-400">
-                <th className="px-3 py-2.5 font-medium">Time</th>
-                <th className="px-3 py-2.5 font-medium">Platform</th>
-                <th className="px-3 py-2.5 font-medium">Author</th>
-                <th className="px-3 py-2.5 font-medium">Comment</th>
-                <th className="px-3 py-2.5 font-medium">Verdict</th>
-                <th className="px-3 py-2.5 font-medium">Deleted</th>
+      <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm dark:border-slate-800">
+        <table className="w-full min-w-[720px] text-sm">
+          <thead>
+            <tr className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-900 dark:text-slate-400">
+              <th className="px-4 py-3 font-medium">Time</th>
+              <th className="px-4 py-3 font-medium">Platform</th>
+              <th className="px-4 py-3 font-medium">Author</th>
+              <th className="px-4 py-3 font-medium">Comment</th>
+              <th className="px-4 py-3 font-medium">Verdict</th>
+              <th className="px-4 py-3 font-medium">Deleted</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white dark:bg-slate-900">
+            {filtered.map((e) => (
+              <tr key={e.commentId} className="border-t border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50">
+                <td className="whitespace-nowrap px-4 py-3 text-slate-500 dark:text-slate-400" title={new Date(e.timestamp).toLocaleString()}>
+                  {relativeTime(e.timestamp)}
+                </td>
+                <td className="px-4 py-3"><PlatformBadge platform={e.platform} /></td>
+                <td className="whitespace-nowrap px-4 py-3 text-slate-500 dark:text-slate-400">
+                  {e.author || <span className="text-slate-400">—</span>}
+                </td>
+                <td className="max-w-[420px] px-4 py-3">
+                  <div className="whitespace-pre-wrap break-words">{e.text}</div>
+                  {e.error && <div className="mt-1 text-xs text-amber-600 dark:text-amber-400">{e.error}</div>}
+                </td>
+                <td className="px-4 py-3">
+                  <VerdictBadge event={e} />
+                  {e.autoBlocked && (
+                    <span className="ml-1.5 inline-block rounded-full border border-red-300 bg-red-50 px-1.5 py-0.5 text-[10px] font-bold text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400">
+                      BLOCKLISTED
+                    </span>
+                  )}
+                </td>
+                <td className="px-4 py-3">
+                  {e.deleted ? (
+                    <span className="font-semibold text-red-600 dark:text-red-400">
+                      Yes {e.manual && <span className="font-normal text-slate-400">(manual)</span>}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={deletingId === e.commentId}
+                      onClick={() => handleDelete(e)}
+                      className="rounded-md border border-red-400 px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-500/10"
+                    >
+                      {deletingId === e.commentId ? 'Deleting…' : 'Delete'}
+                    </button>
+                  )}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filtered.map((e) => (
-                <tr key={e.commentId} className="border-t border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900">
-                  <td className="whitespace-nowrap px-3 py-2.5 text-slate-500 dark:text-slate-400" title={new Date(e.timestamp).toLocaleString()}>
-                    {relativeTime(e.timestamp)}
-                  </td>
-                  <td className="px-3 py-2.5"><PlatformBadge platform={e.platform} /></td>
-                  <td className="whitespace-nowrap px-3 py-2.5 text-slate-500 dark:text-slate-400">
-                    {e.author || <span className="text-slate-400">—</span>}
-                  </td>
-                  <td className="max-w-[420px] px-3 py-2.5">
-                    <div className="whitespace-pre-wrap break-words">{e.text}</div>
-                    {e.error && <div className="mt-1 text-xs text-amber-600 dark:text-amber-400">{e.error}</div>}
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <VerdictBadge event={e} />
-                    {e.autoBlocked && (
-                      <span className="ml-1.5 inline-block rounded-full border border-red-300 bg-red-50 px-1.5 py-0.5 text-[10px] font-bold text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400">
-                        BLOCKLISTED
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-3 py-2.5">
-                    {e.deleted ? (
-                      <span className="font-semibold text-red-600 dark:text-red-400">
-                        Yes {e.manual && <span className="font-normal text-slate-400">(manual)</span>}
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        disabled={deletingId === e.commentId}
-                        onClick={() => handleDelete(e)}
-                        className="rounded-md border border-red-400 px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-500/10"
-                      >
-                        {deletingId === e.commentId ? 'Deleting…' : 'Delete'}
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {filtered.length === 0 && (
-            <div className="py-12 text-center text-sm text-slate-500 dark:text-slate-400">
-              No comments match the current filters.
-            </div>
-          )}
-        </div>
+            ))}
+          </tbody>
+        </table>
+        {filtered.length === 0 && (
+          <div className="bg-white py-12 text-center text-sm text-slate-500 dark:bg-slate-900 dark:text-slate-400">
+            No comments match the current filters.
+          </div>
+        )}
       </div>
     </div>
   );

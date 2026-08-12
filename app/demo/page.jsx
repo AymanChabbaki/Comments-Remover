@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import AppShell from '../../components/AppShell';
 import ModerationDashboard from '../../components/ModerationDashboard';
 
 const now = Date.now();
@@ -39,14 +40,14 @@ export default function DemoPage() {
   }
 
   const ctaBanner = (
-    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-blue-300 bg-gradient-to-r from-blue-50 to-fuchsia-50 p-4 text-sm dark:border-blue-500/40 dark:from-blue-500/10 dark:to-fuchsia-500/10">
+    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-emerald-300 bg-gradient-to-r from-emerald-50 to-teal-50 p-4 text-sm shadow-sm dark:border-emerald-500/40 dark:from-emerald-500/10 dark:to-teal-500/10">
       <div>
         <strong className="font-semibold">This is a live interactive demo</strong> — sample data, nothing connected.
         Click &ldquo;Delete&rdquo; or &ldquo;Unblock&rdquo; below, it&apos;s fully interactive.
       </div>
       <Link
         href="/signup"
-        className="whitespace-nowrap rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
+        className="whitespace-nowrap rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white hover:bg-emerald-700"
       >
         Get started with your Page →
       </Link>
@@ -54,15 +55,8 @@ export default function DemoPage() {
   );
 
   return (
-    <ModerationDashboard
-      title="Sample Business"
-      subtitle="Comment Moderation · Facebook & Instagram"
-      events={events}
-      blocked={blocked}
-      onDelete={handleDelete}
-      onUnblock={handleUnblock}
-      liveLabel="Demo data"
-      ctaBanner={ctaBanner}
-    />
+    <AppShell clientName="Sample Business" subtitle="Comment Moderation · Facebook & Instagram">
+      <ModerationDashboard events={events} blocked={blocked} onDelete={handleDelete} onUnblock={handleUnblock} ctaBanner={ctaBanner} />
+    </AppShell>
   );
 }

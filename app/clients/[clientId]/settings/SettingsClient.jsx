@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import AppShell from '../../../../components/AppShell';
 
 export default function SettingsClient({ clientId, clientName }) {
   const [status, setStatus] = useState(null);

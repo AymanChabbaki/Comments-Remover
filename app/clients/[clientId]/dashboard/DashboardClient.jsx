@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import Link from 'next/link';
+import AppShell from '../../../../components/AppShell';
 import ModerationDashboard from '../../../../components/ModerationDashboard';
 
 export default function DashboardClient({ clientId, clientName }) {
@@ -49,22 +49,8 @@ export default function DashboardClient({ clientId, clientName }) {
   }
 
   return (
-    <ModerationDashboard
-      title={clientName}
-      subtitle="Comment Moderation · Facebook & Instagram"
-      events={events}
-      blocked={blocked}
-      onDelete={handleDelete}
-      onUnblock={handleUnblock}
-      onRefresh={load}
-      headerExtra={
-        <Link
-          href={`/clients/${clientId}/settings`}
-          className="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-        >
-          Settings
-        </Link>
-      }
-    />
+    <AppShell clientId={clientId} clientName={clientName} subtitle="Comment Moderation · Facebook & Instagram">
+      <ModerationDashboard events={events} blocked={blocked} onDelete={handleDelete} onUnblock={handleUnblock} onRefresh={load} />
+    </AppShell>
   );
 }
