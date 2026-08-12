@@ -83,6 +83,12 @@ registered in App Dashboard — see `.env.example` for the exact steps. If
 `IG_APP_ID` isn't set, the Settings page falls back to manual `igUserId`/
 `igAccessToken` paste fields instead of showing the button.
 
+The App Dashboard's Instagram business login setup also requires a
+**Deauthorize Callback URL** and a **Data Deletion** URL before it'll let
+you submit for review:
+- Deauthorize Callback URL: `https://<your-domain>/api/oauth/instagram/deauthorize` — verifies Meta's signed request (`lib/signedRequest.js`) and clears the matching client's stored `igUserId`/`igAccessToken`.
+- Data Deletion: use the **Data Deletion Instructions URL** option (not the callback variant) and point it at `https://<your-domain>/data-deletion` — a static page explaining how to request deletion.
+
 If comments don't get processed, set `DEBUG_WEBHOOK_PAYLOAD=true`, redeploy, post a test comment, and check the logs for the real payload shape.
 
 ## How it works
