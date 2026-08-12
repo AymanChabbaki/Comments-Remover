@@ -58,23 +58,27 @@ connect their own Page.
 
 ## Also moderating Instagram comments
 
-Same Page Access Token, plus two more scopes at step 1 above:
-`instagram_basic`, `instagram_manage_comments`.
+Instagram is wired through the separate **"Instagram API with Instagram
+Login"** product, not the classic Page-linked flow — it does **not** reuse
+the Page Access Token. It signs webhooks with its own App Secret
+(`IG_APP_SECRET` in `.env`) and needs its own access token (`igAccessToken`,
+stored per-client, used against `graph.instagram.com` — see `lib/facebook.js`).
+This means a client connecting Instagram needs a separate tester invite
+(App Dashboard → Instagram → API setup with Instagram Login → Roles →
+Instagram Testers — distinct from the regular Facebook Tester list) which
+they accept from inside the Instagram app itself (Settings → Apps and
+websites → Tester invites), not from a Facebook notification.
 
-1. Confirm the IG account is linked to the Page (Page Settings → Linked Accounts).
-2. In App Dashboard → Webhooks, switch the object dropdown to **Instagram** and subscribe to the `comments` field (separate from the Page's `feed` — you need both).
-3. Find the linked IG account's ID: `GET /<PAGE_ID>?fields=instagram_business_account&access_token=<PAGE_ACCESS_TOKEN>`. That's the Instagram Account ID for signup/admin.
-4. Subscribe the IG account itself:
+1. Add the client as an Instagram Tester (see above) and have them accept the invite.
+2. In [Graph API Explorer](https://developers.facebook.com/tools/explorer), switch the login type (top right) from "Facebook Login" to **"Instagram Login"**, then generate a token with `instagram_business_basic` and `instagram_business_manage_comments`.
+3. `GET /me?fields=user_id` with that token → the returned ID is the Instagram Account ID.
+4. In App Dashboard → Webhooks, switch the object dropdown to **Instagram** and subscribe to the `comments` field (separate subscription from the Page's `feed`).
+5. Subscribe the IG account itself:
    ```
-   curl -X POST "https://graph.facebook.com/v19.0/<IG_USER_ID>/subscribed_apps?subscribed_fields=comments&access_token=<PAGE_ACCESS_TOKEN>"
+   curl -X POST "https://graph.instagram.com/v19.0/<IG_USER_ID>/subscribed_apps?subscribed_fields=comments&access_token=<IG_TOKEN>"
    ```
 
-If Instagram is wired through the separate "Instagram API with Instagram
-Login" product instead of the classic Page-linked flow above, it signs
-webhooks with its own App Secret (`IG_APP_SECRET` in `.env`) and needs its
-own access token (`IG_ACCESS_TOKEN` equivalent, stored per-client) rather
-than reusing the Page Access Token — see the git history on this file for
-the debugging trail that uncovered this, if you hit the same wall.
+(If a future integration ever uses the classic Page-linked Instagram flow instead, that variant reuses the Page Access Token with `instagram_basic`/`instagram_manage_comments` scopes added — but that is not what's currently implemented in `lib/facebook.js`/`app/api/webhook/route.js`.)
 
 If comments don't get processed, set `DEBUG_WEBHOOK_PAYLOAD=true`, redeploy, post a test comment, and check the logs for the real payload shape.
 

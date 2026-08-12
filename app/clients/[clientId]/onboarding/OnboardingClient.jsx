@@ -91,8 +91,13 @@ export default function OnboardingClient({ clientId, clientName, clientEmail }) 
           </p>
           <ol className="list-decimal space-y-1.5 pl-4 text-sm text-slate-500 dark:text-slate-400">
             <li>Send us the email or Facebook profile link for the account you use to manage your Page.</li>
+            <li>Also want Instagram comments moderated? Say so in the same message — Instagram uses a separate tester list from Facebook, so we need to add you to both.</li>
             <li>We&apos;ll add you as a tester — takes a few minutes.</li>
-            <li>You&apos;ll get a notification from Facebook to accept the tester invite. Accept it, then come back here.</li>
+            <li>
+              You&apos;ll get a notification to accept the invite — from Facebook for the Page, and from the
+              Instagram app itself (Settings → Apps and websites → Tester invites) if you asked for Instagram too.
+              Accept it, then come back here.
+            </li>
           </ol>
           <a
             href={`mailto:hello@techermanos.org?subject=${encodeURIComponent(`Tester access request — ${clientName}`)}&body=${encodeURIComponent(`Hi,\n\nPlease add me as a tester on your Facebook App so I can generate my Page access token.\n\nName: ${clientName}\nAccount email: ${clientEmail || ''}\nFacebook profile link: \n\nThanks!`)}`}
@@ -171,6 +176,28 @@ export default function OnboardingClient({ clientId, clientName, clientEmail }) 
           <Field label="Page Access Token" value={form.pageAccessToken} onChange={set('pageAccessToken')} placeholder="EAAW..." />
           <hr className="my-1 border-slate-200 dark:border-slate-800" />
           <p className="text-xs text-slate-500 dark:text-slate-400">Optional — only if you also want Instagram comments moderated.</p>
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
+            <p className="mb-1.5 font-semibold text-slate-700 dark:text-slate-300">Getting your Instagram Access Token</p>
+            <p className="mb-1.5">
+              Instagram doesn&apos;t reuse the Facebook token above — it needs its own, from a separate login flow.
+              (Requires the Instagram Tester invite from Step 1.)
+            </p>
+            <ol className="list-decimal space-y-1 pl-4">
+              <li>
+                In{' '}
+                <a href="https://developers.facebook.com/tools/explorer" target="_blank" rel="noreferrer" className="font-medium text-brand-600 dark:text-brand-400">
+                  Graph API Explorer
+                </a>
+                , switch the login type (top right) from &ldquo;Facebook Login&rdquo; to <strong>&ldquo;Instagram Login&rdquo;</strong>, then generate a token with the <code className="rounded bg-slate-100 px-1 dark:bg-slate-800">instagram_business_basic</code> and <code className="rounded bg-slate-100 px-1 dark:bg-slate-800">instagram_business_manage_comments</code> scopes.
+              </li>
+              <li>
+                <code className="rounded bg-slate-100 px-1 dark:bg-slate-800">GET /me?fields=user_id</code> with that token — the returned ID is your Instagram Account ID.
+              </li>
+              <li>
+                Subscribe it: <code className="rounded bg-slate-100 px-1 dark:bg-slate-800">curl -X POST &quot;https://graph.instagram.com/v19.0/&lt;IG_USER_ID&gt;/subscribed_apps?subscribed_fields=comments&amp;access_token=&lt;IG_TOKEN&gt;&quot;</code>
+              </li>
+            </ol>
+          </div>
           <Field label="Instagram Account ID (optional)" value={form.igUserId} onChange={set('igUserId')} placeholder="17841454947560776" />
           <Field label="Instagram Access Token (optional)" value={form.igAccessToken} onChange={set('igAccessToken')} placeholder="IGAA..." />
           {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
