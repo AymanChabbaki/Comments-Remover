@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import ThemeToggle from '../../components/ThemeToggle';
 
-const EMPTY_FORM = { name: '', pageId: '', pageAccessToken: '', igUserId: '', igAccessToken: '' };
+const EMPTY_FORM = { name: '', email: '', password: '' };
 
 export default function AdminPage() {
   const [clients, setClients] = useState([]);
@@ -38,7 +38,7 @@ export default function AdminPage() {
       setFormMsg({ text: data.error, ok: false });
       return;
     }
-    setFormMsg({ text: `Added ${data.client.name}`, ok: true });
+    setFormMsg({ text: `Added ${data.client.name} — give them their email/password to log in and connect their Page themselves.`, ok: true });
     setForm(EMPTY_FORM);
     await load();
   }
@@ -50,6 +50,25 @@ export default function AdminPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ active: !client.active }),
     });
+    await load();
+    setBusyId(null);
+  }
+
+  async function resetPassword(client) {
+    const password = prompt(`New password for ${client.name} (8+ characters):`);
+    if (!password) return;
+    if (password.length < 8) {
+      alert('Password must be at least 8 characters.');
+      return;
+    }
+    setBusyId(client.id);
+    const res = await fetch(`/api/admin/clients/${client.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+    const data = await res.json();
+    if (!data.success) alert(`Failed: ${data.error}`);
     await load();
     setBusyId(null);
   }
@@ -71,14 +90,16 @@ export default function AdminPage() {
         </div>
 
         <div className="mb-6 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-          <div className="mb-3.5 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Add a client</div>
-          <form onSubmit={handleAdd} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Add a client</div>
+          <p className="mb-3.5 text-xs text-slate-500 dark:text-slate-400">
+            This just creates a login — no Page ID or tokens needed from you. The client connects their own Facebook
+            Page and Instagram account themselves, after logging in, from their dashboard&apos;s Settings page.
+          </p>
+          <form onSubmit={handleAdd} className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <AdminField label="Client name" value={form.name} onChange={set('name')} required placeholder="e.g. ULTEx" />
-            <AdminField label="Facebook Page ID" value={form.pageId} onChange={set('pageId')} required placeholder="106480395512492" />
-            <AdminField className="sm:col-span-2" label="Page Access Token" value={form.pageAccessToken} onChange={set('pageAccessToken')} required placeholder="EAAW..." />
-            <AdminField label="Instagram Account ID (optional)" value={form.igUserId} onChange={set('igUserId')} placeholder="17841454947560776" />
-            <AdminField label="Instagram Access Token (optional)" value={form.igAccessToken} onChange={set('igAccessToken')} placeholder="IGAA..." />
-            <div className="flex items-center gap-3 sm:col-span-2">
+            <AdminField label="Email" type="email" value={form.email} onChange={set('email')} required placeholder="owner@business.com" />
+            <AdminField label="Password (8+ characters)" type="text" value={form.password} onChange={set('password')} required minLength={8} placeholder="Set something you can tell them" />
+            <div className="flex items-center gap-3 sm:col-span-3">
               <button type="submit" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
                 Add client
               </button>
@@ -100,7 +121,7 @@ export default function AdminPage() {
               <thead>
                 <tr className="text-left text-xs uppercase text-slate-500 dark:text-slate-400">
                   <th className="pb-2 font-medium">Name</th>
-                  <th className="pb-2 font-medium">IDs</th>
+                  <th className="pb-2 font-medium">Connection</th>
                   <th className="pb-2 font-medium">Login</th>
                   <th className="pb-2 font-medium">Status</th>
                   <th className="pb-2 font-medium">Dashboard</th>
@@ -113,12 +134,17 @@ export default function AdminPage() {
                     <td className="py-2.5">
                       {c.name}
                       <div className="text-xs text-slate-400">{c.id}</div>
+                      {c.email && <div className="text-xs text-slate-400">{c.email}</div>}
                     </td>
-                    <td className="py-2.5 text-xs text-slate-500 dark:text-slate-400">
-                      Page: {c.pageId}
-                      {c.igUserId && <><br />IG: {c.igUserId}</>}
+                    <td className="py-2.5 text-xs">
+                      {c.hasPageToken ? (
+                        <span className="text-emerald-600 dark:text-emerald-400">Facebook connected</span>
+                      ) : (
+                        <span className="text-slate-400">Not connected yet</span>
+                      )}
+                      {c.hasIgToken && <><br /><span className="text-emerald-600 dark:text-emerald-400">Instagram connected</span></>}
                     </td>
-                    <td className="py-2.5 text-slate-500 dark:text-slate-400">{c.hasLogin ? 'Self-serve' : '—'}</td>
+                    <td className="py-2.5 text-slate-500 dark:text-slate-400">{c.hasLogin ? 'Yes' : '—'}</td>
                     <td className="py-2.5">
                       <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-bold ${c.active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400'}`}>
                         {c.active ? 'Active' : 'Paused'}
@@ -139,6 +165,16 @@ export default function AdminPage() {
                         >
                           {c.active ? 'Pause' : 'Resume'}
                         </button>
+                        {c.hasLogin && (
+                          <button
+                            type="button"
+                            disabled={busyId === c.id}
+                            onClick={() => resetPassword(c)}
+                            className="rounded-md border border-slate-200 px-2.5 py-1 text-xs disabled:opacity-50 dark:border-slate-700"
+                          >
+                            Reset password
+                          </button>
+                        )}
                         <button
                           type="button"
                           disabled={busyId === c.id}
