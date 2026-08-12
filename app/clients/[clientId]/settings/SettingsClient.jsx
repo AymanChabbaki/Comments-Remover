@@ -77,9 +77,18 @@ export default function SettingsClient({ clientId, clientName, igAppId }) {
     <AppShell clientId={clientId} clientName={clientName} subtitle="Connection Settings">
       <div className="max-w-lg">
         {status && (
-          <div className="mb-5 flex gap-3">
+          <div className="mb-5 flex flex-wrap items-center gap-3">
             <StatusPill label="Facebook Page" connected={!!status.pageId && status.hasPageToken} />
             <StatusPill label="Instagram" connected={!!status.igUserId && status.hasIgToken} optional />
+            {status.igUserId && status.hasIgToken && status.igUsername && (
+              <span className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                {status.igProfilePicUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={status.igProfilePicUrl} alt="" className="h-5 w-5 rounded-full object-cover" />
+                )}
+                @{status.igUsername}
+              </span>
+            )}
           </div>
         )}
 

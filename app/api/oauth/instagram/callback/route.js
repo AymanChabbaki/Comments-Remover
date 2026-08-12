@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import * as clients from '../../../../../lib/clients';
 import { isAuthorizedForClient } from '../../../../../lib/auth';
-import { exchangeCodeForLongLivedToken, subscribeToWebhooks } from '../../../../../lib/instagramAuth';
+import { exchangeCodeForLongLivedToken, fetchProfile, subscribeToWebhooks } from '../../../../../lib/instagramAuth';
 
 export const runtime = 'nodejs';
 
@@ -36,7 +36,18 @@ export async function GET(request) {
   try {
     const redirectUri = `${url.origin}/api/oauth/instagram/callback`;
     const { userId, accessToken } = await exchangeCodeForLongLivedToken({ code, redirectUri });
-    await clients.update(state, { igUserId: userId, igAccessToken: accessToken });
+
+    let profile = {};
+    try {
+      const { username, profilePicUrl } = await fetchProfile(userId, accessToken);
+      profile = { igUsername: username, igProfilePicUrl: profilePicUrl };
+    } catch (profileErr) {
+      // Non-fatal -- the token is still valid and usable for moderation
+      // even if the profile fields fail to fetch for some reason.
+      console.error('Instagram profile fetch failed:', profileErr.response?.data || profileErr.message);
+    }
+
+    await clients.update(state, { igUserId: userId, igAccessToken: accessToken, ...profile });
 
     try {
       await subscribeToWebhooks(userId, accessToken);
