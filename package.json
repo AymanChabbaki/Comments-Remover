@@ -24,7 +24,6 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
-    "esmock": "^2.7.6",
     "tailwindcss": "^4.3.3"
   }
 }

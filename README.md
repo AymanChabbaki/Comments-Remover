@@ -1,125 +1,100 @@
-# FB/IG Comment Moderator
+# Comment Moderation SaaS
 
-Listens for new comments on a Facebook Page's posts (and, optionally, a
-linked Instagram account) via the Graph API webhook, asks OpenAI whether
-each comment should be removed, and deletes it if so.
+Multi-tenant AI-powered comment moderation for Facebook Pages and Instagram
+accounts. One deployment serves every client: each client (self-serve or
+added by you) gets their own isolated dashboard, blocklist, and moderation
+history, all routed through a single shared Meta app and webhook endpoint.
 
-## Setup
+Built with Next.js (App Router) + Tailwind, Postgres (Neon), and OpenAI.
+
+## Local setup
 
 1. `npm install`
-2. Copy `.env.example` to `.env` and fill in:
-   - `FB_VERIFY_TOKEN` — any string you choose; you'll enter the same value in the Meta App Dashboard.
-   - `FB_APP_SECRET` — App Dashboard > Settings > Basic. Used to verify that webhook POSTs actually came from Meta.
-   - `PAGE_ACCESS_TOKEN` — a Page access token with `pages_manage_engagement`, `pages_read_user_content`, and
-     `pages_manage_metadata` (needed to subscribe the Page to webhook events — see step 5 below). Generate via
-     Graph API Explorer: request a User token with those scopes (plus `pages_show_list`), optionally exchange it
-     for a long-lived one, then call `GET /me/accounts?access_token=<user-token>` and take the `access_token`
-     field for your Page from the response — that's the Page token, not the user token.
-   - `PAGE_ID` — the numeric ID of the Page being moderated (used to skip the Page's own comments).
+2. Copy `.env.example` to `.env.local` and fill in:
+   - `DATABASE_URL` — a Postgres connection string (Neon's free tier works well; `localhost` connection strings skip SSL automatically). Tables are created automatically on first request.
+   - `SESSION_SECRET` — any long random string: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+   - `FB_VERIFY_TOKEN`, `FB_APP_SECRET` — from your Meta App (see below).
    - `OPENAI_API_KEY`
-   - `DASHBOARD_USER` / `DASHBOARD_PASSWORD` — optional, enables the moderation dashboard (see below).
-3. `npm start` (or `npm run dev` to auto-restart on changes).
+   - `DASHBOARD_USER` / `DASHBOARD_PASSWORD` — your own admin login for `/admin`.
+3. `npm run dev`, then visit `http://localhost:3000`.
 
-## Exposing the server for Meta's webhook
+For local webhook testing, tunnel port 3000 (e.g. `ngrok http 3000`) and use that HTTPS URL as the Meta callback URL below.
 
-Meta needs a public HTTPS URL to reach `/webhook`. For local testing, tunnel
-port 3000 with a tool such as ngrok or Cloudflare Tunnel, e.g.:
+## How multi-tenancy works
 
-```
-ngrok http 3000
-```
+There's exactly one Meta app and one webhook endpoint (`/api/webhook`) —
+Meta only supports one callback URL per app, so this can't be per-client.
+Instead, every incoming event carries the Facebook Page ID or Instagram
+Business Account ID it came from, and the app looks that ID up against the
+`clients` table (Postgres) to figure out whose comment it is and which
+tokens to moderate/delete it with. Each client's events, blocklist, and
+dashboard are fully isolated from every other client's.
 
-Use the resulting `https://...ngrok-free.app` URL as the callback URL below.
+**Onboarding a client**, two ways:
+- **Self-serve**: they visit `/signup`, generate their own Page/IG tokens (Meta App Dashboard steps below), and create their own account — instant activation, they land straight on their own dashboard.
+- **Manual**: you add them yourself through `/admin` (protected by `DASHBOARD_USER`/`DASHBOARD_PASSWORD`) if they'd rather hand you the tokens directly.
 
-## Configure the webhook in the Meta App Dashboard
+There's also a public, unauthenticated `/demo` — the real dashboard UI
+running on fake sample data, fully clickable (Delete/Unblock work, locally
+only) — for a prospective client to see the product before deciding to
+connect their own Page.
 
-1. App Dashboard > Webhooks > Page > Subscribe to this object.
-2. Callback URL: `https://<your-domain>/webhook`
+## Configure the Meta app (once, shared by every client)
+
+1. App Dashboard → Webhooks → Page → Subscribe to this object.
+2. Callback URL: `https://<your-domain>/api/webhook`
 3. Verify token: same value as `FB_VERIFY_TOKEN`.
-4. Subscribe to the `feed` field (this is what delivers comment add/edit/remove events — there is no separate "comments" subscription).
-5. Subscribing the *app* to `feed` in the dashboard is not enough on its own — the *Page* also has to be told to
-   send events to the app, which has no dashboard toggle and has to be done via the Graph API directly:
+4. Subscribe to the `feed` field.
+
+## Getting a client's Page Access Token (for self-serve signup or manual admin add)
+
+1. [Graph API Explorer](https://developers.facebook.com/tools/explorer) → select your app → request a **User** token with scopes: `pages_show_list`, `pages_read_engagement`, `pages_manage_engagement`, `pages_read_user_content`, `pages_manage_metadata` (the last one is required to subscribe the Page to webhook events, next step).
+2. `GET /me/accounts?access_token=<user-token>` → take the `access_token` field for their Page from the response. That's the Page Access Token — not the user token.
+3. Subscribe the Page to actually send events (the App Dashboard toggle alone isn't enough — this has no dashboard UI, it's API-only):
    ```
    curl -X POST "https://graph.facebook.com/v19.0/<PAGE_ID>/subscribed_apps?subscribed_fields=feed&access_token=<PAGE_ACCESS_TOKEN>"
    ```
-   Expect `{"success":true}`. Verify anytime with a `GET` to the same URL (drop the POST) — `data` should be non-empty.
+   Expect `{"success":true}`.
 
 ## Also moderating Instagram comments
 
-Works the same way, through the same webhook endpoint and the same `PAGE_ACCESS_TOKEN`, for an Instagram
-Business/Creator account linked to this Page:
+Same Page Access Token, plus two more scopes at step 1 above:
+`instagram_basic`, `instagram_manage_comments`.
 
-1. Confirm the IG account is linked: Page Settings > Linked Accounts (or it was linked when the Page was set up).
-2. Regenerate `PAGE_ACCESS_TOKEN` with two extra scopes added: `instagram_basic`, `instagram_manage_comments`
-   (same Graph API Explorer + `/me/accounts` flow as above).
-3. In App Dashboard > Webhooks, switch the object dropdown to **Instagram** and subscribe to the `comments` field
-   (separate from the Page's `feed` subscription above — you need both).
-4. Find the linked IG account's ID: `GET /<PAGE_ID>?fields=instagram_business_account&access_token=<PAGE_ACCESS_TOKEN>`.
-   Put that value in `IG_USER_ID` in `.env` (used to skip the account's own comments/replies).
-5. Subscribe the IG account itself, same as the Page step above but against the IG account ID and `comments` field:
+1. Confirm the IG account is linked to the Page (Page Settings → Linked Accounts).
+2. In App Dashboard → Webhooks, switch the object dropdown to **Instagram** and subscribe to the `comments` field (separate from the Page's `feed` — you need both).
+3. Find the linked IG account's ID: `GET /<PAGE_ID>?fields=instagram_business_account&access_token=<PAGE_ACCESS_TOKEN>`. That's the Instagram Account ID for signup/admin.
+4. Subscribe the IG account itself:
    ```
    curl -X POST "https://graph.facebook.com/v19.0/<IG_USER_ID>/subscribed_apps?subscribed_fields=comments&access_token=<PAGE_ACCESS_TOKEN>"
    ```
 
-If comments don't get processed after this, set `DEBUG_WEBHOOK_PAYLOAD=true` in `.env`, redeploy, post a test IG
-comment, and check the logs for the real payload shape — Instagram's `comments` field payload wasn't verified
-against a live account when this was built, unlike the Facebook `feed` path, which needed exactly this kind of
-live check to get right.
+If Instagram is wired through the separate "Instagram API with Instagram
+Login" product instead of the classic Page-linked flow above, it signs
+webhooks with its own App Secret (`IG_APP_SECRET` in `.env`) and needs its
+own access token (`IG_ACCESS_TOKEN` equivalent, stored per-client) rather
+than reusing the Page Access Token — see the git history on this file for
+the debugging trail that uncovered this, if you hit the same wall.
+
+If comments don't get processed, set `DEBUG_WEBHOOK_PAYLOAD=true`, redeploy, post a test comment, and check the logs for the real payload shape.
 
 ## How it works
 
-- `GET /webhook` — one-time handshake Meta uses to verify the endpoint.
-- `POST /webhook` — verified via `X-Hub-Signature-256` (HMAC-SHA256 over
-  the raw body, keyed with `FB_APP_SECRET`) before anything else runs, so
-  forged requests can't trigger deletions. The server acks with `200`
-  immediately, then processes entries asynchronously — Meta expects a
-  fast response and will retry/eventually unsubscribe if it's slow.
-- Handles two change shapes: Facebook Page comments (`field === "feed"`,
-  `item === "comment"`, `verb === "add"`) and Instagram comments
-  (`field === "comments"`). For either, once the commenter isn't the
-  Page/IG account itself, the comment text is fetched via
-  `GET /{comment-id}?fields=message,text` (the webhook payload itself
-  doesn't reliably include the comment text — only IDs and metadata) and
-  sent to `gpt-4o-mini` with instructions to answer `DELETE` or `KEEP`.
-  `DELETE` triggers a Graph API `DELETE` on the comment — the same
-  endpoint pattern works for both Facebook and Instagram comment IDs.
-- The moderation prompt currently deletes on hate speech/spam/toxicity
-  **or any negative sentiment at all** (complaints, "I don't recommend
-  this", mild criticism) — not just abuse. It also reads Arabic script
-  and Darija/Arabizi (Latin-script Darija). Adjust the wording in
-  `src/services/moderation.js` if that's more aggressive than intended —
-  removing all negative feedback, not just abusive content, is a real
-  product/reputation decision worth being deliberate about.
-- A bounded in-memory set of recently-seen comment IDs prevents
-  Meta's webhook retries (or `edited`/`remove` events for the same
-  comment) from re-running moderation on the same comment. This resets
-  on restart and isn't shared across multiple instances — swap in Redis
-  if you run more than one process.
-- Every decision (kept/deleted/error) is logged to `src/services/eventLog.js`,
-  which backs the dashboard below.
+- `POST /api/webhook` — verified via `X-Hub-Signature-256` (HMAC-SHA256, checked against `FB_APP_SECRET` and, if set, `IG_APP_SECRET`) before anything else runs. Awaited synchronously (not fire-and-forget) since this runs as a Vercel serverless function — there's no guarantee of continued execution after a response is sent the way there is on an always-on server.
+- Text isn't reliably included in the webhook payload, so it's fetched via `GET /{comment-id}?fields=message,text`, then sent to `gpt-4o-mini` to decide `DELETE` or `KEEP`.
+- The moderation prompt currently deletes on hate speech/spam/toxicity **or any negative sentiment at all** (complaints, "I don't recommend this", mild criticism) — not just abuse. It also reads Arabic script and Darija/Arabizi. Adjust `lib/moderation.js` if that's more aggressive than intended for a given use case — this is a product/reputation decision, not just a technical one.
+- **Blocklist**: once a comment from someone is deleted (automatically or manually from the dashboard), that author is blocklisted for that client — their future comments are deleted on sight, skipping the OpenAI call. Reversible any time from the dashboard's "Blocked authors" panel.
+- **Manual delete**: any kept comment can be deleted directly from the dashboard, for when the model misses something. Also blocklists the author.
 
-## Moderation dashboard
+## Dashboard & admin
 
-`GET /webhook/dashboard` (HTTP Basic Auth via `DASHBOARD_USER`/`DASHBOARD_PASSWORD`)
-shows recent moderation decisions with kept/deleted/error counts, auto-refreshing
-every 15s. The underlying data is also available as JSON at `GET /webhook/api/events`.
-Returns `503` if the dashboard credentials aren't set — it shows real commenters'
-text, so it's disabled by default rather than silently public. Backed by an
-in-memory ring buffer plus an append-only `data/events.jsonl` file so history
-survives restarts (see `DEPLOY.md` for the volume mount needed to survive
-container recreation in production).
+- `/clients/<id>/dashboard` — a client's own moderation dashboard (stats, 24h activity chart, filters, blocklist panel). Gated by that client's own login (set at `/signup`), or your admin credentials as a fallback for support access.
+- `/admin` — add/pause/delete clients, protected by `DASHBOARD_USER`/`DASHBOARD_PASSWORD` (`proxy.js` gates this at the request level, before any page or API route runs).
 
-## Notes / things to decide before going to production
+## Notes / things to decide before going further
 
-- The moderation call fails closed (`KEEP`) on any unparseable model
-  output, since deletion is irreversible — check `src/services/moderation.js`
-  if you want stricter behavior.
-- There's no retry/backoff on OpenAI or Graph API calls; a failed
-  moderation or delete call is logged and dropped rather than retried.
-- Deleting a comment is permanent and not visible to the poster as
-  moderation — consider hiding (`is_hidden`) instead of deleting if you
-  want a less destructive first step, or want an audit trail.
-- If comment volume gets high enough that in-process async handling
-  causes backpressure, put a real queue (Redis/BullMQ, SQS, etc.) between
-  the webhook handler and the OpenAI/Graph API calls instead of awaiting
-  inline.
+- The moderation call fails closed (`KEEP`) on any unparseable model output, since deletion is irreversible.
+- No retry/backoff on OpenAI or Graph API calls; a failed call is logged and dropped.
+- Deleting a comment is permanent — consider hiding (`is_hidden`) instead if you want a less destructive first step or an audit trail.
+- OpenAI cost is billed to one shared `OPENAI_API_KEY` across every client, not split per client.
+- See `DEPLOY_SAAS.md` for the actual Vercel + Neon deployment steps.
