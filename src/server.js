@@ -8,7 +8,7 @@ const app = require('./app');
 // the Vercel entry point (api/index.js) skips it since a serverless
 // function can't process.exit -- misconfiguration there just shows up
 // as failed requests instead, visible in Vercel's logs.
-const REQUIRED_ENV = ['FB_VERIFY_TOKEN', 'DATABASE_URL'];
+const REQUIRED_ENV = ['FB_VERIFY_TOKEN', 'DATABASE_URL', 'SESSION_SECRET'];
 const missingRequired = REQUIRED_ENV.filter((key) => !process.env[key]);
 if (missingRequired.length) {
   console.error(`Missing required environment variable(s): ${missingRequired.join(', ')}`);

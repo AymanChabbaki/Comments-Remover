@@ -1,20 +1,31 @@
 const express = require('express');
-const { basicAuth } = require('../middleware/basicAuth');
 const eventLog = require('../services/eventLog');
 const blocklist = require('../services/blocklist');
 const clients = require('../services/clients');
 const { deleteComment } = require('../services/facebook');
+const { verifyClientToken } = require('../middleware/clientAuth');
+const { isAdminRequest } = require('../middleware/basicAuth');
 
 const router = express.Router();
-router.use(basicAuth);
 
-// Every route here is scoped to one client -- loads it once per request
-// and 404s up front for an unknown ID, rather than every handler
-// re-checking.
+// Every route here is scoped to one client -- loads it once per request,
+// 404s up front for an unknown ID, and requires either that client's own
+// JWT cookie (not just "any valid login" -- otherwise Client A could view
+// Client B's dashboard by changing the URL) or your admin Basic Auth
+// credentials, so you can still open any client's dashboard for support.
 router.param('clientId', async (req, res, next, clientId) => {
   try {
     const client = await clients.get(clientId);
     if (!client) return res.status(404).send('Unknown client');
+
+    const authedClientId = verifyClientToken(req.cookies?.client_token);
+    if (authedClientId !== clientId && !isAdminRequest(req)) {
+      if (req.path.includes('/api/')) {
+        return res.status(401).json({ error: 'Not authenticated' });
+      }
+      return res.redirect('/login?next=' + encodeURIComponent(req.originalUrl));
+    }
+
     req.client = client;
     next();
   } catch (err) {

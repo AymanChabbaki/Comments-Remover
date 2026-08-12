@@ -26,10 +26,17 @@ async function migrate() {
       page_access_token TEXT NOT NULL,
       ig_user_id TEXT UNIQUE,
       ig_access_token TEXT,
+      email TEXT UNIQUE,
+      password_hash TEXT,
       active BOOLEAN NOT NULL DEFAULT true,
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )
   `);
+  // ADD COLUMN IF NOT EXISTS so this stays idempotent for a database
+  // that already had the clients table before email/password_hash
+  // existed (self-serve signup was added after the initial schema).
+  await query('ALTER TABLE clients ADD COLUMN IF NOT EXISTS email TEXT UNIQUE');
+  await query('ALTER TABLE clients ADD COLUMN IF NOT EXISTS password_hash TEXT');
 
   await query(`
     CREATE TABLE IF NOT EXISTS events (
