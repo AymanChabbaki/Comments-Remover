@@ -50,15 +50,8 @@ export default function SettingsClient({ clientId, clientName }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-7 dark:bg-slate-950 sm:px-8">
-      <div className="mx-auto max-w-lg">
-        <div className="mb-5 flex items-center justify-between">
-          <h1 className="text-lg font-semibold">{clientName} — Connection Settings</h1>
-          <Link href={`/clients/${clientId}/dashboard`} className="text-sm text-blue-600 dark:text-blue-400">
-            ← Dashboard
-          </Link>
-        </div>
-
+    <AppShell clientId={clientId} clientName={clientName} subtitle="Connection Settings">
+      <div className="max-w-lg">
         {status && (
           <div className="mb-5 flex gap-3">
             <StatusPill label="Facebook Page" connected={!!status.pageId && status.hasPageToken} />
@@ -66,7 +59,7 @@ export default function SettingsClient({ clientId, clientName }) {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Get these from the Meta setup guide — your Page ID and Page Access Token. Leave a token field blank to
             keep the one you already saved.
@@ -90,7 +83,7 @@ export default function SettingsClient({ clientId, clientName }) {
           <button
             type="submit"
             disabled={busy}
-            className="mt-1 rounded-lg bg-blue-600 py-2.5 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+            className="mt-1 rounded-lg bg-emerald-500 py-2.5 font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
           >
             {busy ? 'Saving…' : 'Save'}
           </button>
@@ -101,7 +94,7 @@ export default function SettingsClient({ clientId, clientName }) {
           )}
         </form>
       </div>
-    </div>
+    </AppShell>
   );
 }
 

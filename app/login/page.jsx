@@ -71,12 +71,12 @@ function LoginForm() {
           <button
             type="submit"
             disabled={busy}
-            className="mt-1 rounded-lg bg-blue-600 py-2.5 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+            className="mt-1 rounded-lg bg-emerald-500 py-2.5 font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
           >
             {busy ? 'Logging in…' : 'Log in'}
           </button>
           <p className="text-center text-sm text-slate-500 dark:text-slate-400">
-            No account yet? <Link href="/signup" className="text-blue-600 dark:text-blue-400">Sign up</Link>
+            No account yet? <Link href="/signup" className="text-emerald-600 dark:text-emerald-400">Sign up</Link>
           </p>
         </form>
       </div>

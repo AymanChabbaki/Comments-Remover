@@ -100,7 +100,7 @@ export default function AdminPage() {
             <AdminField label="Email" type="email" value={form.email} onChange={set('email')} required placeholder="owner@business.com" />
             <AdminField label="Password (8+ characters)" type="text" value={form.password} onChange={set('password')} required minLength={8} placeholder="Set something you can tell them" />
             <div className="flex items-center gap-3 sm:col-span-3">
-              <button type="submit" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+              <button type="submit" className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600">
                 Add client
               </button>
               {formMsg && (
@@ -151,7 +151,7 @@ export default function AdminPage() {
                       </span>
                     </td>
                     <td className="py-2.5">
-                      <a href={`/clients/${c.id}/dashboard`} target="_blank" rel="noreferrer" className="text-xs text-blue-600 dark:text-blue-400">
+                      <a href={`/clients/${c.id}/dashboard`} target="_blank" rel="noreferrer" className="text-xs text-emerald-600 dark:text-emerald-400">
                         Open →
                       </a>
                     </td>

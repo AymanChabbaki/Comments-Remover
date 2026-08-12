@@ -60,12 +60,12 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={busy}
-            className="mt-1 rounded-lg bg-blue-600 py-2.5 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+            className="mt-1 rounded-lg bg-emerald-500 py-2.5 font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
           >
             {busy ? 'Creating account…' : 'Create account'}
           </button>
           <p className="text-center text-sm text-slate-500 dark:text-slate-400">
-            Already have an account? <Link href="/login" className="text-blue-600 dark:text-blue-400">Log in</Link>
+            Already have an account? <Link href="/login" className="text-emerald-600 dark:text-emerald-400">Log in</Link>
           </p>
         </form>
       </div>

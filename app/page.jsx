@@ -14,10 +14,10 @@ export default function LandingPage() {
         </p>
       </div>
       <div className="flex gap-3">
-        <Link href="/demo" className="rounded-lg border border-slate-300 px-5 py-2.5 font-semibold hover:border-blue-400 dark:border-slate-700">
+        <Link href="/demo" className="rounded-lg border border-slate-300 px-5 py-2.5 font-semibold hover:border-emerald-400 dark:border-slate-700">
           Try the demo
         </Link>
-        <Link href="/signup" className="rounded-lg bg-blue-600 px-5 py-2.5 font-semibold text-white hover:bg-blue-700">
+        <Link href="/signup" className="rounded-lg bg-emerald-500 px-5 py-2.5 font-semibold text-white hover:bg-emerald-600">
           Get started
         </Link>
       </div>
