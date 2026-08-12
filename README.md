@@ -63,22 +63,19 @@ Login"** product, not the classic Page-linked flow — it does **not** reuse
 the Page Access Token. It signs webhooks with its own App Secret
 (`IG_APP_SECRET` in `.env`) and needs its own access token (`igAccessToken`,
 stored per-client, used against `graph.instagram.com` — see `lib/facebook.js`).
-This means a client connecting Instagram needs a separate tester invite
-(App Dashboard → Instagram → API setup with Instagram Login → Roles →
-Instagram Testers — distinct from the regular Facebook Tester list) which
-they accept from inside the Instagram app itself (Settings → Apps and
-websites → Tester invites), not from a Facebook notification.
 
-1. Add the client as an Instagram Tester (see above) and have them accept the invite.
-2. In [Graph API Explorer](https://developers.facebook.com/tools/explorer), switch the login type (top right) from "Facebook Login" to **"Instagram Login"**, then generate a token with `instagram_business_basic` and `instagram_business_manage_comments`.
-3. `GET /me?fields=user_id` with that token → the returned ID is the Instagram Account ID.
-4. In App Dashboard → Webhooks, switch the object dropdown to **Instagram** and subscribe to the `comments` field (separate subscription from the Page's `feed`).
-5. Subscribe the IG account itself:
-   ```
-   curl -X POST "https://graph.instagram.com/v19.0/<IG_USER_ID>/subscribed_apps?subscribed_fields=comments&access_token=<IG_TOKEN>"
-   ```
+Unlike the Facebook Page token, this **cannot be self-served by the client**
+the way the Page token can via Graph API Explorer. Token generation for
+this product lives on the App Dashboard's own "API setup with Instagram
+login" page (`developers.facebook.com/apps/<id>/instagram-business-login`),
+which only Admins/Developers of the app can open — Instagram Testers do not
+get dashboard access, only the ability to be added there. So the flow is
+admin-assisted:
 
-(If a future integration ever uses the classic Page-linked Instagram flow instead, that variant reuses the Page Access Token with `instagram_basic`/`instagram_manage_comments` scopes added — but that is not what's currently implemented in `lib/facebook.js`/`app/api/webhook/route.js`.)
+1. Add the client as an Instagram Tester (App Dashboard → Instagram → API setup with Instagram login → Roles → Instagram Testers — distinct from the Facebook Tester list). They accept the invite from inside the Instagram app itself (Settings → Apps and websites → Tester invites), not a Facebook notification.
+2. Once accepted, on the "API setup with Instagram login" page, under **1. Générez des tokens d'accès**, click **Add account**, select their Instagram account, then **Générer un token** — that's the `igAccessToken`. The Instagram Account ID shown next to it (e.g. `17841454947560776`) is `igUserId`.
+3. On the same row, flip **Abonnement Webhooks** to enabled — no separate `subscribed_apps` curl call needed, it's a toggle in this UI (unlike the Page's `feed` subscription, which is API-only).
+4. Send the client their `igUserId`/`igAccessToken` to paste into their own Settings page — same hand-off pattern as everything else, you generate the raw values (unavoidable for this one product) but the client still does the actual connecting.
 
 If comments don't get processed, set `DEBUG_WEBHOOK_PAYLOAD=true`, redeploy, post a test comment, and check the logs for the real payload shape.
 

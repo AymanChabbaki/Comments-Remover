@@ -178,25 +178,11 @@ export default function OnboardingClient({ clientId, clientName, clientEmail }) 
           <p className="text-xs text-slate-500 dark:text-slate-400">Optional — only if you also want Instagram comments moderated.</p>
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
             <p className="mb-1.5 font-semibold text-slate-700 dark:text-slate-300">Getting your Instagram Access Token</p>
-            <p className="mb-1.5">
-              Instagram doesn&apos;t reuse the Facebook token above — it needs its own, from a separate login flow.
-              (Requires the Instagram Tester invite from Step 1.)
+            <p>
+              Instagram token generation happens inside our Meta App Dashboard, which only we have access to — so
+              once you&apos;ve accepted the Instagram tester invite from Step 1, let us know and we&apos;ll generate
+              your Instagram Account ID and Access Token and send them to you to paste in below.
             </p>
-            <ol className="list-decimal space-y-1 pl-4">
-              <li>
-                In{' '}
-                <a href="https://developers.facebook.com/tools/explorer" target="_blank" rel="noreferrer" className="font-medium text-brand-600 dark:text-brand-400">
-                  Graph API Explorer
-                </a>
-                , switch the login type (top right) from &ldquo;Facebook Login&rdquo; to <strong>&ldquo;Instagram Login&rdquo;</strong>, then generate a token with the <code className="rounded bg-slate-100 px-1 dark:bg-slate-800">instagram_business_basic</code> and <code className="rounded bg-slate-100 px-1 dark:bg-slate-800">instagram_business_manage_comments</code> scopes.
-              </li>
-              <li>
-                <code className="rounded bg-slate-100 px-1 dark:bg-slate-800">GET /me?fields=user_id</code> with that token — the returned ID is your Instagram Account ID.
-              </li>
-              <li>
-                Subscribe it: <code className="rounded bg-slate-100 px-1 dark:bg-slate-800">curl -X POST &quot;https://graph.instagram.com/v19.0/&lt;IG_USER_ID&gt;/subscribed_apps?subscribed_fields=comments&amp;access_token=&lt;IG_TOKEN&gt;&quot;</code>
-              </li>
-            </ol>
           </div>
           <Field label="Instagram Account ID (optional)" value={form.igUserId} onChange={set('igUserId')} placeholder="17841454947560776" />
           <Field label="Instagram Access Token (optional)" value={form.igAccessToken} onChange={set('igAccessToken')} placeholder="IGAA..." />
