@@ -1,24 +1,29 @@
 {
-  "name": "fb-comment-moderator",
-  "version": "1.0.0",
-  "description": "Auto-moderates Facebook Page comments using OpenAI and the Graph API",
-  "main": "src/server.js",
-  "type": "commonjs",
+  "name": "comment-moderation-saas",
+  "version": "2.0.0",
+  "description": "Multi-tenant AI-powered Facebook & Instagram comment moderation",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
     "axios": "^1.7.9",
     "bcryptjs": "^3.0.3",
-    "cookie-parser": "^1.4.7",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
     "jsonwebtoken": "^9.0.3",
+    "next": "^16.3.0",
     "openai": "^4.77.0",
-    "pg": "^8.23.0"
+    "pg": "^8.23.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "tailwindcss": "^4.3.3"
   }
 }
