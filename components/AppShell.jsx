@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Settings as SettingsIcon, LogOut, Sparkles } from 'lucide-react';
+import { LayoutDashboard, Settings as SettingsIcon, LogOut, Sparkles, Users } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import Logo from './Logo';
 
@@ -23,15 +23,18 @@ function NavItem({ href, icon: Icon, label, active }) {
 }
 
 /**
- * Sidebar + top bar shell shared by the client dashboard and settings
- * pages. clientId is omitted for the admin-facing shell, where the nav
- * only makes sense pointing at /admin.
+ * Sidebar + top bar shell shared by the client dashboard/settings pages
+ * and the admin overview. Pass clientId+clientName for a client shell,
+ * or isAdmin for the admin shell -- the nav differs (admin has no
+ * Settings/Logout, since Basic Auth has no clean client-side logout;
+ * you close the browser/tab or use a private window instead).
  */
-export default function AppShell({ clientId, clientName, subtitle, headerAction, children }) {
+export default function AppShell({ clientId, clientName, isAdmin, subtitle, headerAction, wide, children }) {
   const pathname = usePathname();
   const base = clientId ? `/clients/${clientId}` : null;
+  const title = isAdmin ? 'Admin overview' : clientName;
 
-  const initials = (clientName || '?')
+  const initials = (clientName || (isAdmin ? 'A' : '?'))
     .split(' ')
     .map((w) => w[0])
     .slice(0, 2)
@@ -50,13 +53,19 @@ export default function AppShell({ clientId, clientName, subtitle, headerAction,
           <Logo height={28} />
         </div>
 
-        {base && (
+        {(base || isAdmin) && (
           <nav className="flex flex-col gap-1">
             <div className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
               Menu
             </div>
-            <NavItem href={`${base}/dashboard`} icon={LayoutDashboard} label="Dashboard" active={pathname === `${base}/dashboard`} />
-            <NavItem href={`${base}/settings`} icon={SettingsIcon} label="Settings" active={pathname === `${base}/settings`} />
+            {isAdmin ? (
+              <NavItem href="/admin" icon={Users} label="Clients" active={pathname === '/admin'} />
+            ) : (
+              <>
+                <NavItem href={`${base}/dashboard`} icon={LayoutDashboard} label="Dashboard" active={pathname === `${base}/dashboard`} />
+                <NavItem href={`${base}/settings`} icon={SettingsIcon} label="Settings" active={pathname === `${base}/settings`} />
+              </>
+            )}
           </nav>
         )}
 
@@ -84,10 +93,10 @@ export default function AppShell({ clientId, clientName, subtitle, headerAction,
       </aside>
 
       <div className="flex-1 px-4 py-6 sm:px-6 lg:px-10">
-        <div className="mx-auto max-w-6xl">
+        <div className={wide ? 'mx-auto max-w-7xl' : 'mx-auto max-w-6xl'}>
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h1 className="text-xl font-bold tracking-tight">{clientName}</h1>
+              <h1 className="text-xl font-bold tracking-tight">{title}</h1>
               {subtitle && <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>}
             </div>
             <div className="flex items-center gap-3">
