@@ -36,12 +36,13 @@ function CodeBlock({ children }) {
   );
 }
 
-export default function OnboardingClient({ clientId, clientName, clientEmail }) {
+export default function OnboardingClient({ clientId, clientName, clientEmail, igAppId }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({ pageId: '', pageAccessToken: '' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [igBusy, setIgBusy] = useState(false);
 
   function set(key) {
     return (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -66,6 +67,38 @@ export default function OnboardingClient({ clientId, clientName, clientEmail }) 
       setError(err.message);
     } finally {
       setBusy(false);
+    }
+  }
+
+  // Saves whatever Facebook fields are already filled in (partial PATCH is
+  // fine, blanks are ignored server-side) before leaving the page for
+  // Instagram's consent screen -- otherwise unsaved wizard state would be
+  // lost on the redirect away.
+  async function connectInstagram() {
+    setError('');
+    setIgBusy(true);
+    try {
+      if (form.pageId || form.pageAccessToken) {
+        await fetch(`/api/clients/${clientId}/settings`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(form),
+        });
+      }
+      const redirectUri = `${window.location.origin}/api/oauth/instagram/callback`;
+      const params = new URLSearchParams({
+        enable_fb_login: '0',
+        force_authentication: '1',
+        client_id: igAppId,
+        redirect_uri: redirectUri,
+        response_type: 'code',
+        scope: 'instagram_business_basic,instagram_business_manage_comments',
+        state: clientId,
+      });
+      window.location.href = `https://www.instagram.com/oauth/authorize?${params.toString()}`;
+    } catch (err) {
+      setError(err.message);
+      setIgBusy(false);
     }
   }
 
@@ -174,10 +207,26 @@ export default function OnboardingClient({ clientId, clientName, clientEmail }) 
         <div className="max-w-lg space-y-3">
           <Field label="Facebook Page ID" value={form.pageId} onChange={set('pageId')} placeholder="106480395512492" />
           <Field label="Page Access Token" value={form.pageAccessToken} onChange={set('pageAccessToken')} placeholder="EAAW..." />
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Want Instagram comments moderated too? You can connect that with one click afterward, from Settings —
-            you just need to have accepted the Instagram tester invite from Step 1 first.
-          </p>
+
+          {igAppId && (
+            <>
+              <hr className="my-1 border-slate-200 dark:border-slate-800" />
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Optional — want Instagram comments moderated too? Requires having accepted the Instagram tester
+                invite from Step 1 first. This saves your Facebook details above, then takes you to Instagram to
+                finish connecting.
+              </p>
+              <button
+                type="button"
+                disabled={igBusy}
+                onClick={connectInstagram}
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 py-2.5 text-sm font-semibold hover:border-brand-400 disabled:opacity-50 dark:border-slate-700"
+              >
+                {igBusy ? 'Redirecting…' : 'Connect Instagram'}
+              </button>
+            </>
+          )}
+
           {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
         </div>
       ),

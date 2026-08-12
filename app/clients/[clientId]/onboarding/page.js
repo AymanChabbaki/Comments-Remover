@@ -21,5 +21,12 @@ export default async function OnboardingPage({ params }) {
     redirect(`/login?next=${encodeURIComponent(`/clients/${clientId}/onboarding`)}`);
   }
 
-  return <OnboardingClient clientId={clientId} clientName={client.name} clientEmail={client.email} />;
+  return (
+    <OnboardingClient
+      clientId={clientId}
+      clientName={client.name}
+      clientEmail={client.email}
+      igAppId={process.env.IG_APP_ID || null}
+    />
+  );
 }
