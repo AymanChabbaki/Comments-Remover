@@ -35,11 +35,16 @@ export async function GET(request) {
 
   try {
     const redirectUri = `${url.origin}/api/oauth/instagram/callback`;
-    const { userId, accessToken } = await exchangeCodeForLongLivedToken({ code, redirectUri });
+    // userId here is from the short-lived token exchange -- kept only as
+    // a fallback below, since it's not reliably the same ID format the
+    // rest of the Graph API expects (see fetchProfile's comment).
+    const { userId: fallbackUserId, accessToken } = await exchangeCodeForLongLivedToken({ code, redirectUri });
 
+    let igUserId = fallbackUserId;
     let profile = {};
     try {
-      const { username, profilePicUrl } = await fetchProfile(userId, accessToken);
+      const { userId: authoritativeUserId, username, profilePicUrl } = await fetchProfile(accessToken);
+      igUserId = authoritativeUserId;
       profile = { igUsername: username, igProfilePicUrl: profilePicUrl };
     } catch (profileErr) {
       // Non-fatal -- the token is still valid and usable for moderation
@@ -47,10 +52,10 @@ export async function GET(request) {
       console.error('Instagram profile fetch failed:', profileErr.response?.data || profileErr.message);
     }
 
-    await clients.update(state, { igUserId: userId, igAccessToken: accessToken, ...profile });
+    await clients.update(state, { igUserId, igAccessToken: accessToken, ...profile });
 
     try {
-      await subscribeToWebhooks(userId, accessToken);
+      await subscribeToWebhooks(accessToken);
     } catch (subErr) {
       // Token is saved either way (fixable by flipping the "Abonnement
       // Webhooks" toggle manually in App Dashboard, or reconnecting) --
