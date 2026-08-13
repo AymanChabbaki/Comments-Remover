@@ -105,7 +105,7 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
           {collapsed ? <PanelLeftOpen size={13} /> : <PanelLeftClose size={13} />}
         </button>
 
-        <div className={`mb-8 flex px-2 ${collapsed ? 'justify-center' : ''}`}>
+        <div className="mb-8 flex justify-center px-2">
           {collapsed ? <Logo variant="mark" height={34} /> : <Logo height={32} />}
         </div>
 
