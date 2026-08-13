@@ -4,6 +4,15 @@ import * as clients from '../../../../lib/clients';
 import { verifyClientToken, isAdminRequest, CLIENT_COOKIE } from '../../../../lib/auth';
 import DashboardClient from './DashboardClient';
 
+export async function generateMetadata({ params }) {
+  const { clientId } = await params;
+  const client = await clients.get(clientId);
+  return {
+    title: client ? `Dashboard — ${client.name}` : 'Dashboard',
+    robots: { index: false, follow: false },
+  };
+}
+
 export default async function ClientDashboardPage({ params }) {
   const { clientId } = await params;
 

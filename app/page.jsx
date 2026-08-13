@@ -2,6 +2,14 @@ import Link from 'next/link';
 import ThemeToggle from '../components/ThemeToggle';
 import Logo from '../components/Logo';
 
+export const metadata = {
+  title: 'AI Comment Moderation for Facebook & Instagram',
+  description:
+    'Automatically remove spam, toxic, and negative comments from your Facebook Page and Instagram account -- ' +
+    'try the live interactive demo, no signup required.',
+  alternates: { canonical: '/' },
+};
+
 export default function LandingPage() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 px-6 text-center dark:bg-slate-950">

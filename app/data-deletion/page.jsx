@@ -3,7 +3,9 @@ import ThemeToggle from '../../components/ThemeToggle';
 import Logo from '../../components/Logo';
 
 export const metadata = {
-  title: 'Data Deletion — Comment Moderation',
+  title: 'Data Deletion',
+  description: 'How to request deletion of your Facebook or Instagram data connected through Tech Hermanos.',
+  alternates: { canonical: '/data-deletion' },
 };
 
 export default function DataDeletionPage() {

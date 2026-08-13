@@ -4,6 +4,15 @@ import * as clients from '../../../../lib/clients';
 import { verifyClientToken, isAdminRequest, CLIENT_COOKIE } from '../../../../lib/auth';
 import OnboardingClient from './OnboardingClient';
 
+export async function generateMetadata({ params }) {
+  const { clientId } = await params;
+  const client = await clients.get(clientId);
+  return {
+    title: client ? `Get started — ${client.name}` : 'Get started',
+    robots: { index: false, follow: false },
+  };
+}
+
 export default async function OnboardingPage({ params }) {
   const { clientId } = await params;
 

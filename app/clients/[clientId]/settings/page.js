@@ -4,6 +4,15 @@ import * as clients from '../../../../lib/clients';
 import { verifyClientToken, isAdminRequest, CLIENT_COOKIE } from '../../../../lib/auth';
 import SettingsClient from './SettingsClient';
 
+export async function generateMetadata({ params }) {
+  const { clientId } = await params;
+  const client = await clients.get(clientId);
+  return {
+    title: client ? `Settings — ${client.name}` : 'Settings',
+    robots: { index: false, follow: false },
+  };
+}
+
 export default async function ClientSettingsPage({ params }) {
   const { clientId } = await params;
 

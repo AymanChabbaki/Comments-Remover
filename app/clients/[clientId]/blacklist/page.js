@@ -4,6 +4,15 @@ import * as clients from '../../../../lib/clients';
 import { verifyClientToken, isAdminRequest, CLIENT_COOKIE } from '../../../../lib/auth';
 import BlacklistClient from './BlacklistClient';
 
+export async function generateMetadata({ params }) {
+  const { clientId } = await params;
+  const client = await clients.get(clientId);
+  return {
+    title: client ? `Blacklist — ${client.name}` : 'Blacklist',
+    robots: { index: false, follow: false },
+  };
+}
+
 export default async function ClientBlacklistPage({ params }) {
   const { clientId } = await params;
 
