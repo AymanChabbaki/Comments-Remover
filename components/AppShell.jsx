@@ -117,7 +117,10 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
               </div>
             )}
             {isAdmin ? (
-              <NavItem href="/admin" icon={Users} label="Clients" active={pathname === '/admin'} collapsed={collapsed} />
+              <>
+                <NavItem href="/admin" icon={LayoutDashboard} label="Overview" active={pathname === '/admin'} collapsed={collapsed} />
+                <NavItem href="/admin/clients" icon={Users} label="Clients" active={pathname === '/admin/clients'} collapsed={collapsed} />
+              </>
             ) : (
               <>
                 <NavItem href={`${base}/dashboard`} icon={LayoutDashboard} label="Dashboard" active={pathname === `${base}/dashboard`} collapsed={collapsed} />
