@@ -27,6 +27,8 @@ export default async function OnboardingPage({ params }) {
       clientName={client.name}
       clientEmail={client.email}
       igAppId={process.env.IG_APP_ID || null}
+      fbAppId={process.env.FB_APP_ID || null}
+      fbConfigId={process.env.FB_CONFIG_ID || null}
     />
   );
 }

@@ -99,7 +99,7 @@ function ActivityChart({ events }) {
   );
 }
 
-function BlocklistPanel({ blocked, onUnblock }) {
+function BlocklistPanel({ blocked, onUnblock, readOnly }) {
   const [open, setOpen] = useState(true);
   const [busyId, setBusyId] = useState(null);
 
@@ -126,7 +126,7 @@ function BlocklistPanel({ blocked, onUnblock }) {
                   <th className="pb-2 font-medium">Platform</th>
                   <th className="pb-2 font-medium">Author</th>
                   <th className="pb-2 font-medium">Blocked</th>
-                  <th className="pb-2 font-medium" />
+                  {!readOnly && <th className="pb-2 font-medium" />}
                 </tr>
               </thead>
               <tbody>
@@ -135,20 +135,22 @@ function BlocklistPanel({ blocked, onUnblock }) {
                     <td className="py-2"><PlatformBadge platform={b.platform} /></td>
                     <td className="py-2">{b.authorName || <span className="text-slate-400">{b.authorId}</span>}</td>
                     <td className="py-2 text-slate-500 dark:text-slate-400">{relativeTime(b.blockedAt)}</td>
-                    <td className="py-2 text-right">
-                      <button
-                        type="button"
-                        disabled={busyId === b.authorId}
-                        onClick={async () => {
-                          setBusyId(b.authorId);
-                          await onUnblock(b);
-                          setBusyId(null);
-                        }}
-                        className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-500 hover:border-brand-400 hover:text-slate-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-                      >
-                        {busyId === b.authorId ? 'Unblocking…' : 'Unblock'}
-                      </button>
-                    </td>
+                    {!readOnly && (
+                      <td className="py-2 text-right">
+                        <button
+                          type="button"
+                          disabled={busyId === b.authorId}
+                          onClick={async () => {
+                            setBusyId(b.authorId);
+                            await onUnblock(b);
+                            setBusyId(null);
+                          }}
+                          className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-500 hover:border-brand-400 hover:text-slate-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                        >
+                          {busyId === b.authorId ? 'Unblocking…' : 'Unblock'}
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -166,7 +168,7 @@ function BlocklistPanel({ blocked, onUnblock }) {
  * authenticated dashboard and the public /demo sandbox (fake data,
  * local-only mutation callbacks instead of real API calls).
  */
-export default function ModerationDashboard({ events, blocked, onDelete, onUnblock, onRefresh, ctaBanner }) {
+export default function ModerationDashboard({ events, blocked, onDelete, onUnblock, onRefresh, ctaBanner, readOnly }) {
   const [platform, setPlatform] = useState('');
   const [verdict, setVerdict] = useState('');
   const [search, setSearch] = useState('');
@@ -247,7 +249,7 @@ export default function ModerationDashboard({ events, blocked, onDelete, onUnblo
         <div className="lg:col-span-2">
           <ActivityChart events={events} />
         </div>
-        <BlocklistPanel blocked={blocked} onUnblock={onUnblock} />
+        <BlocklistPanel blocked={blocked} onUnblock={onUnblock} readOnly={readOnly} />
       </div>
 
       <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -362,6 +364,8 @@ export default function ModerationDashboard({ events, blocked, onDelete, onUnblo
                     <span className="font-semibold text-red-600 dark:text-red-400">
                       Yes {e.manual && <span className="font-normal text-slate-400">(manual)</span>}
                     </span>
+                  ) : readOnly ? (
+                    <span className="text-slate-400">No</span>
                   ) : (
                     <button
                       type="button"

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import * as clients from '../../../../../lib/clients';
 import { isAuthorizedForClient } from '../../../../../lib/auth';
-import { exchangeCodeForLongLivedToken, subscribeToWebhooks } from '../../../../../lib/instagramAuth';
+import { exchangeCodeForLongLivedToken, fetchProfile, subscribeToWebhooks } from '../../../../../lib/instagramAuth';
 
 export const runtime = 'nodejs';
 
@@ -18,7 +18,12 @@ export async function GET(request) {
   const state = url.searchParams.get('state');
   const error = url.searchParams.get('error') || url.searchParams.get('error_reason');
 
-  const settingsUrl = (status) => new URL(`/clients/${state}/settings?ig=${status}`, url.origin);
+  const settingsUrl = (status, reason) => {
+    const dest = new URL(`/clients/${state}/settings`, url.origin);
+    dest.searchParams.set('ig', status);
+    if (reason) dest.searchParams.set('ig_reason', reason.slice(0, 300));
+    return dest;
+  };
 
   if (!state) return NextResponse.json({ error: 'Missing state' }, { status: 400 });
   if (!isAuthorizedForClient(request, state)) {
@@ -31,20 +36,41 @@ export async function GET(request) {
   try {
     const redirectUri = `${url.origin}/api/oauth/instagram/callback`;
     const { userId, accessToken } = await exchangeCodeForLongLivedToken({ code, redirectUri });
-    await clients.update(state, { igUserId: userId, igAccessToken: accessToken });
+
+    let profile = {};
+    try {
+      const { username, profilePicUrl } = await fetchProfile(userId, accessToken);
+      profile = { igUsername: username, igProfilePicUrl: profilePicUrl };
+    } catch (profileErr) {
+      // Non-fatal -- the token is still valid and usable for moderation
+      // even if the profile fields fail to fetch for some reason.
+      console.error('Instagram profile fetch failed:', profileErr.response?.data || profileErr.message);
+    }
+
+    await clients.update(state, { igUserId: userId, igAccessToken: accessToken, ...profile });
 
     try {
       await subscribeToWebhooks(userId, accessToken);
     } catch (subErr) {
-      // Token is saved either way -- log and still report success; worst
-      // case the account isn't receiving events yet, fixable by flipping
-      // the "Abonnement Webhooks" toggle manually in App Dashboard.
+      // Token is saved either way (fixable by flipping the "Abonnement
+      // Webhooks" toggle manually in App Dashboard, or reconnecting) --
+      // but this means comments won't actually be moderated yet, so say
+      // so instead of silently reporting a clean "connected" success.
+      const apiError = subErr.response?.data?.error?.message || subErr.response?.data;
+      const reason = apiError ? (typeof apiError === 'string' ? apiError : JSON.stringify(apiError)) : subErr.message;
       console.error('Instagram webhook subscribe failed:', subErr.response?.data || subErr.message);
+      return NextResponse.redirect(settingsUrl('connected_no_webhook', reason));
     }
 
     return NextResponse.redirect(settingsUrl('connected'));
   } catch (err) {
-    console.error('Instagram OAuth exchange failed:', err.response?.data || err.message);
-    return NextResponse.redirect(settingsUrl('error'));
+    const apiError = err.response?.data?.error_message || err.response?.data?.error?.message || err.response?.data;
+    const reason = apiError ? (typeof apiError === 'string' ? apiError : JSON.stringify(apiError)) : err.message;
+    console.error('Instagram OAuth exchange failed:', {
+      status: err.response?.status,
+      data: err.response?.data,
+      message: err.message,
+    });
+    return NextResponse.redirect(settingsUrl('error', reason));
   }
 }

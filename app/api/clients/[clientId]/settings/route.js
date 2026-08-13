@@ -21,6 +21,8 @@ export async function GET(request, { params }) {
     hasPageToken: !!client.pageAccessToken,
     igUserId: client.igUserId,
     hasIgToken: !!client.igAccessToken,
+    igUsername: client.igUsername,
+    igProfilePicUrl: client.igProfilePicUrl,
   });
 }
 

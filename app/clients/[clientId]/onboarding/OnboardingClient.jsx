@@ -2,49 +2,22 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, ArrowLeft, ExternalLink, Copy, Check, Mail, Phone } from 'lucide-react';
+import { ArrowRight, ArrowLeft, ExternalLink, Mail, Phone } from 'lucide-react';
 
 const SUPPORT_PHONE = '0703285402';
+const DEMO_POST_URL = 'https://www.facebook.com/share/v/1SSGAhdBS4/';
 import Logo from '../../../../components/Logo';
 import ThemeToggle from '../../../../components/ThemeToggle';
 
-const SCOPES = [
-  'pages_show_list',
-  'pages_read_engagement',
-  'pages_manage_engagement',
-  'pages_read_user_content',
-  'pages_manage_metadata',
-];
-
-function CodeBlock({ children }) {
-  const [copied, setCopied] = useState(false);
-  return (
-    <div className="relative">
-      <pre className="overflow-x-auto rounded-xl bg-slate-900 p-4 pr-12 text-sm text-emerald-300 dark:bg-black">
-        <code>{children}</code>
-      </pre>
-      <button
-        type="button"
-        onClick={() => {
-          navigator.clipboard.writeText(children);
-          setCopied(true);
-          setTimeout(() => setCopied(false), 1500);
-        }}
-        className="absolute right-3 top-3 rounded-md bg-slate-700 p-1.5 text-slate-300 hover:bg-slate-600"
-      >
-        {copied ? <Check size={14} /> : <Copy size={14} />}
-      </button>
-    </div>
-  );
-}
-
-export default function OnboardingClient({ clientId, clientName, clientEmail, igAppId }) {
+export default function OnboardingClient({ clientId, clientName, clientEmail, igAppId, fbAppId, fbConfigId }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({ pageId: '', pageAccessToken: '' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [igBusy, setIgBusy] = useState(false);
+  const [fbBusy, setFbBusy] = useState(false);
+  const [showManualFb, setShowManualFb] = useState(!fbAppId);
 
   function set(key) {
     return (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -104,6 +77,24 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
     }
   }
 
+  function connectFacebook() {
+    setError('');
+    setFbBusy(true);
+    const redirectUri = `${window.location.origin}/api/oauth/facebook/callback`;
+    const params = new URLSearchParams({
+      client_id: fbAppId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      state: clientId,
+    });
+    if (fbConfigId) {
+      params.set('config_id', fbConfigId);
+    } else {
+      params.set('scope', 'pages_show_list,pages_read_engagement,pages_manage_engagement,pages_read_user_content,pages_manage_metadata');
+    }
+    window.location.href = `https://www.facebook.com/dialog/oauth?${params.toString()}`;
+  }
+
   const steps = [
     {
       title: `Welcome, ${clientName} 👋`,
@@ -114,6 +105,43 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
         </p>
       ),
       nextLabel: 'Get started',
+    },
+    {
+      title: 'See it working first',
+      body: (
+        <div className="max-w-lg space-y-4">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Before connecting your own Page, try it on ours — no setup needed on your end.
+          </p>
+          <ol className="list-decimal space-y-1.5 pl-4 text-sm text-slate-500 dark:text-slate-400">
+            <li>
+              Post a comment on{' '}
+              <a
+                href={DEMO_POST_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 font-medium text-brand-600 dark:text-brand-400"
+              >
+                this Facebook post <ExternalLink size={12} />
+              </a>{' '}
+              — try something negative, like &quot;terrible service, don&apos;t recommend&quot;.
+            </li>
+            <li>
+              Open the{' '}
+              <a
+                href="/live-demo"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 font-medium text-brand-600 dark:text-brand-400"
+              >
+                live dashboard <ExternalLink size={12} />
+              </a>{' '}
+              — your comment should show up and get auto-deleted within seconds.
+            </li>
+          </ol>
+        </div>
+      ),
+      nextLabel: "I see it working, let's connect mine",
     },
     {
       title: 'Step 1 — Get added as a tester',
@@ -145,70 +173,42 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
       nextLabel: "I've accepted the invite",
     },
     {
-      title: 'Step 2 — Generate an access token',
-      body: (
-        <div className="max-w-lg space-y-4">
-          <a
-            href="https://developers.facebook.com/tools/explorer"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-600 dark:text-brand-400"
-          >
-            Open Graph API Explorer <ExternalLink size={14} />
-          </a>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Select your app, then check these permissions before generating a User Access Token:
-          </p>
-          <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-            {SCOPES.map((s) => (
-              <li key={s} className="rounded-lg bg-slate-100 px-3 py-1.5 font-mono text-xs dark:bg-slate-800">{s}</li>
-            ))}
-          </ul>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Click <strong>Generate Access Token</strong> and approve the permissions popup.
-          </p>
-        </div>
-      ),
-      nextLabel: 'Next',
-    },
-    {
-      title: 'Step 3 — Get your Page Access Token',
-      body: (
-        <div className="max-w-lg space-y-4">
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Using the token from the previous step, call:
-          </p>
-          <CodeBlock>{'GET /me/accounts?access_token=<your-user-token>'}</CodeBlock>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            This returns every Page you manage. Find yours in the list and copy its <code className="rounded bg-slate-100 px-1 dark:bg-slate-800">access_token</code> value
-            — that&apos;s your <strong>Page</strong> Access Token, not the user token above. Keep it handy for the last step.
-          </p>
-        </div>
-      ),
-      nextLabel: 'Next',
-    },
-    {
-      title: 'Step 4 — Subscribe your Page',
-      body: (
-        <div className="max-w-lg space-y-4">
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Run this once from a terminal, replacing the placeholders with your Page ID and the Page Access Token
-            from the last step:
-          </p>
-          <CodeBlock>{'curl -X POST "https://graph.facebook.com/v19.0/<PAGE_ID>/subscribed_apps?subscribed_fields=feed&access_token=<PAGE_ACCESS_TOKEN>"'}</CodeBlock>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            You should get back <code className="rounded bg-slate-100 px-1 dark:bg-slate-800">{'{"success":true}'}</code>. This tells Facebook to actually send us your Page&apos;s comments.
-          </p>
-        </div>
-      ),
-      nextLabel: 'Next',
-    },
-    {
-      title: 'Step 5 — Connect it here',
+      title: 'Step 2 — Connect your Facebook Page',
       body: (
         <div className="max-w-lg space-y-3">
-          <Field label="Facebook Page ID" value={form.pageId} onChange={set('pageId')} placeholder="106480395512492" />
-          <Field label="Page Access Token" value={form.pageAccessToken} onChange={set('pageAccessToken')} placeholder="EAAW..." />
+          {fbAppId && !showManualFb ? (
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                disabled={fbBusy}
+                onClick={connectFacebook}
+                className="flex items-center justify-center gap-1.5 rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+              >
+                {fbBusy ? 'Redirecting…' : 'Connect Facebook'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowManualFb(true)}
+                className="self-start text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                Have a token already? Paste it manually
+              </button>
+            </div>
+          ) : (
+            <>
+              <Field label="Facebook Page ID" value={form.pageId} onChange={set('pageId')} placeholder="106480395512492" />
+              <Field label="Page Access Token" value={form.pageAccessToken} onChange={set('pageAccessToken')} placeholder="EAAW..." />
+              {fbAppId && (
+                <button
+                  type="button"
+                  onClick={() => setShowManualFb(false)}
+                  className="self-start text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                >
+                  Use Connect Facebook instead
+                </button>
+              )}
+            </>
+          )}
 
           {igAppId && (
             <>
@@ -301,9 +301,11 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
             {current.nextLabel} {!current.isLast && <ArrowRight size={16} />}
           </button>
         </div>
-        {current.requiresFields && !canProceed && (
+        {current.requiresFields && !canProceed && (fbAppId ? showManualFb : true) && (
           <p className="mt-3 text-xs text-amber-600 dark:text-amber-400">
-            Enter your Facebook Page ID and Page Access Token above to finish — this step can&apos;t be skipped.
+            {fbAppId
+              ? 'Enter your Facebook Page ID and Page Access Token above to finish, or use Connect Facebook instead — this step can’t be skipped.'
+              : "Enter your Facebook Page ID and Page Access Token above to finish — this step can't be skipped."}
           </p>
         )}
       </main>
