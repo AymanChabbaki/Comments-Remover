@@ -255,7 +255,7 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
   return (
     <div className="flex min-h-screen flex-col bg-white dark:bg-slate-950">
       <header className="flex items-center justify-between px-6 py-5 sm:px-10">
-        <Logo height={30} />
+        <Logo height={34} />
         <div className="flex items-center gap-4">
           <a
             href={`tel:${SUPPORT_PHONE}`}

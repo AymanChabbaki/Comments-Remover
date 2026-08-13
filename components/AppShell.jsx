@@ -106,13 +106,7 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
         </button>
 
         <div className={`mb-8 flex px-2 ${collapsed ? 'justify-center' : ''}`}>
-          {collapsed ? (
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-600 to-brand-navy-500 text-xs font-bold text-white">
-              TH
-            </div>
-          ) : (
-            <Logo height={28} />
-          )}
+          {collapsed ? <Logo variant="mark" height={34} /> : <Logo height={32} />}
         </div>
 
         {(base || isAdmin) && (

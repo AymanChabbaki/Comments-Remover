@@ -8,7 +8,7 @@ export default function LandingPage() {
       <div className="absolute right-6 top-6">
         <ThemeToggle />
       </div>
-      <Logo height={40} />
+      <Logo variant="full" height={52} />
       <div>
         <h1 className="text-3xl font-bold tracking-tight">AI Comment Moderation</h1>
         <p className="mt-3 max-w-md text-slate-500 dark:text-slate-400">

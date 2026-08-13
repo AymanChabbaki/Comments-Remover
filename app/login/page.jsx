@@ -65,7 +65,7 @@ function LoginForm() {
         <div className="animation-delay-4000 absolute left-1/3 top-1/2 h-64 w-64 animate-blob rounded-full bg-white/10 blur-3xl" />
 
         <div className="relative z-10 animate-fade-in">
-          <Logo height={32} />
+          <Logo variant="full" height={44} />
         </div>
 
         <div className="relative z-10 flex flex-col gap-6 animate-fade-in-up">

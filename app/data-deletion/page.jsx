@@ -12,7 +12,7 @@ export default function DataDeletionPage() {
       <div className="absolute right-6 top-6">
         <ThemeToggle />
       </div>
-      <Logo height={36} />
+      <Logo variant="full" height={44} />
 
       <div className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <h1 className="text-2xl font-bold tracking-tight">Data deletion</h1>
