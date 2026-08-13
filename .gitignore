@@ -1,5 +1,8 @@
 node_modules/
+# .env.example is the only env file meant to be committed -- everything
+# else (.env, .env.local, .env.production.local, etc.) holds real secrets.
 .env
+.env*.local
 *.log
 # Client access tokens, moderation history, blocklists -- real secrets
 # and customer data once this is live, never committed.
