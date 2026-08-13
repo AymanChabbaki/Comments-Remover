@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import AppShell from '../../components/AppShell';
-import ModerationDashboard from '../../components/ModerationDashboard';
+import DashboardOverview from '../../components/DashboardOverview';
+import CommentsTable from '../../components/CommentsTable';
+import BlocklistPanel from '../../components/BlocklistPanel';
 
 const DEMO_POST_URL = 'https://www.facebook.com/share/v/1SSGAhdBS4/';
 
@@ -55,7 +57,15 @@ export default function LiveDemoPage() {
           Live demo isn&apos;t set up yet.
         </div>
       ) : (
-        <ModerationDashboard events={events} blocked={blocked} onRefresh={load} ctaBanner={ctaBanner} readOnly />
+        <>
+          <DashboardOverview events={events} ctaBanner={ctaBanner} />
+          <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <CommentsTable events={events} onRefresh={load} readOnly />
+            </div>
+            <BlocklistPanel blocked={blocked} readOnly compact />
+          </div>
+        </>
       )}
     </AppShell>
   );

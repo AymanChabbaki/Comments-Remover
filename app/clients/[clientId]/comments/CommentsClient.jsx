@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import AppShell from '../../../../components/AppShell';
-import DashboardOverview from '../../../../components/DashboardOverview';
+import CommentsTable from '../../../../components/CommentsTable';
 
-export default function DashboardClient({ clientId, clientName }) {
+export default function CommentsClient({ clientId, clientName }) {
   const [events, setEvents] = useState([]);
 
   const load = useCallback(async () => {
@@ -23,9 +23,19 @@ export default function DashboardClient({ clientId, clientName }) {
     return () => clearInterval(interval);
   }, [load]);
 
+  async function handleDelete(event) {
+    const res = await fetch(`/api/clients/${clientId}/events/${encodeURIComponent(event.commentId)}/delete`, { method: 'POST' });
+    const data = await res.json();
+    if (!data.success) {
+      alert(`Failed to delete: ${data.error || 'unknown error'}`);
+      return;
+    }
+    await load();
+  }
+
   return (
-    <AppShell clientId={clientId} clientName={clientName} subtitle="Overview">
-      <DashboardOverview clientId={clientId} events={events} />
+    <AppShell clientId={clientId} clientName={clientName} subtitle="Comments" wide>
+      <CommentsTable events={events} onDelete={handleDelete} onRefresh={load} />
     </AppShell>
   );
 }

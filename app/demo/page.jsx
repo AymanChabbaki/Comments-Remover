@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import AppShell from '../../components/AppShell';
-import ModerationDashboard from '../../components/ModerationDashboard';
+import DashboardOverview from '../../components/DashboardOverview';
+import CommentsTable from '../../components/CommentsTable';
+import BlocklistPanel from '../../components/BlocklistPanel';
 
 const now = Date.now();
 const minutesAgo = (m) => new Date(now - m * 60000).toISOString();
@@ -56,7 +58,13 @@ export default function DemoPage() {
 
   return (
     <AppShell clientName="Sample Business" subtitle="Comment Moderation · Facebook & Instagram">
-      <ModerationDashboard events={events} blocked={blocked} onDelete={handleDelete} onUnblock={handleUnblock} ctaBanner={ctaBanner} />
+      <DashboardOverview events={events} ctaBanner={ctaBanner} />
+      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <CommentsTable events={events} onDelete={handleDelete} />
+        </div>
+        <BlocklistPanel blocked={blocked} onUnblock={handleUnblock} compact />
+      </div>
     </AppShell>
   );
 }

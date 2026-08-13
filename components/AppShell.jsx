@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
+  MessageSquare,
+  ShieldOff,
   Settings as SettingsIcon,
   UserCircle,
   LogOut,
@@ -12,11 +14,13 @@ import {
   Users,
   PanelLeftClose,
   PanelLeftOpen,
+  Phone,
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import Logo from './Logo';
 
 const COLLAPSE_KEY = 'sidebar-collapsed';
+const SUPPORT_PHONE = '0703285402';
 
 function NavItem({ href, icon: Icon, label, active, collapsed }) {
   return (
@@ -123,6 +127,8 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
             ) : (
               <>
                 <NavItem href={`${base}/dashboard`} icon={LayoutDashboard} label="Dashboard" active={pathname === `${base}/dashboard`} collapsed={collapsed} />
+                <NavItem href={`${base}/comments`} icon={MessageSquare} label="Comments" active={pathname === `${base}/comments`} collapsed={collapsed} />
+                <NavItem href={`${base}/blacklist`} icon={ShieldOff} label="Blacklist" active={pathname === `${base}/blacklist`} collapsed={collapsed} />
                 <NavItem href={`${base}/settings`} icon={SettingsIcon} label="Settings" active={pathname === `${base}/settings`} collapsed={collapsed} />
                 <NavItem href={`${base}/profile`} icon={UserCircle} label="Profile" active={pathname === `${base}/profile`} collapsed={collapsed} />
               </>
@@ -147,6 +153,23 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
               </>
             )}
           </Link>
+          {base && (
+            <a
+              href={`tel:${SUPPORT_PHONE}`}
+              title={collapsed ? `Having a problem? Call ${SUPPORT_PHONE}` : undefined}
+              className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-brand-600 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-brand-400 ${
+                collapsed ? 'justify-center px-0' : ''
+              }`}
+            >
+              <Phone size={18} strokeWidth={2} className="shrink-0" />
+              {!collapsed && (
+                <span className="flex flex-col leading-tight">
+                  <span>Having a problem?</span>
+                  <span className="text-xs text-slate-400 dark:text-slate-500">Call {SUPPORT_PHONE}</span>
+                </span>
+              )}
+            </a>
+          )}
           {base && (
             <button
               onClick={handleLogout}
