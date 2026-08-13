@@ -7,10 +7,21 @@ import Logo from '../../components/Logo';
 
 const SUPPORT_PHONE = '0703285402';
 
+// Only ever treated as a same-site path -- "//evil.com" or
+// "https://evil.com" would otherwise let a crafted /login?next= link send
+// someone who correctly enters their real password on to an attacker's
+// site right after. A single leading "/" (and not "//") is the only
+// shape a legitimate post-login redirect within this app ever takes.
+function safeNext(value) {
+  if (typeof value !== 'string') return null;
+  if (!value.startsWith('/') || value.startsWith('//')) return null;
+  return value;
+}
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get('next');
+  const next = safeNext(searchParams.get('next'));
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

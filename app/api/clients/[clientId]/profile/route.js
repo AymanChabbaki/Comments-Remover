@@ -2,8 +2,11 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import * as clients from '../../../../../lib/clients';
 import { isAuthorizedForClient } from '../../../../../lib/auth';
+import { isRateLimited } from '../../../../../lib/rateLimit';
 
 export const runtime = 'nodejs';
+
+const CURRENT_PASSWORD_LIMIT = { max: 8, windowMs: 10 * 60 * 1000 };
 
 export async function GET(request, { params }) {
   const { clientId } = await params;
@@ -39,6 +42,9 @@ export async function PATCH(request, { params }) {
   if (typeof body.newPassword === 'string' && body.newPassword !== '') {
     if (body.newPassword.length < 8) {
       return NextResponse.json({ success: false, error: 'New password must be at least 8 characters.' }, { status: 400 });
+    }
+    if (isRateLimited(`profile-pw:${clientId}`, CURRENT_PASSWORD_LIMIT)) {
+      return NextResponse.json({ success: false, error: 'Too many attempts. Try again in a few minutes.' }, { status: 429 });
     }
     const client = await clients.get(clientId);
     const currentOk = client?.passwordHash && (await bcrypt.compare(body.currentPassword || '', client.passwordHash));

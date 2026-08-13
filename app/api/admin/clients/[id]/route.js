@@ -14,8 +14,16 @@ export async function PATCH(request, { params }) {
     const body = await request.json();
     // "password" (plain) is accepted here as the admin's password-reset
     // action -- hashed before it ever reaches clients.update/the DB.
-    const { password, ...rest } = body;
-    if (password) rest.passwordHash = await bcrypt.hash(password, 10);
+    // passwordHash itself is never accepted directly from the request
+    // body -- only ever set via the bcrypt.hash below -- so a caller
+    // can't plant an arbitrary pre-computed hash on someone's account.
+    const { password, passwordHash: _ignored, ...rest } = body;
+    if (password) {
+      if (password.length < 8) {
+        return NextResponse.json({ success: false, error: 'Password must be at least 8 characters.' }, { status: 400 });
+      }
+      rest.passwordHash = await bcrypt.hash(password, 10);
+    }
 
     const client = await clients.update(id, rest);
     if (!client) return NextResponse.json({ success: false, error: 'Unknown client' }, { status: 404 });

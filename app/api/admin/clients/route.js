@@ -27,9 +27,14 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { password, ...rest } = body;
+    const { password, passwordHash: _ignored, ...rest } = body;
     if (rest.email && !password) {
       return NextResponse.json({ success: false, error: 'A password is required when setting an email (the client needs it to log in).' }, { status: 400 });
+    }
+    // Enforced here too, not just in the admin form's `minLength` -- an
+    // HTML attribute doesn't stop a direct API call.
+    if (password && password.length < 8) {
+      return NextResponse.json({ success: false, error: 'Password must be at least 8 characters.' }, { status: 400 });
     }
     const passwordHash = password ? await bcrypt.hash(password, 10) : undefined;
     const client = await clients.create({ ...rest, passwordHash });
