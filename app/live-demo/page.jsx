@@ -33,7 +33,7 @@ export default function LiveDemoPage() {
   }, [load]);
 
   const ctaBanner = (
-    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand-300 bg-gradient-to-r from-brand-50 to-rose-50 p-4 text-sm shadow-[0_1px_2px_rgba(31,36,44,0.04)]">
+    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-gradient-to-r from-brand-50 to-rose-50 p-4 text-sm shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
       <div>
         <strong className="font-semibold">This is our own real, connected Page</strong> — post a comment on{' '}
         <a href={DEMO_POST_URL} target="_blank" rel="noreferrer" className="font-semibold underline">
@@ -43,7 +43,7 @@ export default function LiveDemoPage() {
       </div>
       <a
         href="mailto:hello@techermanos.org?subject=Comment%20moderation%20-%20get%20started"
-        className="whitespace-nowrap rounded-lg bg-brand-600 px-4 py-2 font-semibold text-white hover:bg-brand-700"
+        className="whitespace-nowrap rounded-lg bg-primary px-4 py-2 font-semibold text-white hover:bg-primary-container"
       >
         Connect your own Page →
       </a>
@@ -53,7 +53,7 @@ export default function LiveDemoPage() {
   return (
     <AppShell clientName={clientName || 'Live demo'} subtitle="Real comments, moderated live">
       {notConfigured ? (
-        <div className="rounded-xl border border-line bg-surface p-8 text-center text-sm text-ink-soft">
+        <div className="rounded-xl border border-surface-container-high bg-surface-container-lowest p-8 text-center text-sm text-on-surface-variant">
           Live demo isn&apos;t set up yet.
         </div>
       ) : (

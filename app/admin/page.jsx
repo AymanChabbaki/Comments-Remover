@@ -12,17 +12,17 @@ function RecentActivity({ events }) {
   const rows = events.slice(0, 8);
   return (
     <div className={`animate-fade-in-up ${CARD}`}>
-      <div className="border-b border-line-soft px-5 py-4 text-sm font-semibold text-ink">Recent activity</div>
+      <div className="border-b border-surface-container-high px-5 py-4 text-sm font-semibold text-on-surface">Recent activity</div>
       {rows.length === 0 ? (
-        <div className="px-5 py-10 text-center text-sm text-ink-soft">Nothing moderated yet.</div>
+        <div className="px-5 py-10 text-center text-sm text-on-surface-variant">Nothing moderated yet.</div>
       ) : (
         <table className="w-full text-sm">
           <tbody>
             {rows.map((e) => (
-              <tr key={`${e.clientId}-${e.commentId}`} className="border-t border-line-soft first:border-t-0">
-                <td className="whitespace-nowrap px-5 py-2.5 text-xs text-ink-mute">{relativeTime(e.timestamp)}</td>
-                <td className="px-2 py-2.5 font-medium text-ink">{e.clientName}</td>
-                <td className="max-w-[240px] truncate px-2 py-2.5 text-ink-soft">{e.text}</td>
+              <tr key={`${e.clientId}-${e.commentId}`} className="border-t border-surface-container-high first:border-t-0">
+                <td className="whitespace-nowrap px-5 py-2.5 text-xs text-on-surface-variant">{relativeTime(e.timestamp)}</td>
+                <td className="px-2 py-2.5 font-medium text-on-surface">{e.clientName}</td>
+                <td className="max-w-[240px] truncate px-2 py-2.5 text-on-surface-variant">{e.text}</td>
                 <td className="px-5 py-2.5 text-right">
                   <VerdictBadge event={e} />
                 </td>
@@ -65,7 +65,7 @@ export default function AdminOverviewPage() {
       counts.set(e.clientName, (counts.get(e.clientName) || 0) + 1);
     }
     return [...counts.entries()]
-      .map(([label, value]) => ({ label, value, colorClass: 'bg-brand-600' }))
+      .map(([label, value]) => ({ label, value, colorClass: 'bg-primary' }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 6);
   }, [overview.recent]);
@@ -75,9 +75,9 @@ export default function AdminOverviewPage() {
     { label: 'Instagram', value: overview.stats.instagram, colorClass: 'bg-ig' },
   ];
   const verdictRows = [
-    { label: 'Deleted', value: overview.stats.deleted, colorClass: 'bg-danger' },
+    { label: 'Deleted', value: overview.stats.deleted, colorClass: 'bg-error' },
     { label: 'Kept', value: overview.stats.kept, colorClass: 'bg-good' },
-    { label: 'Errors', value: overview.stats.errors, colorClass: 'bg-warn' },
+    { label: 'Errors', value: overview.stats.errors, colorClass: 'bg-secondary' },
   ];
 
   return (
