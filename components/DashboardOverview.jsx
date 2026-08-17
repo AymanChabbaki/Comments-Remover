@@ -8,8 +8,7 @@ import AccountStatusCard from './AccountStatusCard';
 
 /**
  * Dashboard page content: KPIs, the 24h activity chart, and connected
- * account status. Comments and the blocklist each have their own page
- * now -- this used to be one long scroll with everything on it.
+ * account status. Comments and the blocklist each have their own page.
  */
 export default function DashboardOverview({ clientId, events, ctaBanner }) {
   const stats = useMemo(() => {
@@ -28,12 +27,12 @@ export default function DashboardOverview({ clientId, events, ctaBanner }) {
       {ctaBanner}
 
       <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <StatCard label="Total" value={stats.total} icon={MessageSquare} color="slate" delay={0} />
-        <StatCard label="Deleted" value={stats.deleted} icon={Trash2} color="red" delay={50} />
-        <StatCard label="Kept" value={stats.kept} icon={CheckCircle2} color="emerald" delay={100} />
-        <StatCard label="Errors" value={stats.errors} icon={AlertTriangle} color="amber" delay={150} />
-        <StatCard label="Delete rate" value={`${stats.rate}%`} icon={Percent} color="blue" delay={200} />
-        <StatCard label="FB / IG" value={`${stats.facebook} / ${stats.instagram}`} icon={Globe2} color="slate" delay={250} />
+        <StatCard label="Total" value={stats.total} icon={MessageSquare} color="neutral" delay={0} />
+        <StatCard label="Deleted" value={stats.deleted} icon={Trash2} color="danger" delay={50} />
+        <StatCard label="Kept" value={stats.kept} icon={CheckCircle2} color="good" delay={100} />
+        <StatCard label="Errors" value={stats.errors} icon={AlertTriangle} color="warn" delay={150} />
+        <StatCard label="Delete rate" value={`${stats.rate}%`} icon={Percent} color="brand" delay={200} />
+        <StatCard label="FB / IG" value={`${stats.facebook} / ${stats.instagram}`} icon={Globe2} color="neutral" delay={250} />
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">

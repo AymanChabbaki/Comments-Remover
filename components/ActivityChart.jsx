@@ -1,4 +1,6 @@
-export default function ActivityChart({ events }) {
+import { CARD } from './dashboardUi';
+
+export default function ActivityChart({ events, title = 'Activity, last 24h' }) {
   const buckets = 24;
   const now = Date.now();
   const hourMs = 3600 * 1000;
@@ -13,41 +15,58 @@ export default function ActivityChart({ events }) {
   }
 
   const maxCount = Math.max(1, ...counts.map((c) => c.deleted + c.kept));
+  const total = counts.reduce((sum, c) => sum + c.deleted + c.kept, 0);
   const width = 960;
-  const height = 90;
-  const gap = 3;
+  const height = 104;
+  const gap = 4;
   const barW = width / buckets - gap;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="mb-3 text-sm font-semibold">Activity, last 24h</div>
-      <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="block h-[90px] w-full overflow-visible">
+    <div className={`animate-fade-in-up p-5 ${CARD}`}>
+      <div className="mb-4 flex items-baseline justify-between">
+        <div className="text-sm font-semibold text-ink">{title}</div>
+        <div className="text-xs tabular-nums text-ink-mute">{total} in window</div>
+      </div>
+
+      <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="block h-[104px] w-full overflow-visible">
         {counts.map((c, i) => {
           const x = i * (width / buckets) + gap / 2;
-          const total = c.deleted + c.kept;
-          const scale = (height - 4) / maxCount;
+          const stackTotal = c.deleted + c.kept;
+          const scale = (height - 6) / maxCount;
           const keptH = c.kept * scale;
           const delH = c.deleted * scale;
           const hoursAgo = buckets - 1 - i;
-          const title = hoursAgo === 0 ? 'This hour' : `${hoursAgo}h ago`;
-          if (total === 0) {
-            return <rect key={i} x={x} y={height - 2} width={barW} height={2} rx={1} className="fill-slate-200 dark:fill-slate-800" />;
+          const when = hoursAgo === 0 ? 'This hour' : `${hoursAgo}h ago`;
+
+          if (stackTotal === 0) {
+            return <rect key={i} x={x} y={height - 2} width={barW} height={2} rx={1} className="fill-line" />;
           }
           return (
             <g key={i}>
-              <rect x={x} y={height - keptH} width={barW} height={Math.max(keptH, 1)} rx={1} className="fill-emerald-500 hover:opacity-75">
-                <title>{`${title}: ${c.kept} kept`}</title>
-              </rect>
-              <rect x={x} y={height - keptH - delH} width={barW} height={Math.max(delH, delH > 0 ? 1 : 0)} rx={1} className="fill-red-500 hover:opacity-75">
-                <title>{`${title}: ${c.deleted} deleted`}</title>
-              </rect>
+              {c.kept > 0 && (
+                <rect x={x} y={height - keptH} width={barW} height={Math.max(keptH, 2)} rx={2} className="fill-good">
+                  <title>{`${when}: ${c.kept} kept`}</title>
+                </rect>
+              )}
+              {c.deleted > 0 && (
+                // 2px gap between the stacked segments so they read as two values, not one bar.
+                <rect x={x} y={height - keptH - delH - (c.kept > 0 ? 2 : 0)} width={barW} height={Math.max(delH, 2)} rx={2} className="fill-danger">
+                  <title>{`${when}: ${c.deleted} deleted`}</title>
+                </rect>
+              )}
             </g>
           );
         })}
       </svg>
-      <div className="mt-2.5 flex gap-4 text-xs text-slate-500 dark:text-slate-400">
-        <span><span className="mr-1.5 inline-block h-2 w-2 rounded-sm bg-red-500" />Deleted</span>
-        <span><span className="mr-1.5 inline-block h-2 w-2 rounded-sm bg-emerald-500" />Kept</span>
+
+      <div className="mt-3 flex items-center gap-4 border-t border-line-soft pt-3 text-xs text-ink-soft">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="inline-block h-2 w-2 rounded-sm bg-danger" />Deleted
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="inline-block h-2 w-2 rounded-sm bg-good" />Kept
+        </span>
+        <span className="ml-auto text-ink-mute">24h &rarr; now</span>
       </div>
     </div>
   );

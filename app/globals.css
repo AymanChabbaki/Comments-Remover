@@ -1,30 +1,98 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 @theme inline {
   --font-sans: var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-display: var(--font-grotesk), var(--font-jakarta), sans-serif;
 }
 
-/* Tech Hermanos brand palette, pulled from the logo (maroon + navy). */
+/*
+ * Tech Hermanos design tokens.
+ *
+ * Warm ivory paper + cool navy chrome + maroon accent, all pulled from
+ * the logo. The warm/cool split is deliberate: it's what keeps this from
+ * reading like default-Tailwind slate-on-white. There is no dark mode --
+ * one committed look, not two half-tuned ones.
+ */
 @theme {
-  --color-brand-50: #fbeced;
-  --color-brand-100: #f3d0d4;
-  --color-brand-400: #a34558;
-  --color-brand-500: #8b3548;
+  /* Maroon -- the single accent. Primary actions, active nav, links. */
+  --color-brand-50: #fbf1f2;
+  --color-brand-100: #f6dee1;
+  --color-brand-200: #ebbcc3;
+  --color-brand-300: #db8f9c;
+  --color-brand-400: #c56377;
+  --color-brand-500: #a8455b;
   --color-brand-600: #7b2c3b;
-  --color-brand-700: #642331;
-  --color-brand-navy-500: #3f4b5e;
-  --color-brand-navy-600: #333c4c;
+  --color-brand-700: #66242f;
+  --color-brand-800: #4f1c25;
+  --color-brand-900: #3a151c;
+
+  /* Navy -- chrome. Sidebar, login panel, deep surfaces. */
+  --color-navy-50: #f4f6f8;
+  --color-navy-100: #e4e8ee;
+  --color-navy-200: #c7cfda;
+  --color-navy-300: #a0acbe;
+  --color-navy-400: #75839a;
+  --color-navy-500: #56657d;
+  --color-navy-600: #3f4b5e;
+  --color-navy-700: #333d4d;
+  --color-navy-800: #262e3b;
+  --color-navy-900: #1a202a;
+  --color-navy-950: #12171f;
+
+  /* Warm paper neutrals -- page ground, cards, hairlines. */
+  --color-paper: #f7f4ef;
+  --color-paper-alt: #efeae1;
+  --color-surface: #ffffff;
+  --color-line: #e5ded2;
+  --color-line-soft: #f0ebe3;
+
+  /* Ink -- navy-tinted so body copy harmonizes with the chrome. */
+  --color-ink: #1f242c;
+  --color-ink-soft: #5c6675;
+  --color-ink-mute: #8d95a1;
+
+  /*
+   * Semantic / chart colors. Validated as a categorical trio against the
+   * paper surface: worst adjacent CVD separation ΔE 10.3 (deutan), all
+   * above the chroma floor. The ochre sits just under 3:1 contrast, which
+   * is why every chart using it also prints its value as text.
+   */
+  --color-good: #0f9079;
+  --color-good-soft: #e3f4f0;
+  --color-warn: #c2922f;
+  --color-warn-soft: #f9f0dc;
+  --color-danger: #cc4f36;
+  --color-danger-soft: #fbe9e4;
+
+  /* Platform identity. */
+  --color-fb: #3f6fb3;
+  --color-fb-soft: #e7eefa;
+  --color-ig: #a8459b;
+  --color-ig-soft: #f7e8f5;
 }
 
 body {
   font-family: var(--font-sans);
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, .font-display {
   font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Paper grain -- a barely-there tooth so large ivory areas aren't flat. */
+.bg-grain {
+  background-image: radial-gradient(rgba(31, 36, 44, 0.035) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Faint rule used to separate stacked sections without a hard border. */
+.rule {
+  background-image: linear-gradient(to right, var(--color-line), transparent);
+  height: 1px;
 }
 
 @keyframes fade-in-up {
@@ -40,13 +108,17 @@ h1, h2, h3, .font-display {
   33% { transform: translate(20px, -30px) scale(1.08); }
   66% { transform: translate(-15px, 15px) scale(0.95); }
 }
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
 
 .animate-fade-in-up { animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .animate-fade-in { animation: fade-in 0.4s ease both; }
 .animate-blob { animation: blob 10s infinite ease-in-out; }
 .animation-delay-2000 { animation-delay: 2s; }
 .animation-delay-4000 { animation-delay: 4s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  .animate-fade-in,
+  .animate-blob {
+    animation: none;
+  }
+}

@@ -38,24 +38,10 @@ export const metadata = {
   },
 };
 
-// Runs before React hydrates so there's no flash of the wrong theme.
-const THEME_INIT = `
-  (function () {
-    var saved = localStorage.getItem('theme');
-    var dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.classList.toggle('dark', dark);
-  })();
-`;
-
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${jakarta.variable} ${grotesk.variable}`}>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
-      </head>
-      <body className="bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-        {children}
-      </body>
+      <body className="bg-paper text-ink">{children}</body>
     </html>
   );
 }

@@ -5,27 +5,23 @@ const FILES = {
 };
 
 /**
- * Tech Hermanos logo -- both light and dark versions are rendered and
- * toggled with the `dark:` variant, avoiding a client-side flash while
- * the theme is being determined (no useState/onError roundtrip needed).
+ * Tech Hermanos logo.
  *
  * The source file is a wide lockup (icon + "TECH HERMANOS" + a "DIGITAL
- * AGENCY" tagline, ~4:1 aspect ratio) that turns into illegible mush
- * once squeezed down to a ~28px-tall sidebar header -- the tagline eats
- * into the height budget the wordmark actually needs. `variant="compact"`
- * (icon + wordmark, tagline cropped out, see public/logo-compact*.png)
- * is the default for anywhere tight on vertical space; `variant="full"`
- * keeps the tagline for spots with room to breathe (landing page, login
- * panel); `variant="mark"` is the icon alone, for the collapsed sidebar.
+ * AGENCY" tagline, ~4:1) that turns into mush at sidebar height -- the
+ * tagline eats the budget the wordmark needs. `variant="compact"` (icon +
+ * wordmark, tagline cropped) is the default for tight spots;
+ * `variant="full"` keeps the tagline where there's room; `variant="mark"`
+ * is the icon alone for the collapsed sidebar.
+ *
+ * `forceLight` selects the white artwork, for placement on the navy
+ * chrome (sidebar, login panel). There's no dark mode, so this is an
+ * explicit per-placement choice rather than a theme-driven swap.
  */
-export default function Logo({ height = 28, variant = 'compact' }) {
-  const [light, dark] = FILES[variant] || FILES.compact;
+export default function Logo({ height = 28, variant = 'compact', forceLight = false }) {
+  const [onLight, onDark] = FILES[variant] || FILES.compact;
   return (
-    <>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={light} alt="Tech Hermanos" style={{ height }} className="block dark:hidden" />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={dark} alt="Tech Hermanos" style={{ height }} className="hidden dark:block" />
-    </>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={forceLight ? onDark : onLight} alt="Tech Hermanos" style={{ height }} className="block w-auto" />
   );
 }

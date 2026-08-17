@@ -6,23 +6,23 @@ import AppShell from '../../components/AppShell';
 import StatCard from '../../components/StatCard';
 import ActivityChart from '../../components/ActivityChart';
 import BarChart from '../../components/BarChart';
-import { relativeTime, VerdictBadge } from '../../components/dashboardUi';
+import { relativeTime, VerdictBadge, CARD } from '../../components/dashboardUi';
 
 function RecentActivity({ events }) {
   const rows = events.slice(0, 8);
   return (
-    <div className="animate-fade-in-up rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="p-5 pb-0 text-sm font-semibold">Recent activity</div>
+    <div className={`animate-fade-in-up ${CARD}`}>
+      <div className="border-b border-line-soft px-5 py-4 text-sm font-semibold text-ink">Recent activity</div>
       {rows.length === 0 ? (
-        <div className="p-5 text-sm text-slate-500 dark:text-slate-400">Nothing moderated yet.</div>
+        <div className="px-5 py-10 text-center text-sm text-ink-soft">Nothing moderated yet.</div>
       ) : (
         <table className="w-full text-sm">
           <tbody>
             {rows.map((e) => (
-              <tr key={`${e.clientId}-${e.commentId}`} className="border-t border-slate-100 first:border-t-0 dark:border-slate-800">
-                <td className="px-5 py-2.5 text-slate-500 dark:text-slate-400">{relativeTime(e.timestamp)}</td>
-                <td className="px-2 py-2.5 font-medium">{e.clientName}</td>
-                <td className="max-w-[240px] truncate px-2 py-2.5 text-slate-500 dark:text-slate-400">{e.text}</td>
+              <tr key={`${e.clientId}-${e.commentId}`} className="border-t border-line-soft first:border-t-0">
+                <td className="whitespace-nowrap px-5 py-2.5 text-xs text-ink-mute">{relativeTime(e.timestamp)}</td>
+                <td className="px-2 py-2.5 font-medium text-ink">{e.clientName}</td>
+                <td className="max-w-[240px] truncate px-2 py-2.5 text-ink-soft">{e.text}</td>
                 <td className="px-5 py-2.5 text-right">
                   <VerdictBadge event={e} />
                 </td>
@@ -71,24 +71,24 @@ export default function AdminOverviewPage() {
   }, [overview.recent]);
 
   const platformRows = [
-    { label: 'Facebook', value: overview.stats.facebook, colorClass: 'bg-blue-500' },
-    { label: 'Instagram', value: overview.stats.instagram, colorClass: 'bg-fuchsia-500' },
+    { label: 'Facebook', value: overview.stats.facebook, colorClass: 'bg-fb' },
+    { label: 'Instagram', value: overview.stats.instagram, colorClass: 'bg-ig' },
   ];
   const verdictRows = [
-    { label: 'Deleted', value: overview.stats.deleted, colorClass: 'bg-red-500' },
-    { label: 'Kept', value: overview.stats.kept, colorClass: 'bg-emerald-500' },
-    { label: 'Errors', value: overview.stats.errors, colorClass: 'bg-amber-500' },
+    { label: 'Deleted', value: overview.stats.deleted, colorClass: 'bg-danger' },
+    { label: 'Kept', value: overview.stats.kept, colorClass: 'bg-good' },
+    { label: 'Errors', value: overview.stats.errors, colorClass: 'bg-warn' },
   ];
 
   return (
     <AppShell isAdmin subtitle="Every client, at a glance" wide>
       <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <StatCard label="Clients" value={clientCount} icon={Users} color="slate" delay={0} />
-        <StatCard label="Comments moderated" value={overview.stats.total} icon={MessageSquare} color="slate" delay={50} />
-        <StatCard label="Deleted" value={overview.stats.deleted} icon={Trash2} color="red" delay={100} />
-        <StatCard label="Kept" value={overview.stats.kept} icon={CheckCircle2} color="emerald" delay={150} />
-        <StatCard label="Errors" value={overview.stats.errors} icon={AlertTriangle} color="amber" delay={200} />
-        <StatCard label="Delete rate" value={`${rate}%`} icon={Percent} color="blue" delay={250} />
+        <StatCard label="Clients" value={clientCount} icon={Users} color="brand" delay={0} />
+        <StatCard label="Comments moderated" value={overview.stats.total} icon={MessageSquare} color="neutral" delay={50} />
+        <StatCard label="Deleted" value={overview.stats.deleted} icon={Trash2} color="danger" delay={100} />
+        <StatCard label="Kept" value={overview.stats.kept} icon={CheckCircle2} color="good" delay={150} />
+        <StatCard label="Errors" value={overview.stats.errors} icon={AlertTriangle} color="warn" delay={200} />
+        <StatCard label="Delete rate" value={`${rate}%`} icon={Percent} color="neutral" delay={250} />
       </div>
 
       <div className="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-3">

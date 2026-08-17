@@ -1,29 +1,40 @@
 'use client';
 
 import { useCountUp } from './useCountUp';
+import { CARD } from './dashboardUi';
 
-const STYLES = {
-  slate: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-  red: 'bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400',
-  emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400',
-  amber: 'bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400',
-  blue: 'bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400',
+const ACCENT = {
+  neutral: 'text-navy-400',
+  danger: 'text-danger',
+  good: 'text-good',
+  warn: 'text-warn',
+  brand: 'text-brand-600',
+};
+
+const RULE = {
+  neutral: 'bg-navy-300',
+  danger: 'bg-danger',
+  good: 'bg-good',
+  warn: 'bg-warn',
+  brand: 'bg-brand-600',
 };
 
 /** value may be a number (animates with a count-up) or a string (renders as-is, e.g. "42%" or "3 / 1"). */
-export default function StatCard({ label, value, icon: Icon, color = 'slate', delay = 0 }) {
+export default function StatCard({ label, value, icon: Icon, color = 'neutral', delay = 0 }) {
   const animated = useCountUp(value);
 
   return (
     <div
       style={{ animationDelay: `${delay}ms` }}
-      className="animate-fade-in-up group rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-200/60 dark:border-slate-800 dark:bg-slate-900 dark:hover:shadow-black/20"
+      className={`animate-fade-in-up group relative overflow-hidden p-4 transition-shadow duration-200 hover:shadow-[0_4px_16px_rgba(31,36,44,0.08)] ${CARD}`}
     >
-      <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110 ${STYLES[color]}`}>
-        <Icon size={18} strokeWidth={2.25} />
+      {/* Left rule carries the metric's color -- keeps the number itself in ink. */}
+      <span className={`absolute left-0 top-0 h-full w-[3px] ${RULE[color] || RULE.neutral}`} />
+      <div className="flex items-start justify-between gap-2 pl-1.5">
+        <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-mute">{label}</div>
+        <Icon size={15} strokeWidth={2.25} className={`shrink-0 ${ACCENT[color] || ACCENT.neutral}`} />
       </div>
-      <div className="font-display text-2xl font-bold tracking-tight">{animated}</div>
-      <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{label}</div>
+      <div className="font-display mt-2 pl-1.5 text-[28px] font-bold leading-none text-ink">{animated}</div>
     </div>
   );
 }

@@ -1,8 +1,6 @@
 /**
  * Small shared pieces (badges, time formatting) used across the
- * Dashboard/Comments/Blacklist pages -- split out of what used to be one
- * monolithic ModerationDashboard component so each page can pull in only
- * what it needs.
+ * Dashboard/Comments/Blacklist pages.
  */
 export function relativeTime(iso) {
   const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
@@ -14,17 +12,19 @@ export function relativeTime(iso) {
   return `${Math.floor(h / 24)}d ago`;
 }
 
+/** Shared card chrome -- one definition so surfaces stay consistent. */
+export const CARD = 'rounded-xl border border-line bg-surface shadow-[0_1px_2px_rgba(31,36,44,0.04)]';
+
 export function PlatformBadge({ platform }) {
-  if (platform === 'instagram') {
-    return (
-      <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-fuchsia-100 px-2 py-0.5 text-xs font-semibold text-fuchsia-700 dark:bg-fuchsia-500/15 dark:text-fuchsia-400">
-        <span className="h-1.5 w-1.5 rounded-full bg-current" /> Instagram
-      </span>
-    );
-  }
+  const isIg = platform === 'instagram';
   return (
-    <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-500/15 dark:text-blue-400">
-      <span className="h-1.5 w-1.5 rounded-full bg-current" /> Facebook
+    <span
+      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-semibold ${
+        isIg ? 'bg-ig-soft text-ig' : 'bg-fb-soft text-fb'
+      }`}
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+      {isIg ? 'Instagram' : 'Facebook'}
     </span>
   );
 }
@@ -33,12 +33,12 @@ export function VerdictBadge({ event }) {
   const isError = !!event.error;
   const label = isError ? 'ERROR' : event.verdict;
   const cls = isError
-    ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400'
+    ? 'bg-warn-soft text-warn'
     : event.verdict === 'DELETE'
-      ? 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400'
-      : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400';
+      ? 'bg-danger-soft text-danger'
+      : 'bg-good-soft text-good';
   return (
-    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wide ${cls}`}>
+    <span className={`inline-block rounded-md px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${cls}`}>
       {label}
     </span>
   );

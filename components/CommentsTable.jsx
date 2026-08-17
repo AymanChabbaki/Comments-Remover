@@ -1,15 +1,12 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
-import { relativeTime, PlatformBadge, VerdictBadge } from './dashboardUi';
+import { RefreshCw, Search, Inbox } from 'lucide-react';
+import { relativeTime, PlatformBadge, VerdictBadge, CARD } from './dashboardUi';
 
-/**
- * Filterable comment log + manual delete. The Comments page's whole
- * content -- split out of what used to be one monolithic
- * ModerationDashboard component so Dashboard/Comments/Blacklist can each
- * be their own page instead of one long scroll.
- */
+const FIELD = 'rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm text-ink outline-none transition-colors focus:border-brand-400';
+
+/** Filterable comment log + manual delete -- the Comments page's content. */
 export default function CommentsTable({ events, onDelete, onRefresh, readOnly }) {
   const [platform, setPlatform] = useState('');
   const [verdict, setVerdict] = useState('');
@@ -65,126 +62,124 @@ export default function CommentsTable({ events, onDelete, onRefresh, readOnly })
 
   return (
     <div>
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <select
-          value={platform}
-          onChange={(e) => setPlatform(e.target.value)}
-          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
-        >
-          <option value="">All platforms</option>
-          <option value="facebook">Facebook</option>
-          <option value="instagram">Instagram</option>
-        </select>
-        <select
-          value={verdict}
-          onChange={(e) => setVerdict(e.target.value)}
-          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
-        >
-          <option value="">All verdicts</option>
-          <option value="DELETE">Deleted</option>
-          <option value="KEEP">Kept</option>
-          <option value="ERROR">Errors</option>
-        </select>
-        <input
-          type="search"
-          placeholder="Search comment text or author…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="min-w-[160px] flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
-        />
-        {onRefresh && (
-          <button
-            type="button"
-            onClick={onRefresh}
-            className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-3.5 py-1.5 text-sm font-semibold text-white transition-transform hover:bg-brand-700 active:scale-95"
-          >
-            <RefreshCw size={14} /> Refresh
-          </button>
-        )}
-      </div>
-
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <div className="flex gap-1">
-          {[['Today', 1], ['7 days', 7], ['30 days', 30], ['All time', 0]].map(([label, days]) => (
+      {/* Filters live in one band above the table, not scattered. */}
+      <div className={`mb-5 p-4 ${CARD}`}>
+        <div className="flex flex-wrap items-center gap-2">
+          <select value={platform} onChange={(e) => setPlatform(e.target.value)} className={FIELD}>
+            <option value="">All platforms</option>
+            <option value="facebook">Facebook</option>
+            <option value="instagram">Instagram</option>
+          </select>
+          <select value={verdict} onChange={(e) => setVerdict(e.target.value)} className={FIELD}>
+            <option value="">All verdicts</option>
+            <option value="DELETE">Deleted</option>
+            <option value="KEEP">Kept</option>
+            <option value="ERROR">Errors</option>
+          </select>
+          <div className="flex min-w-[180px] flex-1 items-center gap-2 rounded-lg border border-line bg-surface px-2.5 py-1.5 transition-colors focus-within:border-brand-400">
+            <Search size={14} className="shrink-0 text-ink-mute" />
+            <input
+              type="search"
+              placeholder="Search comment text or author…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-ink-mute"
+            />
+          </div>
+          {onRefresh && (
             <button
-              key={label}
               type="button"
-              onClick={() => applyPreset(days)}
-              className={`rounded-lg border px-2.5 py-1.5 text-xs ${
-                activePreset === String(days)
-                  ? 'border-brand-400 bg-brand-50 text-slate-900 dark:bg-brand-500/10 dark:text-slate-100'
-                  : 'border-slate-200 text-slate-500 hover:text-slate-700 dark:border-slate-700 dark:text-slate-400'
-              }`}
+              onClick={onRefresh}
+              className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-3.5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 active:scale-95"
             >
-              {label}
+              <RefreshCw size={14} /> Refresh
             </button>
-          ))}
+          )}
         </div>
-        <input
-          type="date"
-          value={dateFrom}
-          onChange={(e) => { setDateFrom(e.target.value); setActivePreset(''); }}
-          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
-        />
-        <span className="text-xs text-slate-400">–</span>
-        <input
-          type="date"
-          value={dateTo}
-          onChange={(e) => { setDateTo(e.target.value); setActivePreset(''); }}
-          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
-        />
-        <span className="ml-auto text-xs text-slate-500 dark:text-slate-400">
-          {filtered.length} of {events.length} shown
-        </span>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line-soft pt-3">
+          <div className="flex gap-1">
+            {[['Today', 1], ['7 days', 7], ['30 days', 30], ['All time', 0]].map(([label, days]) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => applyPreset(days)}
+                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                  activePreset === String(days)
+                    ? 'bg-brand-600 text-white'
+                    : 'text-ink-soft hover:bg-paper-alt hover:text-ink'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => { setDateFrom(e.target.value); setActivePreset(''); }}
+            className={FIELD}
+          />
+          <span className="text-xs text-ink-mute">&ndash;</span>
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => { setDateTo(e.target.value); setActivePreset(''); }}
+            className={FIELD}
+          />
+          <span className="ml-auto text-xs tabular-nums text-ink-mute">
+            {filtered.length} of {events.length} shown
+          </span>
+        </div>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm dark:border-slate-800">
+      <div className={`overflow-x-auto ${CARD}`}>
         <table className="w-full min-w-[720px] text-sm">
           <thead>
-            <tr className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-900 dark:text-slate-400">
-              <th className="px-4 py-3 font-medium">Time</th>
-              <th className="px-4 py-3 font-medium">Platform</th>
-              <th className="px-4 py-3 font-medium">Author</th>
-              <th className="px-4 py-3 font-medium">Comment</th>
-              <th className="px-4 py-3 font-medium">Verdict</th>
-              <th className="px-4 py-3 font-medium">Deleted</th>
+            <tr className="border-b border-line bg-paper-alt/60 text-left text-[10px] uppercase tracking-[0.12em] text-ink-mute">
+              <th className="px-4 py-3 font-bold">Time</th>
+              <th className="px-4 py-3 font-bold">Platform</th>
+              <th className="px-4 py-3 font-bold">Author</th>
+              <th className="px-4 py-3 font-bold">Comment</th>
+              <th className="px-4 py-3 font-bold">Verdict</th>
+              <th className="px-4 py-3 font-bold">Deleted</th>
             </tr>
           </thead>
-          <tbody className="bg-white dark:bg-slate-900">
+          <tbody>
             {filtered.map((e) => (
-              <tr key={e.commentId} className="border-t border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50">
-                <td className="whitespace-nowrap px-4 py-3 text-slate-500 dark:text-slate-400" title={new Date(e.timestamp).toLocaleString()}>
+              <tr key={e.commentId} className="border-t border-line-soft transition-colors hover:bg-paper/70">
+                <td className="whitespace-nowrap px-4 py-3 text-ink-mute" title={new Date(e.timestamp).toLocaleString()}>
                   {relativeTime(e.timestamp)}
                 </td>
                 <td className="px-4 py-3"><PlatformBadge platform={e.platform} /></td>
-                <td className="whitespace-nowrap px-4 py-3 text-slate-500 dark:text-slate-400">
-                  {e.author || <span className="text-slate-400">—</span>}
+                <td className="whitespace-nowrap px-4 py-3 font-medium text-ink-soft">
+                  {e.author || <span className="text-ink-mute">—</span>}
                 </td>
                 <td className="max-w-[420px] px-4 py-3">
-                  <div className="whitespace-pre-wrap break-words">{e.text}</div>
-                  {e.error && <div className="mt-1 text-xs text-amber-600 dark:text-amber-400">{e.error}</div>}
+                  <div className="whitespace-pre-wrap break-words text-ink">{e.text}</div>
+                  {e.error && <div className="mt-1 text-xs text-warn">{e.error}</div>}
                 </td>
                 <td className="px-4 py-3">
                   <VerdictBadge event={e} />
                   {e.autoBlocked && (
-                    <span className="ml-1.5 inline-block rounded-full border border-red-300 bg-red-50 px-1.5 py-0.5 text-[10px] font-bold text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400">
-                      BLOCKLISTED
+                    <span className="ml-1.5 inline-block rounded-md bg-danger-soft px-1.5 py-0.5 text-[10px] font-bold uppercase text-danger">
+                      Blocklisted
                     </span>
                   )}
                 </td>
                 <td className="px-4 py-3">
                   {e.deleted ? (
-                    <span className="font-semibold text-red-600 dark:text-red-400">
-                      Yes {e.manual && <span className="font-normal text-slate-400">(manual)</span>}
+                    <span className="font-semibold text-danger">
+                      Yes {e.manual && <span className="font-normal text-ink-mute">(manual)</span>}
                     </span>
                   ) : readOnly ? (
-                    <span className="text-slate-400">No</span>
+                    <span className="text-ink-mute">No</span>
                   ) : (
                     <button
                       type="button"
                       disabled={deletingId === e.commentId}
                       onClick={() => handleDelete(e)}
-                      className="rounded-md border border-red-400 px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-500/10"
+                      className="rounded-md border border-danger/40 px-2.5 py-1 text-xs font-semibold text-danger transition-colors hover:bg-danger-soft disabled:opacity-50"
                     >
                       {deletingId === e.commentId ? 'Deleting…' : 'Delete'}
                     </button>
@@ -195,8 +190,9 @@ export default function CommentsTable({ events, onDelete, onRefresh, readOnly })
           </tbody>
         </table>
         {filtered.length === 0 && (
-          <div className="bg-white py-12 text-center text-sm text-slate-500 dark:bg-slate-900 dark:text-slate-400">
-            No comments match the current filters.
+          <div className="py-16 text-center">
+            <Inbox size={24} className="mx-auto mb-2 text-ink-mute" strokeWidth={1.75} />
+            <p className="text-sm text-ink-soft">No comments match the current filters.</p>
           </div>
         )}
       </div>

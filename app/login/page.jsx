@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles, Phone } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Zap, Globe2, Phone } from 'lucide-react';
 import Logo from '../../components/Logo';
 
 const SUPPORT_PHONE = '0703285402';
@@ -17,6 +17,12 @@ function safeNext(value) {
   if (!value.startsWith('/') || value.startsWith('//')) return null;
   return value;
 }
+
+const POINTS = [
+  { icon: Zap, text: 'Comments checked and removed within seconds of being posted.' },
+  { icon: Globe2, text: 'Reads French, English, Arabic, and Darija — including Arabizi.' },
+  { icon: ShieldCheck, text: 'Your credentials stay yours: one-click connect, revocable any time.' },
+];
 
 function LoginForm() {
   const router = useRouter();
@@ -59,98 +65,93 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen bg-white dark:bg-slate-950">
-      {/* Left: brand panel. Wrapped in a forced "dark" scope so the white
-          logo variant renders here regardless of the site's own theme --
-          this panel is always colored, so it always needs the light mark. */}
-      <div className="dark relative hidden w-[45%] shrink-0 overflow-hidden bg-gradient-to-br from-brand-700 via-brand-600 to-brand-navy-600 lg:flex lg:flex-col lg:justify-between lg:p-12">
+    <div className="flex min-h-screen bg-paper">
+      {/* Left: navy brand panel -- always dark, so it always takes the white logo. */}
+      <div className="relative hidden w-[46%] shrink-0 overflow-hidden bg-navy-900 lg:flex lg:flex-col lg:justify-between lg:p-12">
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage: 'radial-gradient(white 1px, transparent 1px)',
-            backgroundSize: '22px 22px',
-          }}
+          className="pointer-events-none absolute inset-0 opacity-[0.06]"
+          style={{ backgroundImage: 'radial-gradient(white 1px, transparent 1px)', backgroundSize: '22px 22px' }}
         />
-        <div className="absolute -left-24 -top-24 h-72 w-72 animate-blob rounded-full bg-white/10 blur-3xl" />
-        <div className="animation-delay-2000 absolute bottom-0 right-0 h-96 w-96 animate-blob rounded-full bg-brand-navy-400/30 blur-3xl" />
-        <div className="animation-delay-4000 absolute left-1/3 top-1/2 h-64 w-64 animate-blob rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -left-28 -top-28 h-80 w-80 animate-blob rounded-full bg-brand-600/25 blur-3xl" />
+        <div className="animation-delay-2000 absolute -bottom-20 -right-20 h-96 w-96 animate-blob rounded-full bg-brand-800/30 blur-3xl" />
 
         <div className="relative z-10 animate-fade-in">
-          <Logo variant="full" height={44} />
+          <Logo variant="full" height={46} forceLight />
         </div>
 
-        <div className="relative z-10 flex flex-col gap-6 animate-fade-in-up">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm">
-            <Sparkles size={22} className="text-white" />
-          </div>
-          <h2 className="font-display text-3xl font-bold leading-tight text-white">
-            AI comment moderation, running quietly in the background.
+        <div className="animate-fade-in-up relative z-10 flex flex-col gap-8">
+          <h2 className="font-display max-w-md text-[34px] font-bold leading-[1.15] text-white">
+            Comment moderation that runs while you&apos;re busy running the business.
           </h2>
-          <p className="max-w-sm text-sm text-brand-50/90">
-            Every comment on your Facebook Page and Instagram account, checked and cleaned up automatically —
-            spam, toxicity, and negativity gone before anyone sees it.
-          </p>
-          <div className="flex items-center gap-2 text-xs text-brand-50/80">
-            <ShieldCheck size={16} />
-            Your Page and Instagram credentials stay yours — connected with one click, revocable any time.
-          </div>
+          <ul className="flex flex-col gap-4">
+            {POINTS.map(({ icon: Icon, text }) => (
+              <li key={text} className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-brand-600/25">
+                  <Icon size={14} className="text-brand-200" strokeWidth={2.25} />
+                </span>
+                <span className="text-sm leading-relaxed text-navy-200">{text}</span>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <div className="relative z-10" />
+        <div className="relative z-10 text-xs text-navy-400">
+          Tech Hermanos · Digital Agency
+        </div>
       </div>
 
-      {/* Right: the actual form */}
-      <div className="flex flex-1 items-center justify-center p-6">
-        <div className="w-full max-w-sm animate-fade-in-up">
+      {/* Right: the form */}
+      <div className="bg-grain flex flex-1 items-center justify-center p-6">
+        <div className="animate-fade-in-up w-full max-w-sm">
           <div className="mb-8 flex justify-center lg:hidden">
-            <Logo height={32} />
+            <Logo height={34} />
           </div>
 
-          <h1 className="font-display mb-1 text-2xl font-bold tracking-tight">Welcome back</h1>
-          <p className="mb-7 text-sm text-slate-500 dark:text-slate-400">Log in to your moderation dashboard.</p>
+          <h1 className="font-display mb-1.5 text-[26px] font-bold text-ink">Welcome back</h1>
+          <p className="mb-8 text-sm text-ink-soft">Log in to your moderation dashboard.</p>
 
           {error && (
-            <div className="mb-4 animate-fade-in rounded-lg border border-red-400 bg-red-50 px-3 py-2.5 text-sm text-red-600 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400">
+            <div className="animate-fade-in mb-5 rounded-lg border border-danger/30 bg-danger-soft px-3.5 py-2.5 text-sm font-medium text-danger">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <label className="flex flex-col gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+            <label className="flex flex-col gap-1.5 text-xs font-semibold uppercase tracking-wider text-ink-mute">
               Email
-              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 transition-colors focus-within:border-brand-400 focus-within:ring-4 focus-within:ring-brand-400/10 dark:border-slate-700 dark:bg-slate-900">
-                <Mail size={16} className="shrink-0 text-slate-400" />
+              <div className="flex items-center gap-2.5 rounded-lg border border-line bg-surface px-3.5 py-2.5 transition-colors focus-within:border-brand-500 focus-within:ring-4 focus-within:ring-brand-600/8">
+                <Mail size={15} className="shrink-0 text-ink-mute" />
                 <input
                   type="email"
                   required
                   autoFocus
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-transparent text-sm text-slate-900 outline-none dark:text-slate-100"
+                  className="w-full bg-transparent text-sm font-normal normal-case tracking-normal text-ink outline-none placeholder:text-ink-mute"
                   placeholder="you@business.com"
                 />
               </div>
             </label>
 
-            <label className="flex flex-col gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+            <label className="flex flex-col gap-1.5 text-xs font-semibold uppercase tracking-wider text-ink-mute">
               Password
-              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 transition-colors focus-within:border-brand-400 focus-within:ring-4 focus-within:ring-brand-400/10 dark:border-slate-700 dark:bg-slate-900">
-                <Lock size={16} className="shrink-0 text-slate-400" />
+              <div className="flex items-center gap-2.5 rounded-lg border border-line bg-surface px-3.5 py-2.5 transition-colors focus-within:border-brand-500 focus-within:ring-4 focus-within:ring-brand-600/8">
+                <Lock size={15} className="shrink-0 text-ink-mute" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-transparent text-sm text-slate-900 outline-none dark:text-slate-100"
+                  className="w-full bg-transparent text-sm font-normal normal-case tracking-normal text-ink outline-none placeholder:text-ink-mute"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
                   tabIndex={-1}
-                  className="shrink-0 text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200"
+                  className="shrink-0 text-ink-mute transition-colors hover:text-ink"
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
             </label>
@@ -158,19 +159,21 @@ function LoginForm() {
             <button
               type="submit"
               disabled={busy}
-              className="mt-2 flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] disabled:opacity-50"
+              className="mt-2 flex items-center justify-center gap-1.5 rounded-lg bg-brand-600 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] disabled:opacity-50"
             >
               {busy ? 'Logging in…' : 'Log in'}
-              {!busy && <ArrowRight size={16} />}
+              {!busy && <ArrowRight size={15} />}
             </button>
           </form>
 
-          <a
-            href={`tel:${SUPPORT_PHONE}`}
-            className="mt-6 flex items-center justify-center gap-1.5 text-xs text-slate-400 transition-colors hover:text-brand-600 dark:hover:text-brand-400"
-          >
-            <Phone size={12} /> Forgot your password? Call {SUPPORT_PHONE}
-          </a>
+          <div className="mt-8 border-t border-line pt-5">
+            <a
+              href={`tel:${SUPPORT_PHONE}`}
+              className="flex items-center justify-center gap-1.5 text-xs text-ink-mute transition-colors hover:text-brand-600"
+            >
+              <Phone size={12} /> Forgot your password? Call {SUPPORT_PHONE}
+            </a>
+          </div>
         </div>
       </div>
     </div>
