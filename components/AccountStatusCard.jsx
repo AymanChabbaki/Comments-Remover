@@ -2,31 +2,35 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ThumbsUp, Camera, Settings as SettingsIcon, CheckCircle2, Plus } from 'lucide-react';
+import { ThumbsUp, Camera, CheckCircle2, Plus } from 'lucide-react';
 import { CARD } from './dashboardUi';
 
-function Row({ icon: Icon, tone, label, connected, detail, settingsHref }) {
+function PageRow({ icon: Icon, tone, name, detail, connected, settingsHref }) {
   return (
-    <div className="flex items-center gap-3 py-3">
-      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${tone}`}>
-        <Icon size={16} className="text-white" strokeWidth={2.25} />
+    <div className={`group rounded-lg border border-surface-container-high bg-surface-container-lowest p-md transition-colors ${connected ? 'hover:border-primary/30' : ''}`}>
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${tone}`}>
+            <Icon size={18} className="text-white" strokeWidth={2.25} />
+          </div>
+          <div>
+            <div className="text-body-md text-sm font-semibold text-on-surface transition-colors group-hover:text-primary">{name}</div>
+            <div className="font-mono text-label-sm text-on-surface-variant">{connected ? detail || 'Connected' : 'Not connected'}</div>
+          </div>
+        </div>
+        {connected ? (
+          <span className="flex items-center gap-1 rounded-full border border-good/20 bg-good-soft px-2 py-1 font-mono text-label-sm uppercase text-good">
+            <CheckCircle2 size={12} strokeWidth={2.5} /> Active
+          </span>
+        ) : (
+          <Link
+            href={settingsHref}
+            className="flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2 py-1 font-mono text-label-sm uppercase text-primary transition-colors hover:bg-primary/15"
+          >
+            <Plus size={12} strokeWidth={2.5} /> Connect
+          </Link>
+        )}
       </div>
-      <div className="min-w-0 flex-1">
-        <div className="text-sm font-semibold text-ink">{label}</div>
-        <div className="truncate text-xs text-ink-mute">{connected ? detail || 'Connected' : 'Not connected'}</div>
-      </div>
-      {connected ? (
-        <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-good-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-good">
-          <CheckCircle2 size={11} strokeWidth={2.5} /> Live
-        </span>
-      ) : (
-        <Link
-          href={settingsHref}
-          className="inline-flex shrink-0 items-center gap-1 rounded-md border border-brand-200 bg-brand-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-brand-600 transition-colors hover:bg-brand-100"
-        >
-          <Plus size={11} strokeWidth={2.5} /> Connect
-        </Link>
-      )}
     </div>
   );
 }
@@ -51,35 +55,30 @@ export default function AccountStatusCard({ clientId }) {
   const igConnected = !!(status?.igUserId && status?.hasIgToken);
 
   return (
-    <div className={`animate-fade-in-up flex flex-col p-5 ${CARD}`}>
-      <div className="flex items-center justify-between border-b border-line-soft pb-3">
-        <div className="text-sm font-semibold text-ink">Connected pages</div>
-        <Link href={settingsHref} title="Connection settings" className="text-ink-mute transition-colors hover:text-brand-600">
-          <SettingsIcon size={15} />
+    <section className={`flex flex-1 flex-col ${CARD}`}>
+      <div className="flex items-center justify-between border-b border-surface-container-high p-lg">
+        <h2 className="text-headline-md text-on-surface">Connected Pages</h2>
+        <Link href={settingsHref} className="text-sm font-medium text-primary hover:underline">
+          Manage
         </Link>
       </div>
-      {!status ? (
-        <div className="py-10 text-center text-xs text-ink-mute">Loading…</div>
-      ) : (
-        <div className="divide-y divide-line-soft">
-          <Row
-            icon={ThumbsUp}
-            tone="bg-fb"
-            label="Facebook Page"
-            connected={fbConnected}
-            detail={status.pageId}
-            settingsHref={settingsHref}
-          />
-          <Row
-            icon={Camera}
-            tone="bg-ig"
-            label="Instagram"
-            connected={igConnected}
-            detail={status.igUsername ? `@${status.igUsername}` : status.igUserId}
-            settingsHref={settingsHref}
-          />
-        </div>
-      )}
-    </div>
+      <div className="flex flex-1 flex-col gap-3 p-lg">
+        {!status ? (
+          <div className="py-10 text-center text-sm text-on-surface-variant">Loading…</div>
+        ) : (
+          <>
+            <PageRow icon={ThumbsUp} tone="bg-fb" name="Facebook Page" detail={status.pageId} connected={fbConnected} settingsHref={settingsHref} />
+            <PageRow
+              icon={Camera}
+              tone="bg-ig"
+              name="Instagram"
+              detail={status.igUsername ? `@${status.igUsername}` : status.igUserId}
+              connected={igConnected}
+              settingsHref={settingsHref}
+            />
+          </>
+        )}
+      </div>
+    </section>
   );
 }

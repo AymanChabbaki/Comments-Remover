@@ -1,16 +1,16 @@
-import { Plus_Jakarta_Sans, Space_Grotesk } from 'next/font/google';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-const jakarta = Plus_Jakarta_Sans({
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-jakarta',
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-inter',
 });
 
-const grotesk = Space_Grotesk({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
-  weight: ['500', '600', '700'],
-  variable: '--font-grotesk',
+  weight: ['500'],
+  variable: '--font-jetbrains-mono',
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://comments.techermanos.org';
@@ -40,8 +40,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${grotesk.variable}`}>
-      <body className="bg-paper text-ink">{children}</body>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className="bg-background text-on-surface">{children}</body>
     </html>
   );
 }

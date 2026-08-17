@@ -13,13 +13,13 @@ export function relativeTime(iso) {
 }
 
 /** Shared card chrome -- one definition so surfaces stay consistent. */
-export const CARD = 'rounded-xl border border-line bg-surface shadow-[0_1px_2px_rgba(31,36,44,0.04)]';
+export const CARD = 'rounded-xl border border-surface-container-high bg-surface-container-lowest shadow-[0_2px_12px_rgba(0,0,0,0.03)]';
 
 export function PlatformBadge({ platform }) {
   const isIg = platform === 'instagram';
   return (
     <span
-      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-semibold ${
+      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-0.5 text-label-sm ${
         isIg ? 'bg-ig-soft text-ig' : 'bg-fb-soft text-fb'
       }`}
     >
@@ -31,14 +31,14 @@ export function PlatformBadge({ platform }) {
 
 export function VerdictBadge({ event }) {
   const isError = !!event.error;
-  const label = isError ? 'ERROR' : event.verdict;
+  const label = isError ? 'Error' : event.verdict === 'DELETE' ? 'Deleted' : 'Kept';
   const cls = isError
-    ? 'bg-warn-soft text-warn'
+    ? 'bg-secondary-container text-on-secondary-container'
     : event.verdict === 'DELETE'
-      ? 'bg-danger-soft text-danger'
+      ? 'bg-primary/10 text-primary'
       : 'bg-good-soft text-good';
   return (
-    <span className={`inline-block rounded-md px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${cls}`}>
+    <span className={`inline-flex items-center rounded-md px-2.5 py-1 text-label-sm font-medium ${cls}`}>
       {label}
     </span>
   );

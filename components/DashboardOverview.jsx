@@ -1,14 +1,16 @@
 'use client';
 
 import { useMemo } from 'react';
-import { MessageSquare, Trash2, CheckCircle2, AlertTriangle, Percent, Globe2 } from 'lucide-react';
+import { MessageSquare, Trash2, CheckCircle2, AlertTriangle } from 'lucide-react';
 import StatCard from './StatCard';
 import ActivityChart from './ActivityChart';
+import PlatformDonut from './PlatformDonut';
 import AccountStatusCard from './AccountStatusCard';
 
 /**
- * Dashboard page content: KPIs, the 24h activity chart, and connected
- * account status. Comments and the blocklist each have their own page.
+ * Dashboard page content: KPIs, the 24h activity chart, platform split,
+ * and connected account status. Comments and the blocklist each have
+ * their own page.
  */
 export default function DashboardOverview({ clientId, events, ctaBanner }) {
   const stats = useMemo(() => {
@@ -23,23 +25,24 @@ export default function DashboardOverview({ clientId, events, ctaBanner }) {
   }, [events]);
 
   return (
-    <div>
+    <div className="flex flex-col gap-xl">
       {ctaBanner}
 
-      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <StatCard label="Total" value={stats.total} icon={MessageSquare} color="neutral" delay={0} />
-        <StatCard label="Deleted" value={stats.deleted} icon={Trash2} color="danger" delay={50} />
+      <section className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Total Processed" value={stats.total} icon={MessageSquare} color="neutral" delay={0} />
+        <StatCard label="Removed" value={stats.deleted} icon={Trash2} color="brand" delay={50} note={`${stats.rate}% rate`} />
         <StatCard label="Kept" value={stats.kept} icon={CheckCircle2} color="good" delay={100} />
         <StatCard label="Errors" value={stats.errors} icon={AlertTriangle} color="warn" delay={150} />
-        <StatCard label="Delete rate" value={`${stats.rate}%`} icon={Percent} color="brand" delay={200} />
-        <StatCard label="FB / IG" value={`${stats.facebook} / ${stats.instagram}`} icon={Globe2} color="neutral" delay={250} />
-      </div>
+      </section>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 gap-lg lg:grid-cols-12">
+        <div className="lg:col-span-8">
           <ActivityChart events={events} />
         </div>
-        {clientId && <AccountStatusCard clientId={clientId} />}
+        <div className="flex flex-col gap-lg lg:col-span-4">
+          <PlatformDonut facebook={stats.facebook} instagram={stats.instagram} />
+          {clientId && <AccountStatusCard clientId={clientId} />}
+        </div>
       </div>
     </div>
   );

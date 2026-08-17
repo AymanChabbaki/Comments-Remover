@@ -10,38 +10,37 @@ import {
   Settings as SettingsIcon,
   UserCircle,
   LogOut,
-  Sparkles,
+  PlayCircle,
   Users,
   PanelLeftClose,
   PanelLeftOpen,
   Phone,
+  HelpCircle,
 } from 'lucide-react';
 import Logo from './Logo';
 
 const COLLAPSE_KEY = 'sidebar-collapsed';
 const SUPPORT_PHONE = '0703285402';
+const SIDEBAR_W = 260;
+const SIDEBAR_W_COLLAPSED = 84;
 
 function NavItem({ href, icon: Icon, label, active, collapsed }) {
   return (
     <Link
       href={href}
       title={collapsed ? label : undefined}
-      className={`group relative flex items-center gap-3 rounded-lg py-2.5 text-sm transition-colors duration-150 ${
+      className={`group relative flex items-center gap-3 rounded-lg py-2.5 text-body-md font-medium transition-all duration-200 ease-in-out ${
         collapsed ? 'justify-center px-0' : 'px-3'
       } ${
         active
-          ? 'bg-brand-600 font-semibold text-white'
-          : 'font-medium text-navy-300 hover:bg-navy-800 hover:text-white'
+          ? 'bg-primary text-on-primary shadow-md shadow-primary/20'
+          : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
       }`}
     >
-      {/* Active marker bleeds into the sidebar edge -- reads as a tab, not a floating pill. */}
-      {active && !collapsed && (
-        <span className="absolute -left-4 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-brand-300" />
-      )}
-      <Icon size={17} strokeWidth={2} className="shrink-0" />
+      <Icon size={20} strokeWidth={2} className="shrink-0" />
       {!collapsed && label}
       {collapsed && (
-        <span className="pointer-events-none absolute left-full z-20 ml-3 whitespace-nowrap rounded-md bg-navy-950 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100">
+        <span className="pointer-events-none absolute left-full z-20 ml-3 whitespace-nowrap rounded-lg bg-inverse-surface px-2.5 py-1.5 text-label-sm text-inverse-on-surface opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100">
           {label}
         </span>
       )}
@@ -54,6 +53,12 @@ function NavItem({ href, icon: Icon, label, active, collapsed }) {
  * screens. Pass clientId+clientName for a client shell, or isAdmin for
  * the admin shell -- the nav differs (admin has no Settings/Profile/
  * Logout, since Basic Auth has no clean client-side logout).
+ *
+ * `children` is rendered exactly once -- responsiveness (sidebar visible
+ * vs. not, content offset) is handled entirely with CSS breakpoints, not
+ * by mounting two copies of the content tree. Pages under this shell poll
+ * on intervals (Dashboard/Comments/Blacklist), so a duplicated subtree
+ * would mean duplicated fetches and duplicated timers, not just extra DOM.
  */
 export default function AppShell({ clientId, clientName, isAdmin, subtitle, headerAction, wide, children }) {
   const pathname = usePathname();
@@ -84,33 +89,29 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
     window.location.href = '/login';
   }
 
+  const railW = collapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W;
+
   return (
-    <div className="flex min-h-screen bg-paper">
-      <aside
-        className={`relative hidden shrink-0 flex-col bg-navy-900 py-6 transition-[width] duration-300 ease-in-out lg:flex ${
-          collapsed ? 'w-[76px] px-3' : 'w-64 px-4'
-        }`}
+    <div className="min-h-screen bg-surface-container-low text-on-surface lg:h-screen lg:overflow-hidden" style={{ '--rail-w': `${railW}px` }}>
+      <nav
+        style={{ width: railW }}
+        className="fixed bottom-0 left-0 top-0 z-20 hidden flex-col border-r border-surface-container-high bg-surface-container-lowest shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-[width] duration-300 ease-in-out lg:flex"
       >
         <button
           type="button"
           onClick={toggleCollapsed}
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          className="absolute -right-3 top-9 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-line bg-surface text-ink-mute shadow-sm transition-colors hover:text-brand-600"
+          className="absolute -right-3 top-9 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-surface-container-high bg-surface-container-lowest text-on-surface-variant shadow-sm transition-colors hover:text-primary"
         >
           {collapsed ? <PanelLeftOpen size={13} /> : <PanelLeftClose size={13} />}
         </button>
 
-        <div className="mb-9 flex justify-center px-1">
-          {collapsed ? <Logo variant="mark" height={32} forceLight /> : <Logo height={30} forceLight />}
+        <div className="flex h-20 items-center justify-center border-b border-surface-container-high px-lg">
+          {collapsed ? <Logo variant="mark" height={32} /> : <Logo height={32} />}
         </div>
 
         {(base || isAdmin) && (
-          <nav className="flex flex-col gap-1">
-            {!collapsed && (
-              <div className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-navy-400">
-                Menu
-              </div>
-            )}
+          <div className="flex flex-1 flex-col gap-xs overflow-y-auto px-md py-lg">
             {isAdmin ? (
               <>
                 <NavItem href="/admin" icon={LayoutDashboard} label="Overview" active={pathname === '/admin'} collapsed={collapsed} />
@@ -125,88 +126,94 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
                 <NavItem href={`${base}/profile`} icon={UserCircle} label="Profile" active={pathname === `${base}/profile`} collapsed={collapsed} />
               </>
             )}
-          </nav>
-        )}
 
-        <div className="mt-auto flex flex-col gap-2">
-          <Link
-            href="/demo"
-            target="_blank"
-            title={collapsed ? 'See it in action' : undefined}
-            className={`group flex flex-col gap-2 rounded-lg border border-navy-700 bg-navy-800 transition-colors hover:border-brand-500 ${
-              collapsed ? 'items-center p-2.5' : 'p-4'
-            }`}
-          >
-            <Sparkles size={17} className="text-brand-300 transition-transform duration-300 group-hover:rotate-12" />
-            {!collapsed && (
-              <>
-                <div className="text-sm font-semibold text-white">See it in action</div>
-                <div className="text-xs leading-snug text-navy-300">Open the live interactive demo</div>
-              </>
-            )}
-          </Link>
-
-          {base && (
-            <>
-              <div className="my-1 h-px bg-navy-800" />
-              <a
-                href={`tel:${SUPPORT_PHONE}`}
-                title={collapsed ? `Having a problem? Call ${SUPPORT_PHONE}` : undefined}
-                className={`flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium text-navy-300 transition-colors hover:bg-navy-800 hover:text-white ${
-                  collapsed ? 'justify-center px-0' : 'px-3'
+            <div className="mt-auto pt-lg">
+              <Link
+                href="/demo"
+                target="_blank"
+                title={collapsed ? 'See it in action' : undefined}
+                className={`flex w-full items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest py-2.5 text-body-md font-medium text-on-surface shadow-sm transition-colors hover:bg-surface-container ${
+                  collapsed ? 'px-0' : 'px-3'
                 }`}
               >
-                <Phone size={17} strokeWidth={2} className="shrink-0" />
-                {!collapsed && (
-                  <span className="flex flex-col leading-tight">
-                    <span>Having a problem?</span>
-                    <span className="text-xs text-navy-400">Call {SUPPORT_PHONE}</span>
-                  </span>
-                )}
-              </a>
-              <button
-                onClick={handleLogout}
-                type="button"
-                title={collapsed ? 'Log out' : undefined}
-                className={`flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium text-navy-300 transition-colors hover:bg-brand-600 hover:text-white ${
-                  collapsed ? 'justify-center px-0' : 'px-3'
-                }`}
-              >
-                <LogOut size={17} strokeWidth={2} className="shrink-0" />
-                {!collapsed && 'Log out'}
-              </button>
-            </>
-          )}
-        </div>
-      </aside>
-
-      <div className="bg-grain flex-1 px-4 py-7 sm:px-7 lg:px-10">
-        <div className={`animate-fade-in ${wide ? 'mx-auto max-w-7xl' : 'mx-auto max-w-6xl'}`}>
-          <div className="mb-7 flex flex-wrap items-end justify-between gap-4 border-b border-line pb-5">
-            <div>
-              <h1 className="font-display text-2xl font-bold text-ink">{title}</h1>
-              {subtitle && <p className="mt-1 text-sm text-ink-soft">{subtitle}</p>}
-            </div>
-            <div className="flex items-center gap-3">
-              {headerAction}
-              {base ? (
-                <Link
-                  href={`${base}/profile`}
-                  title="Your profile"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-navy-700 text-xs font-bold text-white transition-colors hover:bg-brand-600"
-                >
-                  {initials}
-                </Link>
-              ) : (
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-navy-700 text-xs font-bold text-white">
-                  {initials}
-                </div>
-              )}
+                <PlayCircle size={18} />
+                {!collapsed && 'See it in action'}
+              </Link>
             </div>
           </div>
+        )}
 
-          {children}
-        </div>
+        {base && (
+          <div className="flex flex-col gap-sm border-t border-surface-container-high bg-surface-container-lowest/50 p-md">
+            {!collapsed && (
+              <div className="flex flex-col gap-xs px-md py-sm">
+                <div className="font-mono text-label-sm uppercase text-on-surface-variant">Need Help?</div>
+                <a href={`tel:${SUPPORT_PHONE}`} className="flex items-center gap-sm text-on-surface transition-colors hover:text-primary">
+                  <Phone size={16} />
+                  <span className="font-mono text-label-md">{SUPPORT_PHONE}</span>
+                </a>
+              </div>
+            )}
+            <a
+              href="mailto:hello@techermanos.org"
+              title={collapsed ? 'Help & Support' : undefined}
+              className={`flex items-center gap-3 rounded-lg py-2 text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface ${
+                collapsed ? 'justify-center px-0' : 'px-md'
+              }`}
+            >
+              <HelpCircle size={18} />
+              {!collapsed && <span className="text-body-md text-sm">Help &amp; Support</span>}
+            </a>
+            <button
+              onClick={handleLogout}
+              type="button"
+              title={collapsed ? 'Log out' : undefined}
+              className={`flex items-center gap-3 rounded-lg py-2 text-on-surface-variant transition-colors hover:bg-error-container hover:text-on-error-container ${
+                collapsed ? 'justify-center px-0' : 'px-md'
+              }`}
+            >
+              <LogOut size={18} />
+              {!collapsed && <span className="text-body-md text-sm">Log out</span>}
+            </button>
+          </div>
+        )}
+      </nav>
+
+      {/* Single content column for every breakpoint. Only its left offset
+          (via the --rail-w custom property, scoped behind lg:) and the
+          header's logo mark change between mobile and desktop. */}
+      <div className="flex min-h-screen flex-col lg:ml-[var(--rail-w)] lg:h-screen lg:overflow-hidden lg:transition-[margin] lg:duration-300 lg:ease-in-out">
+        <header className="z-10 flex h-20 shrink-0 items-center justify-between gap-4 border-b border-surface-container-high bg-surface-container-lowest px-lg lg:px-xl">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="shrink-0 lg:hidden">
+              <Logo variant="mark" height={28} />
+            </span>
+            <div className="min-w-0">
+              <h1 className="truncate text-headline-md text-on-surface lg:text-headline-lg">{title}</h1>
+              {subtitle && <p className="mt-0.5 hidden text-body-md text-on-surface-variant sm:block">{subtitle}</p>}
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-lg">
+            {headerAction}
+            {base ? (
+              <Link
+                href={`${base}/profile`}
+                title="Your profile"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-label-sm font-semibold text-on-secondary shadow-sm transition-opacity hover:opacity-90"
+              >
+                {initials}
+              </Link>
+            ) : (
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-label-sm font-semibold text-on-secondary shadow-sm">
+                {initials}
+              </div>
+            )}
+          </div>
+        </header>
+
+        <main className="flex-1 bg-surface-container-low p-lg lg:overflow-y-auto lg:p-xl">
+          <div className={`animate-fade-in mx-auto ${wide ? 'max-w-[1400px]' : 'max-w-[1080px]'}`}>{children}</div>
+        </main>
       </div>
     </div>
   );

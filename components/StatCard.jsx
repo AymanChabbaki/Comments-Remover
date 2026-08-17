@@ -4,37 +4,47 @@ import { useCountUp } from './useCountUp';
 import { CARD } from './dashboardUi';
 
 const ACCENT = {
-  neutral: 'text-navy-400',
-  danger: 'text-danger',
+  neutral: 'text-on-surface-variant',
+  danger: 'text-error',
   good: 'text-good',
-  warn: 'text-warn',
-  brand: 'text-brand-600',
+  warn: 'text-secondary',
+  brand: 'text-primary',
 };
 
-const RULE = {
-  neutral: 'bg-navy-300',
-  danger: 'bg-danger',
-  good: 'bg-good',
-  warn: 'bg-warn',
-  brand: 'bg-brand-600',
+const WATERMARK = {
+  neutral: 'text-on-surface-variant',
+  danger: 'text-error',
+  good: 'text-good',
+  warn: 'text-secondary',
+  brand: 'text-primary',
 };
 
-/** value may be a number (animates with a count-up) or a string (renders as-is, e.g. "42%" or "3 / 1"). */
-export default function StatCard({ label, value, icon: Icon, color = 'neutral', delay = 0 }) {
+/**
+ * value may be a number (animates with a count-up) or a string (renders
+ * as-is, e.g. "42%" or "3 / 1"). `note` is a small trailing context label
+ * (e.g. "of 128 total") -- unlike the reference mockup, there's no
+ * fabricated trend percentage here since we don't compute period-over-
+ * period deltas.
+ */
+export default function StatCard({ label, value, icon: Icon, color = 'neutral', delay = 0, note }) {
   const animated = useCountUp(value);
 
   return (
     <div
       style={{ animationDelay: `${delay}ms` }}
-      className={`animate-fade-in-up group relative overflow-hidden p-4 transition-shadow duration-200 hover:shadow-[0_4px_16px_rgba(31,36,44,0.08)] ${CARD}`}
+      className={`animate-fade-in-up group relative flex flex-col overflow-hidden p-lg transition-shadow duration-200 hover:shadow-[0_4px_24px_rgba(0,0,0,0.06)] ${CARD}`}
     >
-      {/* Left rule carries the metric's color -- keeps the number itself in ink. */}
-      <span className={`absolute left-0 top-0 h-full w-[3px] ${RULE[color] || RULE.neutral}`} />
-      <div className="flex items-start justify-between gap-2 pl-1.5">
-        <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-mute">{label}</div>
-        <Icon size={15} strokeWidth={2.25} className={`shrink-0 ${ACCENT[color] || ACCENT.neutral}`} />
+      <Icon size={96} strokeWidth={1.5} className={`pointer-events-none absolute -bottom-4 -right-4 opacity-[0.04] ${WATERMARK[color] || WATERMARK.neutral}`} />
+
+      <div className="relative z-10 mb-4 flex items-start justify-between">
+        <span className="font-mono text-label-sm uppercase text-on-surface-variant">{label}</span>
+        <Icon size={20} strokeWidth={2} className={ACCENT[color] || ACCENT.neutral} />
       </div>
-      <div className="font-display mt-2 pl-1.5 text-[28px] font-bold leading-none text-ink">{animated}</div>
+
+      <div className="relative z-10 flex items-end gap-2">
+        <span className="text-[34px] font-bold leading-none tracking-tight text-on-surface">{animated}</span>
+        {note && <span className="mb-0.5 text-body-md text-sm font-medium text-on-surface-variant">{note}</span>}
+      </div>
     </div>
   );
 }

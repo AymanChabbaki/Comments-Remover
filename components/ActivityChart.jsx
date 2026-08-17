@@ -1,6 +1,6 @@
 import { CARD } from './dashboardUi';
 
-export default function ActivityChart({ events, title = 'Activity, last 24h' }) {
+export default function ActivityChart({ events, title = 'Activity Volume', subtitle = 'Comments processed over the last 24 hours' }) {
   const buckets = 24;
   const now = Date.now();
   const hourMs = 3600 * 1000;
@@ -15,59 +15,60 @@ export default function ActivityChart({ events, title = 'Activity, last 24h' }) 
   }
 
   const maxCount = Math.max(1, ...counts.map((c) => c.deleted + c.kept));
-  const total = counts.reduce((sum, c) => sum + c.deleted + c.kept, 0);
-  const width = 960;
-  const height = 104;
-  const gap = 4;
-  const barW = width / buckets - gap;
 
   return (
-    <div className={`animate-fade-in-up p-5 ${CARD}`}>
-      <div className="mb-4 flex items-baseline justify-between">
-        <div className="text-sm font-semibold text-ink">{title}</div>
-        <div className="text-xs tabular-nums text-ink-mute">{total} in window</div>
+    <section className={`flex flex-col overflow-hidden ${CARD}`}>
+      <div className="flex items-center justify-between border-b border-surface-container-high bg-surface-container-lowest p-lg">
+        <div>
+          <h2 className="text-headline-md text-on-surface">{title}</h2>
+          <p className="mt-1 text-body-md text-on-surface-variant">{subtitle}</p>
+        </div>
+        <div className="flex gap-4">
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 rounded bg-gradient-to-t from-primary to-primary-fixed" />
+            <span className="font-mono text-label-sm uppercase text-on-surface-variant">Deleted</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 rounded bg-gradient-to-t from-good to-good-soft" />
+            <span className="font-mono text-label-sm uppercase text-on-surface-variant">Kept</span>
+          </div>
+        </div>
       </div>
 
-      <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="block h-[104px] w-full overflow-visible">
-        {counts.map((c, i) => {
-          const x = i * (width / buckets) + gap / 2;
-          const stackTotal = c.deleted + c.kept;
-          const scale = (height - 6) / maxCount;
-          const keptH = c.kept * scale;
-          const delH = c.deleted * scale;
-          const hoursAgo = buckets - 1 - i;
-          const when = hoursAgo === 0 ? 'This hour' : `${hoursAgo}h ago`;
+      <div className="relative h-64 w-full bg-surface-container-lowest p-lg">
+        <div className="relative flex h-full items-end justify-between gap-1">
+          <div className="pointer-events-none absolute inset-0 flex flex-col justify-between border-t border-surface-container-high/50">
+            <div className="h-0 w-full border-b border-surface-container-high/30" />
+            <div className="h-0 w-full border-b border-surface-container-high/30" />
+            <div className="h-0 w-full border-b border-surface-container-high/30" />
+            <div className="h-0 w-full border-b border-surface-container-high" />
+          </div>
 
-          if (stackTotal === 0) {
-            return <rect key={i} x={x} y={height - 2} width={barW} height={2} rx={1} className="fill-line" />;
-          }
-          return (
-            <g key={i}>
-              {c.kept > 0 && (
-                <rect x={x} y={height - keptH} width={barW} height={Math.max(keptH, 2)} rx={2} className="fill-good">
-                  <title>{`${when}: ${c.kept} kept`}</title>
-                </rect>
-              )}
-              {c.deleted > 0 && (
-                // 2px gap between the stacked segments so they read as two values, not one bar.
-                <rect x={x} y={height - keptH - delH - (c.kept > 0 ? 2 : 0)} width={barW} height={Math.max(delH, 2)} rx={2} className="fill-danger">
-                  <title>{`${when}: ${c.deleted} deleted`}</title>
-                </rect>
-              )}
-            </g>
-          );
-        })}
-      </svg>
-
-      <div className="mt-3 flex items-center gap-4 border-t border-line-soft pt-3 text-xs text-ink-soft">
-        <span className="inline-flex items-center gap-1.5">
-          <span className="inline-block h-2 w-2 rounded-sm bg-danger" />Deleted
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="inline-block h-2 w-2 rounded-sm bg-good" />Kept
-        </span>
-        <span className="ml-auto text-ink-mute">24h &rarr; now</span>
+          {counts.map((c, i) => {
+            const hoursAgo = buckets - 1 - i;
+            const when = hoursAgo === 0 ? 'This hour' : `${hoursAgo}h ago`;
+            const keptPct = (c.kept / maxCount) * 100;
+            const delPct = (c.deleted / maxCount) * 100;
+            return (
+              <div key={i} title={`${when}: ${c.kept} kept, ${c.deleted} deleted`} className="group relative z-10 flex h-full flex-1 flex-col justify-end gap-0.5">
+                {c.deleted > 0 && (
+                  <div
+                    style={{ height: `${Math.max(delPct, 3)}%` }}
+                    className="w-full rounded-t-sm bg-gradient-to-t from-primary to-primary-fixed-dim shadow-sm transition-opacity group-hover:opacity-80"
+                  />
+                )}
+                {c.kept > 0 && (
+                  <div
+                    style={{ height: `${Math.max(keptPct, 3)}%` }}
+                    className="w-full rounded-t-sm bg-gradient-to-t from-good to-good-soft shadow-sm transition-opacity group-hover:opacity-80"
+                  />
+                )}
+                {c.deleted === 0 && c.kept === 0 && <div className="h-0.5 w-full rounded-full bg-surface-container-high" />}
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

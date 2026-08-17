@@ -1,99 +1,158 @@
 @import "tailwindcss";
 
-@theme inline {
-  --font-sans: var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-display: var(--font-grotesk), var(--font-jakarta), sans-serif;
-}
-
 /*
- * Tech Hermanos design tokens.
+ * Material 3 token system, ported 1:1 from the provided reference design
+ * (color roles, spacing scale, type scale). Two intentional departures:
  *
- * Warm ivory paper + cool navy chrome + maroon accent, all pulled from
- * the logo. The warm/cool split is deliberate: it's what keeps this from
- * reading like default-Tailwind slate-on-white. There is no dark mode --
- * one committed look, not two half-tuned ones.
+ * 1. `radius-full` is left at Tailwind's default 9999px rather than the
+ *    reference's 0.75rem -- the reference redefines "full" as a 12px
+ *    squircle, which also silently reshapes every `rounded-full` circle
+ *    in the app (avatars, status dots, donut rings) into a rounded
+ *    square. That reads as an artifact of a generic design-token export,
+ *    not an intentional choice, so circles stay circles here.
+ * 2. Only fonts/colors/spacing/radius are ported -- content stays real.
+ *    No fabricated "PRO" badge, follower counts, uptime %, or rule-ID
+ *    strings; this app doesn't track any of those.
  */
 @theme {
-  /* Maroon -- the single accent. Primary actions, active nav, links. */
-  --color-brand-50: #fbf1f2;
-  --color-brand-100: #f6dee1;
-  --color-brand-200: #ebbcc3;
-  --color-brand-300: #db8f9c;
-  --color-brand-400: #c56377;
-  --color-brand-500: #a8455b;
-  --color-brand-600: #7b2c3b;
-  --color-brand-700: #66242f;
-  --color-brand-800: #4f1c25;
-  --color-brand-900: #3a151c;
+  /* --- Color roles (Material 3), exact hex from the reference --- */
+  --color-primary: #45020a;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #63181d;
+  --color-on-primary-container: #e77e7e;
+  --color-primary-fixed: #ffdad8;
+  --color-primary-fixed-dim: #ffb3b2;
+  --color-on-primary-fixed: #410008;
+  --color-on-primary-fixed-variant: #7c2b2e;
+  --color-inverse-primary: #ffb3b2;
 
-  /* Navy -- chrome. Sidebar, login panel, deep surfaces. */
-  --color-navy-50: #f4f6f8;
-  --color-navy-100: #e4e8ee;
-  --color-navy-200: #c7cfda;
-  --color-navy-300: #a0acbe;
-  --color-navy-400: #75839a;
-  --color-navy-500: #56657d;
-  --color-navy-600: #3f4b5e;
-  --color-navy-700: #333d4d;
-  --color-navy-800: #262e3b;
-  --color-navy-900: #1a202a;
-  --color-navy-950: #12171f;
+  --color-secondary: #4f6073;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #cfe1f8;
+  --color-on-secondary-container: #536478;
+  --color-secondary-fixed: #d2e4fb;
+  --color-secondary-fixed-dim: #b6c8df;
+  --color-on-secondary-fixed: #0a1d2d;
+  --color-on-secondary-fixed-variant: #37485b;
 
-  /* Warm paper neutrals -- page ground, cards, hairlines. */
-  --color-paper: #f7f4ef;
-  --color-paper-alt: #efeae1;
-  --color-surface: #ffffff;
-  --color-line: #e5ded2;
-  --color-line-soft: #f0ebe3;
+  --color-tertiary: #1c1f20;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #313435;
+  --color-on-tertiary-container: #9a9c9d;
+  --color-tertiary-fixed: #e1e3e4;
+  --color-tertiary-fixed-dim: #c5c7c8;
+  --color-on-tertiary-fixed: #191c1d;
+  --color-on-tertiary-fixed-variant: #454748;
 
-  /* Ink -- navy-tinted so body copy harmonizes with the chrome. */
-  --color-ink: #1f242c;
-  --color-ink-soft: #5c6675;
-  --color-ink-mute: #8d95a1;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
 
-  /*
-   * Semantic / chart colors. Validated as a categorical trio against the
-   * paper surface: worst adjacent CVD separation ΔE 10.3 (deutan), all
-   * above the chroma floor. The ochre sits just under 3:1 contrast, which
-   * is why every chart using it also prints its value as text.
-   */
-  --color-good: #0f9079;
-  --color-good-soft: #e3f4f0;
-  --color-warn: #c2922f;
-  --color-warn-soft: #f9f0dc;
-  --color-danger: #cc4f36;
-  --color-danger-soft: #fbe9e4;
+  --color-background: #fcf9f8;
+  --color-on-background: #1c1b1b;
+  --color-surface: #fcf9f8;
+  --color-surface-dim: #dcd9d9;
+  --color-surface-bright: #fcf9f8;
+  --color-on-surface: #1c1b1b;
+  --color-on-surface-variant: #554242;
+  --color-surface-variant: #e5e2e1;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f6f3f2;
+  --color-surface-container: #f0eded;
+  --color-surface-container-high: #eae7e7;
+  --color-surface-container-highest: #e5e2e1;
+  --color-surface-tint: #9b4244;
 
-  /* Platform identity. */
-  --color-fb: #3f6fb3;
-  --color-fb-soft: #e7eefa;
-  --color-ig: #a8459b;
-  --color-ig-soft: #f7e8f5;
+  --color-outline: #887271;
+  --color-outline-variant: #dbc0bf;
+
+  --color-inverse-surface: #313030;
+  --color-inverse-on-surface: #f3f0ef;
+
+  /* Platform identity -- not part of M3, kept separate/semantic. */
+  --color-fb: #1877f2;
+  --color-fb-soft: #e7f0fe;
+  --color-ig: #e1306c;
+  --color-ig-soft: #fce9f0;
+  --color-good: #137333;
+  --color-good-soft: #e6f4ea;
+
+  /* --- Spacing scale --- */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-base: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-gutter: 24px;
+  --spacing-section-gap: 80px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 40px;
+  --spacing-container-max: 1280px;
+
+  /* --- Radius --- */
+  --radius-lg: 4px;
+  --radius-xl: 8px;
+  /* radius-full intentionally not overridden -- see note above. */
+
+  /* --- Fonts --- */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  /* --- Type scale (Material 3 semantic sizes) --- */
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 56px;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-display-lg--font-weight: 700;
+
+  --text-headline-lg: 24px;
+  --text-headline-lg--line-height: 32px;
+  --text-headline-lg--letter-spacing: -0.01em;
+  --text-headline-lg--font-weight: 600;
+
+  --text-headline-lg-mobile: 28px;
+  --text-headline-lg-mobile--line-height: 34px;
+  --text-headline-lg-mobile--font-weight: 700;
+
+  --text-headline-md: 20px;
+  --text-headline-md--line-height: 28px;
+  --text-headline-md--font-weight: 600;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-body-lg--font-weight: 400;
+
+  --text-body-md: 14px;
+  --text-body-md--line-height: 20px;
+  --text-body-md--font-weight: 400;
+
+  --text-label-md: 14px;
+  --text-label-md--line-height: 20px;
+  --text-label-md--letter-spacing: 0.05em;
+  --text-label-md--font-weight: 500;
+
+  --text-label-sm: 12px;
+  --text-label-sm--line-height: 16px;
+  --text-label-sm--letter-spacing: 0.03em;
+  --text-label-sm--font-weight: 500;
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-paper);
-  color: var(--color-ink);
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, .font-display {
-  font-family: var(--font-display);
-  letter-spacing: -0.02em;
+h1, h2, h3 {
+  letter-spacing: -0.01em;
 }
 
-/* Paper grain -- a barely-there tooth so large ivory areas aren't flat. */
-.bg-grain {
-  background-image: radial-gradient(rgba(31, 36, 44, 0.035) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-/* Faint rule used to separate stacked sections without a hard border. */
-.rule {
-  background-image: linear-gradient(to right, var(--color-line), transparent);
-  height: 1px;
-}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-outline-variant); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-outline); }
 
 @keyframes fade-in-up {
   from { opacity: 0; transform: translateY(10px); }
