@@ -33,7 +33,7 @@ export default function LiveDemoPage() {
   }, [load]);
 
   const ctaBanner = (
-    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-gradient-to-r from-brand-50 to-rose-50 p-4 text-sm shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-gradient-to-r from-primary/10 to-secondary-container/60 p-4 text-sm shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
       <div>
         <strong className="font-semibold">This is our own real, connected Page</strong> — post a comment on{' '}
         <a href={DEMO_POST_URL} target="_blank" rel="noreferrer" className="font-semibold underline">

@@ -75,22 +75,22 @@ export default function ProfileClient({ clientId, clientName }) {
       <div className="grid max-w-3xl gap-6 sm:grid-cols-2">
         <form
           onSubmit={saveInfo}
-          className="animate-fade-in-up flex flex-col gap-3 rounded-xl border border-line bg-surface p-6 shadow-[0_1px_2px_rgba(31,36,44,0.04)]"
+          className="animate-fade-in-up flex flex-col gap-3 rounded-xl border border-surface-container-high bg-surface-container-lowest p-6 shadow-[0_1px_2px_rgba(31,36,44,0.04)]"
         >
           <div className="mb-1 flex items-center gap-2 text-sm font-semibold">
-            <User size={16} className="text-brand-600" /> Account details
+            <User size={16} className="text-primary" /> Account details
           </div>
           <Field icon={User} label="Name" value={form.name} onChange={(v) => setForm((f) => ({ ...f, name: v }))} />
           <Field icon={Mail} label="Email" type="email" value={form.email} onChange={(v) => setForm((f) => ({ ...f, email: v }))} />
           <button
             type="submit"
             disabled={infoBusy}
-            className="mt-1 rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white transition-transform hover:bg-brand-700 active:scale-[0.98] disabled:opacity-50"
+            className="mt-1 rounded-lg bg-primary py-2.5 text-sm font-semibold text-white transition-transform hover:bg-primary-container active:scale-[0.98] disabled:opacity-50"
           >
             {infoBusy ? 'Saving…' : 'Save changes'}
           </button>
           {infoMsg && (
-            <p className={`text-sm ${infoMsg.ok ? 'text-good' : 'text-danger'}`}>
+            <p className={`text-sm ${infoMsg.ok ? 'text-good' : 'text-error'}`}>
               {infoMsg.text}
             </p>
           )}
@@ -99,10 +99,10 @@ export default function ProfileClient({ clientId, clientName }) {
         <form
           onSubmit={savePassword}
           style={{ animationDelay: '80ms' }}
-          className="animate-fade-in-up flex flex-col gap-3 rounded-xl border border-line bg-surface p-6 shadow-[0_1px_2px_rgba(31,36,44,0.04)]"
+          className="animate-fade-in-up flex flex-col gap-3 rounded-xl border border-surface-container-high bg-surface-container-lowest p-6 shadow-[0_1px_2px_rgba(31,36,44,0.04)]"
         >
           <div className="mb-1 flex items-center gap-2 text-sm font-semibold">
-            <KeyRound size={16} className="text-brand-600" /> Change password
+            <KeyRound size={16} className="text-primary" /> Change password
           </div>
           <Field
             icon={ShieldCheck}
@@ -128,7 +128,7 @@ export default function ProfileClient({ clientId, clientName }) {
           <button
             type="button"
             onClick={() => setShowPw((s) => !s)}
-            className="flex w-fit items-center gap-1.5 text-xs text-ink-mute hover:text-ink-soft"
+            className="flex w-fit items-center gap-1.5 text-xs text-on-surface-variant hover:text-on-surface-variant"
           >
             {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
             {showPw ? 'Hide passwords' : 'Show passwords'}
@@ -136,12 +136,12 @@ export default function ProfileClient({ clientId, clientName }) {
           <button
             type="submit"
             disabled={pwBusy}
-            className="mt-1 rounded-lg border border-line py-2.5 text-sm font-semibold transition-all hover:border-brand-400 active:scale-[0.98] disabled:opacity-50"
+            className="mt-1 rounded-lg border border-surface-container-high py-2.5 text-sm font-semibold transition-all hover:border-primary/40 active:scale-[0.98] disabled:opacity-50"
           >
             {pwBusy ? 'Updating…' : 'Update password'}
           </button>
           {pwMsg && (
-            <p className={`text-sm ${pwMsg.ok ? 'text-good' : 'text-danger'}`}>
+            <p className={`text-sm ${pwMsg.ok ? 'text-good' : 'text-error'}`}>
               {pwMsg.text}
             </p>
           )}
@@ -153,15 +153,15 @@ export default function ProfileClient({ clientId, clientName }) {
 
 function Field({ icon: Icon, label, type = 'text', value, onChange }) {
   return (
-    <label className="flex flex-col gap-1 text-xs text-ink-soft">
+    <label className="flex flex-col gap-1 text-xs text-on-surface-variant">
       {label}
-      <div className="flex items-center gap-2 rounded-lg border border-line bg-surface px-3 py-2 transition-colors focus-within:border-brand-400">
-        <Icon size={14} className="shrink-0 text-ink-mute" />
+      <div className="flex items-center gap-2 rounded-lg border border-surface-container-high bg-surface-container-lowest px-3 py-2 transition-colors focus-within:border-primary/40">
+        <Icon size={14} className="shrink-0 text-on-surface-variant" />
         <input
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full bg-transparent text-sm text-ink outline-none"
+          className="w-full bg-transparent text-sm text-on-surface outline-none"
         />
       </div>
     </label>

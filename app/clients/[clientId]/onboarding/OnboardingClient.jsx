@@ -98,7 +98,7 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
     {
       title: `Welcome, ${clientName} 👋`,
       body: (
-        <p className="max-w-md text-ink-soft">
+        <p className="max-w-md text-on-surface-variant">
           Let&apos;s connect your Facebook Page so we can start moderating comments automatically. This takes about
           five minutes, and only needs to be done once.
         </p>
@@ -109,17 +109,17 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
       title: 'See it working first',
       body: (
         <div className="max-w-lg space-y-4">
-          <p className="text-sm text-ink-soft">
+          <p className="text-sm text-on-surface-variant">
             Before connecting your own Page, try it on ours — no setup needed on your end.
           </p>
-          <ol className="list-decimal space-y-1.5 pl-4 text-sm text-ink-soft">
+          <ol className="list-decimal space-y-1.5 pl-4 text-sm text-on-surface-variant">
             <li>
               Post a comment on{' '}
               <a
                 href={DEMO_POST_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1 font-medium text-brand-600"
+                className="inline-flex items-center gap-1 font-medium text-primary"
               >
                 this Facebook post <ExternalLink size={12} />
               </a>{' '}
@@ -131,7 +131,7 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
                 href="/live-demo"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1 font-medium text-brand-600"
+                className="inline-flex items-center gap-1 font-medium text-primary"
               >
                 live dashboard <ExternalLink size={12} />
               </a>{' '}
@@ -146,12 +146,12 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
       title: 'Step 1 — Get added as a tester',
       body: (
         <div className="max-w-lg space-y-4">
-          <p className="text-sm text-ink-soft">
+          <p className="text-sm text-on-surface-variant">
             Our app isn&apos;t public on Facebook yet, so before you can generate a token you need to be added as a{' '}
             <strong>Tester</strong> on it. It&apos;s a one-time, 30-second step on our side — no passwords or tokens
             involved.
           </p>
-          <ol className="list-decimal space-y-1.5 pl-4 text-sm text-ink-soft">
+          <ol className="list-decimal space-y-1.5 pl-4 text-sm text-on-surface-variant">
             <li>Send us the email or Facebook profile link for the account you use to manage your Page.</li>
             <li>Also want Instagram comments moderated? Say so in the same message — Instagram uses a separate tester list from Facebook, so we need to add you to both.</li>
             <li>We&apos;ll add you as a tester — takes a few minutes.</li>
@@ -163,7 +163,7 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
           </ol>
           <a
             href={`mailto:hello@techermanos.org?subject=${encodeURIComponent(`Tester access request — ${clientName}`)}&body=${encodeURIComponent(`Hi,\n\nPlease add me as a tester on your Facebook App so I can generate my Page access token.\n\nName: ${clientName}\nAccount email: ${clientEmail || ''}\nFacebook profile link: \n\nThanks!`)}`}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-container"
           >
             <Mail size={16} /> Request tester access
           </a>
@@ -181,14 +181,14 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
                 type="button"
                 disabled={fbBusy}
                 onClick={connectFacebook}
-                className="flex items-center justify-center gap-1.5 rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+                className="flex items-center justify-center gap-1.5 rounded-lg bg-primary py-2.5 text-sm font-semibold text-white hover:bg-primary-container disabled:opacity-50"
               >
                 {fbBusy ? 'Redirecting…' : 'Connect Facebook'}
               </button>
               <button
                 type="button"
                 onClick={() => setShowManualFb(true)}
-                className="self-start text-xs text-ink-mute hover:text-ink-soft"
+                className="self-start text-xs text-on-surface-variant hover:text-on-surface-variant"
               >
                 Have a token already? Paste it manually
               </button>
@@ -201,7 +201,7 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
                 <button
                   type="button"
                   onClick={() => setShowManualFb(false)}
-                  className="self-start text-xs text-ink-mute hover:text-ink-soft"
+                  className="self-start text-xs text-on-surface-variant hover:text-on-surface-variant"
                 >
                   Use Connect Facebook instead
                 </button>
@@ -211,8 +211,8 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
 
           {igAppId && (
             <>
-              <hr className="my-1 border-line" />
-              <p className="text-xs text-ink-soft">
+              <hr className="my-1 border-surface-container-high" />
+              <p className="text-xs text-on-surface-variant">
                 Optional — want Instagram comments moderated too? Requires having accepted the Instagram tester
                 invite from Step 1 first. This saves your Facebook details above, then takes you to Instagram to
                 finish connecting.
@@ -221,14 +221,14 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
                 type="button"
                 disabled={igBusy}
                 onClick={connectInstagram}
-                className="flex items-center justify-center gap-1.5 rounded-lg border border-line py-2.5 text-sm font-semibold hover:border-brand-400 disabled:opacity-50"
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-surface-container-high py-2.5 text-sm font-semibold hover:border-primary/40 disabled:opacity-50"
               >
                 {igBusy ? 'Redirecting…' : 'Connect Instagram'}
               </button>
             </>
           )}
 
-          {error && <p className="text-sm text-danger">{error}</p>}
+          {error && <p className="text-sm text-error">{error}</p>}
         </div>
       ),
       nextLabel: busy ? 'Saving…' : 'Finish & go to dashboard',
@@ -252,13 +252,13 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
   }
 
   return (
-    <div className="bg-grain flex min-h-screen flex-col bg-paper">
+    <div className="flex min-h-screen flex-col bg-background">
       <header className="flex items-center justify-between px-6 py-5 sm:px-10">
         <Logo height={34} />
         <div className="flex items-center gap-4">
           <a
             href={`tel:${SUPPORT_PHONE}`}
-            className="flex items-center gap-1.5 text-sm font-medium text-ink-soft hover:text-brand-600"
+            className="flex items-center gap-1.5 text-sm font-medium text-on-surface-variant hover:text-primary"
           >
             <Phone size={14} /> Stuck? Call {SUPPORT_PHONE}
           </a>
@@ -270,7 +270,7 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
           <div
             key={i}
             className={`h-1.5 w-10 rounded-full transition-colors ${
-              i <= step ? 'bg-brand-600' : 'bg-line'
+              i <= step ? 'bg-primary' : 'bg-line'
             }`}
           />
         ))}
@@ -285,7 +285,7 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
             <button
               type="button"
               onClick={() => setStep((s) => s - 1)}
-              className="flex items-center gap-1.5 rounded-lg border border-line px-4 py-2.5 text-sm font-semibold hover:border-brand-400"
+              className="flex items-center gap-1.5 rounded-lg border border-surface-container-high px-4 py-2.5 text-sm font-semibold hover:border-primary/40"
             >
               <ArrowLeft size={16} /> Back
             </button>
@@ -294,13 +294,13 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
             type="button"
             disabled={busy || !canProceed}
             onClick={handleNext}
-            className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-container disabled:cursor-not-allowed disabled:opacity-50"
           >
             {current.nextLabel} {!current.isLast && <ArrowRight size={16} />}
           </button>
         </div>
         {current.requiresFields && !canProceed && (fbAppId ? showManualFb : true) && (
-          <p className="mt-3 text-xs text-warn">
+          <p className="mt-3 text-xs text-secondary">
             {fbAppId
               ? 'Enter your Facebook Page ID and Page Access Token above to finish, or use Connect Facebook instead — this step can’t be skipped.'
               : "Enter your Facebook Page ID and Page Access Token above to finish — this step can't be skipped."}
@@ -313,11 +313,11 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
 
 function Field({ label, ...props }) {
   return (
-    <label className="flex flex-col gap-1 text-xs text-ink-soft">
+    <label className="flex flex-col gap-1 text-xs text-on-surface-variant">
       {label}
       <input
         {...props}
-        className="rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink"
+        className="rounded-lg border border-surface-container-high bg-surface-container-lowest px-3 py-2 text-sm text-on-surface"
       />
     </label>
   );

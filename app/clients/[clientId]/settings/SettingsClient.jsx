@@ -110,7 +110,7 @@ export default function SettingsClient({ clientId, clientName, igAppId, fbAppId,
             <StatusPill label="Facebook Page" connected={!!status.pageId && status.hasPageToken} />
             <StatusPill label="Instagram" connected={!!status.igUserId && status.hasIgToken} optional />
             {status.igUserId && status.hasIgToken && status.igUsername && (
-              <span className="inline-flex items-center gap-1.5 text-xs text-ink-soft">
+              <span className="inline-flex items-center gap-1.5 text-xs text-on-surface-variant">
                 {status.igProfilePicUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={status.igProfilePicUrl} alt="" className="h-5 w-5 rounded-full object-cover" />
@@ -127,19 +127,19 @@ export default function SettingsClient({ clientId, clientName, igAppId, fbAppId,
           </div>
         )}
         {igResult === 'connected_no_webhook' && (
-          <div className="mb-4 rounded-lg border border-warn/40 bg-warn-soft px-3 py-2.5 text-sm text-warn">
+          <div className="mb-4 rounded-lg border border-secondary/40 bg-secondary-container px-3 py-2.5 text-sm text-secondary">
             Instagram account saved, but comment moderation isn&apos;t active yet — subscribing to webhooks failed.
             Try reconnecting, or check the account&apos;s &quot;Abonnement Webhooks&quot; toggle in App Dashboard.
             {igReason && <div className="mt-1 break-words font-mono text-xs opacity-80">{igReason}</div>}
           </div>
         )}
         {igResult === 'denied' && (
-          <div className="mb-4 rounded-lg border border-warn/40 bg-warn-soft px-3 py-2.5 text-sm text-warn">
+          <div className="mb-4 rounded-lg border border-secondary/40 bg-secondary-container px-3 py-2.5 text-sm text-secondary">
             Instagram connection was cancelled — nothing changed.
           </div>
         )}
         {igResult === 'error' && (
-          <div className="mb-4 rounded-lg border border-danger/40 bg-danger-soft px-3 py-2.5 text-sm text-danger">
+          <div className="mb-4 rounded-lg border border-error/40 bg-error-container px-3 py-2.5 text-sm text-error">
             Instagram connection failed. Make sure you&apos;ve accepted the Instagram tester invite, then try again.
             {igReason && <div className="mt-1 break-words font-mono text-xs opacity-80">{igReason}</div>}
           </div>
@@ -151,45 +151,45 @@ export default function SettingsClient({ clientId, clientName, igAppId, fbAppId,
           </div>
         )}
         {fbResult === 'connected_no_webhook' && (
-          <div className="mb-4 rounded-lg border border-warn/40 bg-warn-soft px-3 py-2.5 text-sm text-warn">
+          <div className="mb-4 rounded-lg border border-secondary/40 bg-secondary-container px-3 py-2.5 text-sm text-secondary">
             Facebook Page saved, but comment moderation isn&apos;t active yet — subscribing to webhooks failed. Try
             reconnecting, or re-run the manual subscribe command from the README.
             {fbReason && <div className="mt-1 break-words font-mono text-xs opacity-80">{fbReason}</div>}
           </div>
         )}
         {fbResult === 'denied' && (
-          <div className="mb-4 rounded-lg border border-warn/40 bg-warn-soft px-3 py-2.5 text-sm text-warn">
+          <div className="mb-4 rounded-lg border border-secondary/40 bg-secondary-container px-3 py-2.5 text-sm text-secondary">
             Facebook connection was cancelled — nothing changed.
           </div>
         )}
         {fbResult === 'error' && (
-          <div className="mb-4 rounded-lg border border-danger/40 bg-danger-soft px-3 py-2.5 text-sm text-danger">
+          <div className="mb-4 rounded-lg border border-error/40 bg-error-container px-3 py-2.5 text-sm text-error">
             Facebook connection failed. Make sure you&apos;ve accepted the Facebook tester invite, then try again.
             {fbReason && <div className="mt-1 break-words font-mono text-xs opacity-80">{fbReason}</div>}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-6 shadow-[0_1px_2px_rgba(31,36,44,0.04)]">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-xl border border-surface-container-high bg-surface-container-lowest p-6 shadow-[0_1px_2px_rgba(31,36,44,0.04)]">
           {fbAppId && !showManualFb ? (
             <div className="flex flex-col gap-2">
               <button
                 type="button"
                 onClick={connectFacebook}
-                className="rounded-lg border border-line bg-surface py-2.5 text-sm font-semibold hover:border-brand-400"
+                className="rounded-lg border border-surface-container-high bg-surface-container-lowest py-2.5 text-sm font-semibold hover:border-primary/40"
               >
                 Connect Facebook
               </button>
               <button
                 type="button"
                 onClick={() => setShowManualFb(true)}
-                className="self-start text-xs text-ink-mute hover:text-ink-soft"
+                className="self-start text-xs text-on-surface-variant hover:text-on-surface-variant"
               >
                 Have a token already? Paste it manually
               </button>
             </div>
           ) : (
             <>
-              <p className="text-xs text-ink-soft">
+              <p className="text-xs text-on-surface-variant">
                 Get these from the Meta setup guide — your Page ID and Page Access Token. Leave a token field blank to
                 keep the one you already saved.
               </p>
@@ -204,29 +204,29 @@ export default function SettingsClient({ clientId, clientName, igAppId, fbAppId,
                 <button
                   type="button"
                   onClick={() => setShowManualFb(false)}
-                  className="self-start text-xs text-ink-mute hover:text-ink-soft"
+                  className="self-start text-xs text-on-surface-variant hover:text-on-surface-variant"
                 >
                   Use Connect Facebook instead
                 </button>
               )}
             </>
           )}
-          <hr className="my-1 border-line" />
-          <p className="text-xs text-ink-soft">Optional — only if you also want Instagram comments moderated.</p>
+          <hr className="my-1 border-surface-container-high" />
+          <p className="text-xs text-on-surface-variant">Optional — only if you also want Instagram comments moderated.</p>
 
           {igAppId && !showManualIg ? (
             <div className="flex flex-col gap-2">
               <button
                 type="button"
                 onClick={connectInstagram}
-                className="rounded-lg border border-line bg-surface py-2.5 text-sm font-semibold hover:border-brand-400"
+                className="rounded-lg border border-surface-container-high bg-surface-container-lowest py-2.5 text-sm font-semibold hover:border-primary/40"
               >
                 Connect Instagram
               </button>
               <button
                 type="button"
                 onClick={() => setShowManualIg(true)}
-                className="self-start text-xs text-ink-mute hover:text-ink-soft"
+                className="self-start text-xs text-on-surface-variant hover:text-on-surface-variant"
               >
                 Have a token already? Paste it manually
               </button>
@@ -244,7 +244,7 @@ export default function SettingsClient({ clientId, clientName, igAppId, fbAppId,
                 <button
                   type="button"
                   onClick={() => setShowManualIg(false)}
-                  className="self-start text-xs text-ink-mute hover:text-ink-soft"
+                  className="self-start text-xs text-on-surface-variant hover:text-on-surface-variant"
                 >
                   Use Connect Instagram instead
                 </button>
@@ -255,12 +255,12 @@ export default function SettingsClient({ clientId, clientName, igAppId, fbAppId,
           <button
             type="submit"
             disabled={busy}
-            className="mt-1 rounded-lg bg-brand-600 py-2.5 font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+            className="mt-1 rounded-lg bg-primary py-2.5 font-semibold text-white hover:bg-primary-container disabled:opacity-50"
           >
             {busy ? 'Saving…' : 'Save'}
           </button>
           {msg && (
-            <p className={`text-sm ${msg.ok ? 'text-good' : 'text-danger'}`}>
+            <p className={`text-sm ${msg.ok ? 'text-good' : 'text-error'}`}>
               {msg.text}
             </p>
           )}
@@ -276,7 +276,7 @@ function StatusPill({ label, connected, optional }) {
       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
         connected
           ? 'bg-good-soft text-good'
-          : 'bg-paper-alt text-ink-soft'
+          : 'bg-surface-container text-on-surface-variant'
       }`}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-current" />
@@ -287,11 +287,11 @@ function StatusPill({ label, connected, optional }) {
 
 function Field({ label, ...props }) {
   return (
-    <label className="flex flex-col gap-1 text-xs text-ink-soft">
+    <label className="flex flex-col gap-1 text-xs text-on-surface-variant">
       {label}
       <input
         {...props}
-        className="rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink"
+        className="rounded-lg border border-surface-container-high bg-surface-container-lowest px-3 py-2 text-sm text-on-surface"
       />
     </label>
   );

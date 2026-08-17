@@ -42,7 +42,7 @@ export default function DemoPage() {
   }
 
   const ctaBanner = (
-    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-gradient-to-r from-brand-50 to-rose-50 p-4 text-sm shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-gradient-to-r from-primary/10 to-secondary-container/60 p-4 text-sm shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
       <div>
         <strong className="font-semibold">This is a live interactive demo</strong> — sample data, nothing connected.
         Click &ldquo;Delete&rdquo; or &ldquo;Unblock&rdquo; below, it&apos;s fully interactive.
