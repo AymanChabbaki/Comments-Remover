@@ -32,7 +32,7 @@ export default function StatCard({ label, value, icon: Icon, color = 'neutral', 
   return (
     <div
       style={{ animationDelay: `${delay}ms` }}
-      className={`animate-fade-in-up group relative flex flex-col overflow-hidden p-lg transition-shadow duration-200 hover:shadow-[0_4px_24px_rgba(0,0,0,0.06)] ${CARD}`}
+      className={`animate-fade-in-up group relative flex flex-col overflow-hidden p-6 transition-shadow duration-200 hover:shadow-[0_4px_24px_rgba(0,0,0,0.06)] ${CARD}`}
     >
       <Icon size={96} strokeWidth={1.5} className={`pointer-events-none absolute -bottom-4 -right-4 opacity-[0.04] ${WATERMARK[color] || WATERMARK.neutral}`} />
 

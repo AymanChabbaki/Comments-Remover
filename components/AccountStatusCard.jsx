@@ -7,7 +7,7 @@ import { CARD } from './dashboardUi';
 
 function PageRow({ icon: Icon, tone, name, detail, connected, settingsHref }) {
   return (
-    <div className={`group rounded-lg border border-surface-container-high bg-surface-container-lowest p-md transition-colors ${connected ? 'hover:border-primary/30' : ''}`}>
+    <div className={`group rounded-lg border border-surface-container-high bg-surface-container-lowest p-4 transition-colors ${connected ? 'hover:border-primary/30' : ''}`}>
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${tone}`}>
@@ -56,13 +56,13 @@ export default function AccountStatusCard({ clientId }) {
 
   return (
     <section className={`flex flex-1 flex-col ${CARD}`}>
-      <div className="flex items-center justify-between border-b border-surface-container-high p-lg">
+      <div className="flex items-center justify-between border-b border-surface-container-high p-6">
         <h2 className="text-headline-md text-on-surface">Connected Pages</h2>
         <Link href={settingsHref} className="text-sm font-medium text-primary hover:underline">
           Manage
         </Link>
       </div>
-      <div className="flex flex-1 flex-col gap-3 p-lg">
+      <div className="flex flex-1 flex-col gap-3 p-6">
         {!status ? (
           <div className="py-10 text-center text-sm text-on-surface-variant">Loading…</div>
         ) : (

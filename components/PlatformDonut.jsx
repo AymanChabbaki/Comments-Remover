@@ -15,7 +15,7 @@ export default function PlatformDonut({ facebook, instagram }) {
   const igLen = circumference - fbLen;
 
   return (
-    <section className={`p-lg ${CARD}`}>
+    <section className={`p-6 ${CARD}`}>
       <h2 className="mb-6 text-headline-md text-on-surface">Platform Distribution</h2>
       <div className="flex items-center justify-between gap-4">
         <div className="relative h-32 w-32 shrink-0">

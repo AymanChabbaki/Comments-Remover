@@ -62,8 +62,8 @@ export default function CommentsTable({ events, onDelete, onRefresh, readOnly })
   }
 
   return (
-    <div className="flex flex-col gap-lg">
-      <div className={`p-lg ${CARD}`}>
+    <div className="flex flex-col gap-6">
+      <div className={`p-6 ${CARD}`}>
         <div className="flex flex-wrap items-center gap-2">
           <select value={platform} onChange={(e) => setPlatform(e.target.value)} className={FIELD}>
             <option value="">All platforms</option>
@@ -124,7 +124,7 @@ export default function CommentsTable({ events, onDelete, onRefresh, readOnly })
       </div>
 
       <section className={`overflow-hidden ${CARD}`}>
-        <div className="flex items-center justify-between border-b border-surface-container-high bg-surface-container-lowest p-lg">
+        <div className="flex items-center justify-between border-b border-surface-container-high bg-surface-container-lowest p-6">
           <h2 className="text-headline-md text-on-surface">Audit Log</h2>
         </div>
         <div className="overflow-x-auto">

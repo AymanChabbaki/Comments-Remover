@@ -18,7 +18,7 @@ export default function ActivityChart({ events, title = 'Activity Volume', subti
 
   return (
     <section className={`flex flex-col overflow-hidden ${CARD}`}>
-      <div className="flex items-center justify-between border-b border-surface-container-high bg-surface-container-lowest p-lg">
+      <div className="flex items-center justify-between border-b border-surface-container-high bg-surface-container-lowest p-6">
         <div>
           <h2 className="text-headline-md text-on-surface">{title}</h2>
           <p className="mt-1 text-body-md text-on-surface-variant">{subtitle}</p>
@@ -35,7 +35,7 @@ export default function ActivityChart({ events, title = 'Activity Volume', subti
         </div>
       </div>
 
-      <div className="relative h-64 w-full bg-surface-container-lowest p-lg">
+      <div className="relative h-64 w-full bg-surface-container-lowest p-6">
         <div className="relative flex h-full items-end justify-between gap-1">
           <div className="pointer-events-none absolute inset-0 flex flex-col justify-between border-t border-surface-container-high/50">
             <div className="h-0 w-full border-b border-surface-container-high/30" />

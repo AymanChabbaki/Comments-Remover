@@ -106,12 +106,12 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
           {collapsed ? <PanelLeftOpen size={13} /> : <PanelLeftClose size={13} />}
         </button>
 
-        <div className="flex h-20 items-center justify-center border-b border-surface-container-high px-lg">
+        <div className="flex h-20 items-center justify-center border-b border-surface-container-high px-6">
           {collapsed ? <Logo variant="mark" height={32} /> : <Logo height={32} />}
         </div>
 
         {(base || isAdmin) && (
-          <div className="flex flex-1 flex-col gap-xs overflow-y-auto px-md py-lg">
+          <div className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-6">
             {isAdmin ? (
               <>
                 <NavItem href="/admin" icon={LayoutDashboard} label="Overview" active={pathname === '/admin'} collapsed={collapsed} />
@@ -127,7 +127,7 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
               </>
             )}
 
-            <div className="mt-auto pt-lg">
+            <div className="mt-auto pt-6">
               <Link
                 href="/demo"
                 target="_blank"
@@ -144,11 +144,11 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
         )}
 
         {base && (
-          <div className="flex flex-col gap-sm border-t border-surface-container-high bg-surface-container-lowest/50 p-md">
+          <div className="flex flex-col gap-2 border-t border-surface-container-high bg-surface-container-lowest/50 p-4">
             {!collapsed && (
-              <div className="flex flex-col gap-xs px-md py-sm">
+              <div className="flex flex-col gap-1 px-4 py-2">
                 <div className="font-mono text-label-sm uppercase text-on-surface-variant">Need Help?</div>
-                <a href={`tel:${SUPPORT_PHONE}`} className="flex items-center gap-sm text-on-surface transition-colors hover:text-primary">
+                <a href={`tel:${SUPPORT_PHONE}`} className="flex items-center gap-2 text-on-surface transition-colors hover:text-primary">
                   <Phone size={16} />
                   <span className="font-mono text-label-md">{SUPPORT_PHONE}</span>
                 </a>
@@ -158,7 +158,7 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
               href="mailto:hello@techermanos.org"
               title={collapsed ? 'Help & Support' : undefined}
               className={`flex items-center gap-3 rounded-lg py-2 text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface ${
-                collapsed ? 'justify-center px-0' : 'px-md'
+                collapsed ? 'justify-center px-0' : 'px-4'
               }`}
             >
               <HelpCircle size={18} />
@@ -169,7 +169,7 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
               type="button"
               title={collapsed ? 'Log out' : undefined}
               className={`flex items-center gap-3 rounded-lg py-2 text-on-surface-variant transition-colors hover:bg-error-container hover:text-on-error-container ${
-                collapsed ? 'justify-center px-0' : 'px-md'
+                collapsed ? 'justify-center px-0' : 'px-4'
               }`}
             >
               <LogOut size={18} />
@@ -183,7 +183,7 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
           (via the --rail-w custom property, scoped behind lg:) and the
           header's logo mark change between mobile and desktop. */}
       <div className="flex min-h-screen flex-col lg:ml-[var(--rail-w)] lg:h-screen lg:overflow-hidden lg:transition-[margin] lg:duration-300 lg:ease-in-out">
-        <header className="z-10 flex h-20 shrink-0 items-center justify-between gap-4 border-b border-surface-container-high bg-surface-container-lowest px-lg lg:px-xl">
+        <header className="z-10 flex h-20 shrink-0 items-center justify-between gap-4 border-b border-surface-container-high bg-surface-container-lowest px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <span className="shrink-0 lg:hidden">
               <Logo variant="mark" height={28} />
@@ -193,7 +193,7 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
               {subtitle && <p className="mt-0.5 hidden text-body-md text-on-surface-variant sm:block">{subtitle}</p>}
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-lg">
+          <div className="flex shrink-0 items-center gap-6">
             {headerAction}
             {base ? (
               <Link
@@ -211,7 +211,7 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
           </div>
         </header>
 
-        <main className="flex-1 bg-surface-container-low p-lg lg:overflow-y-auto lg:p-xl">
+        <main className="flex-1 bg-surface-container-low p-6 lg:overflow-y-auto lg:p-8">
           <div className={`animate-fade-in mx-auto ${wide ? 'max-w-[1400px]' : 'max-w-[1080px]'}`}>{children}</div>
         </main>
       </div>

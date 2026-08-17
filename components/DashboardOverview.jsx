@@ -25,21 +25,21 @@ export default function DashboardOverview({ clientId, events, ctaBanner }) {
   }, [events]);
 
   return (
-    <div className="flex flex-col gap-xl">
+    <div className="flex flex-col gap-8">
       {ctaBanner}
 
-      <section className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-4">
+      <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Total Processed" value={stats.total} icon={MessageSquare} color="neutral" delay={0} />
         <StatCard label="Removed" value={stats.deleted} icon={Trash2} color="brand" delay={50} note={`${stats.rate}% rate`} />
         <StatCard label="Kept" value={stats.kept} icon={CheckCircle2} color="good" delay={100} />
         <StatCard label="Errors" value={stats.errors} icon={AlertTriangle} color="warn" delay={150} />
       </section>
 
-      <div className="grid grid-cols-1 gap-lg lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <div className="lg:col-span-8">
           <ActivityChart events={events} />
         </div>
-        <div className="flex flex-col gap-lg lg:col-span-4">
+        <div className="flex flex-col gap-6 lg:col-span-4">
           <PlatformDonut facebook={stats.facebook} instagram={stats.instagram} />
           {clientId && <AccountStatusCard clientId={clientId} />}
         </div>

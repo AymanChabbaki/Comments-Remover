@@ -72,7 +72,7 @@ export default function BlocklistPanel({ blocked, onUnblock, readOnly, compact }
 
   return (
     <section className={`overflow-hidden ${CARD}`}>
-      <div className="flex items-center gap-2 border-b border-surface-container-high bg-surface-container-lowest p-lg">
+      <div className="flex items-center gap-2 border-b border-surface-container-high bg-surface-container-lowest p-6">
         <ShieldOff size={16} className="text-primary" />
         <h2 className="text-headline-md text-on-surface">Blocked Authors</h2>
         <span className="ml-auto rounded-md bg-surface-container px-2 py-0.5 font-mono text-xs font-bold text-on-surface-variant">

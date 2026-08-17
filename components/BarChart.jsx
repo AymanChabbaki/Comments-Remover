@@ -19,7 +19,7 @@ export default function BarChart({ title, rows, icon: Icon }) {
   const max = Math.max(1, ...rows.map((r) => r.value));
 
   return (
-    <section className={`p-lg ${CARD}`}>
+    <section className={`p-6 ${CARD}`}>
       <div className="mb-6 flex items-center gap-2 text-headline-md text-on-surface">
         {Icon && <Icon size={18} className="text-primary" />}
         {title}
