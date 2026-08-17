@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 /*
- * Material 3 token system, ported 1:1 from the provided reference design
- * (color roles, spacing scale, type scale). Two intentional departures:
+ * Material 3 token system, ported from the provided reference design
+ * (color roles, type scale). Departures from the reference, all
+ * intentional:
  *
  * 1. `radius-full` is left at Tailwind's default 9999px rather than the
  *    reference's 0.75rem -- the reference redefines "full" as a 12px
@@ -10,9 +11,21 @@
  *    in the app (avatars, status dots, donut rings) into a rounded
  *    square. That reads as an artifact of a generic design-token export,
  *    not an intentional choice, so circles stay circles here.
- * 2. Only fonts/colors/spacing/radius are ported -- content stays real.
- *    No fabricated "PRO" badge, follower counts, uptime %, or rule-ID
- *    strings; this app doesn't track any of those.
+ * 2. No custom named spacing scale (--spacing-xs/sm/md/lg/xl etc). The
+ *    reference's spacing names collide with Tailwind's own reserved
+ *    t-shirt-size vocabulary -- `sm`/`md`/`lg`/`xl` are also how Tailwind
+ *    names its max-width/width/height scale (`max-w-xl`, `w-md`, ...).
+ *    Defining `--spacing-xl: 32px` doesn't just add a `p-xl` utility, it
+ *    silently hijacks `max-w-xl` too, since Tailwind resolves that against
+ *    the spacing scale when a same-named key exists there -- every
+ *    `max-w-{sm,md,lg,xl}` in the app collapsed to a few px because of
+ *    this before it was caught. Tailwind's default numeric spacing scale
+ *    already lands on the same pixel values the reference wanted (1=4px,
+ *    2=8px, 4=16px, 6=24px, 8=32px), so utilities in this codebase use
+ *    those numbers directly (`p-6` not `p-lg`) instead of named aliases.
+ * 3. Only fonts/colors/radius are ported as theme tokens -- content stays
+ *    real. No fabricated "PRO" badge, follower counts, uptime %, or
+ *    rule-ID strings; this app doesn't track any of those.
  */
 @theme {
   /* --- Color roles (Material 3), exact hex from the reference --- */
@@ -77,19 +90,6 @@
   --color-ig-soft: #fce9f0;
   --color-good: #137333;
   --color-good-soft: #e6f4ea;
-
-  /* --- Spacing scale --- */
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-base: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-gutter: 24px;
-  --spacing-section-gap: 80px;
-  --spacing-margin-mobile: 16px;
-  --spacing-margin-desktop: 40px;
-  --spacing-container-max: 1280px;
 
   /* --- Radius --- */
   --radius-lg: 4px;
