@@ -91,9 +91,9 @@ export default function AdminClientsPage() {
 
   return (
     <AppShell isAdmin subtitle="Add, pause, and manage client accounts" wide>
-      <div className="mb-6 animate-fade-in-up rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="mb-6 animate-fade-in-up rounded-xl border border-line bg-surface p-5 shadow-[0_1px_2px_rgba(31,36,44,0.04)]">
         <div className="mb-1 text-sm font-semibold">Add a client</div>
-        <p className="mb-3.5 text-xs text-slate-500 dark:text-slate-400">
+        <p className="mb-3.5 text-xs text-ink-soft">
           This just creates a login — no Page ID or tokens needed from you. The client connects their own Facebook
           Page and Instagram account themselves, after logging in, from their dashboard&apos;s Settings page.
         </p>
@@ -106,7 +106,7 @@ export default function AdminClientsPage() {
               Add client
             </button>
             {formMsg && (
-              <span className={`text-sm ${formMsg.ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+              <span className={`text-sm ${formMsg.ok ? 'text-good' : 'text-danger'}`}>
                 {formMsg.text}
               </span>
             )}
@@ -114,22 +114,22 @@ export default function AdminClientsPage() {
         </form>
       </div>
 
-      <div style={{ animationDelay: '80ms' }} className="animate-fade-in-up rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div style={{ animationDelay: '80ms' }} className="animate-fade-in-up rounded-xl border border-line bg-surface p-5 shadow-[0_1px_2px_rgba(31,36,44,0.04)]">
         <div className="mb-3.5 flex items-center justify-between">
           <div className="text-sm font-semibold">Clients</div>
-          <div className="flex gap-2 text-xs text-slate-500 dark:text-slate-400">
-            <span className="rounded-full bg-emerald-100 px-2 py-0.5 font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">{clientCounts.active} active</span>
+          <div className="flex gap-2 text-xs text-ink-soft">
+            <span className="rounded-full bg-good-soft px-2 py-0.5 font-semibold text-good">{clientCounts.active} active</span>
             {clientCounts.paused > 0 && (
-              <span className="rounded-full bg-red-100 px-2 py-0.5 font-semibold text-red-700 dark:bg-red-500/15 dark:text-red-400">{clientCounts.paused} paused</span>
+              <span className="rounded-full bg-danger-soft px-2 py-0.5 font-semibold text-danger">{clientCounts.paused} paused</span>
             )}
           </div>
         </div>
         {clients.length === 0 ? (
-          <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">No clients yet — add one above.</div>
+          <div className="py-8 text-center text-sm text-ink-soft">No clients yet — add one above.</div>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs uppercase text-slate-500 dark:text-slate-400">
+              <tr className="text-left text-xs uppercase text-ink-soft">
                 <th className="pb-2 font-medium">Name</th>
                 <th className="pb-2 font-medium">Connection</th>
                 <th className="pb-2 font-medium">Login</th>
@@ -140,28 +140,28 @@ export default function AdminClientsPage() {
             </thead>
             <tbody>
               {clients.map((c) => (
-                <tr key={c.id} className="border-t border-slate-100 align-top dark:border-slate-800">
+                <tr key={c.id} className="border-t border-line-soft align-top">
                   <td className="py-2.5">
                     {c.name}
-                    <div className="text-xs text-slate-400">{c.id}</div>
-                    {c.email && <div className="text-xs text-slate-400">{c.email}</div>}
+                    <div className="text-xs text-ink-mute">{c.id}</div>
+                    {c.email && <div className="text-xs text-ink-mute">{c.email}</div>}
                   </td>
                   <td className="py-2.5 text-xs">
                     {c.hasPageToken ? (
-                      <span className="text-emerald-600 dark:text-emerald-400">Facebook connected</span>
+                      <span className="text-good">Facebook connected</span>
                     ) : (
-                      <span className="text-slate-400">Not connected yet</span>
+                      <span className="text-ink-mute">Not connected yet</span>
                     )}
-                    {c.hasIgToken && <><br /><span className="text-emerald-600 dark:text-emerald-400">Instagram connected</span></>}
+                    {c.hasIgToken && <><br /><span className="text-good">Instagram connected</span></>}
                   </td>
-                  <td className="py-2.5 text-slate-500 dark:text-slate-400">{c.hasLogin ? 'Yes' : '—'}</td>
+                  <td className="py-2.5 text-ink-soft">{c.hasLogin ? 'Yes' : '—'}</td>
                   <td className="py-2.5">
-                    <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-bold ${c.active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400'}`}>
+                    <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-bold ${c.active ? 'bg-good-soft text-good' : 'bg-danger-soft text-danger'}`}>
                       {c.active ? 'Active' : 'Paused'}
                     </span>
                   </td>
                   <td className="py-2.5">
-                    <a href={`/clients/${c.id}/dashboard`} target="_blank" rel="noreferrer" className="text-xs text-brand-600 dark:text-brand-400">
+                    <a href={`/clients/${c.id}/dashboard`} target="_blank" rel="noreferrer" className="text-xs text-brand-600">
                       Open →
                     </a>
                   </td>
@@ -171,7 +171,7 @@ export default function AdminClientsPage() {
                         type="button"
                         disabled={busyId === c.id}
                         onClick={() => toggleActive(c)}
-                        className="rounded-md border border-slate-200 px-2.5 py-1 text-xs disabled:opacity-50 dark:border-slate-700"
+                        className="rounded-md border border-line px-2.5 py-1 text-xs disabled:opacity-50"
                       >
                         {c.active ? 'Pause' : 'Resume'}
                       </button>
@@ -180,7 +180,7 @@ export default function AdminClientsPage() {
                           type="button"
                           disabled={busyId === c.id}
                           onClick={() => resetPassword(c)}
-                          className="rounded-md border border-slate-200 px-2.5 py-1 text-xs disabled:opacity-50 dark:border-slate-700"
+                          className="rounded-md border border-line px-2.5 py-1 text-xs disabled:opacity-50"
                         >
                           Reset password
                         </button>
@@ -189,7 +189,7 @@ export default function AdminClientsPage() {
                         type="button"
                         disabled={busyId === c.id}
                         onClick={() => remove(c)}
-                        className="rounded-md border border-red-400 px-2.5 py-1 text-xs text-red-600 disabled:opacity-50 dark:text-red-400"
+                        className="rounded-md border border-danger/40 px-2.5 py-1 text-xs text-danger disabled:opacity-50"
                       >
                         Delete
                       </button>
@@ -207,11 +207,11 @@ export default function AdminClientsPage() {
 
 function AdminField({ label, className = '', ...props }) {
   return (
-    <label className={`flex flex-col gap-1 text-xs text-slate-500 dark:text-slate-400 ${className}`}>
+    <label className={`flex flex-col gap-1 text-xs text-ink-soft ${className}`}>
       {label}
       <input
         {...props}
-        className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+        className="rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink"
       />
     </label>
   );

@@ -33,7 +33,7 @@ export default function LiveDemoPage() {
   }, [load]);
 
   const ctaBanner = (
-    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand-300 bg-gradient-to-r from-brand-50 to-rose-50 p-4 text-sm shadow-sm dark:border-brand-500/40 dark:from-brand-500/10 dark:to-rose-500/10">
+    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand-300 bg-gradient-to-r from-brand-50 to-rose-50 p-4 text-sm shadow-[0_1px_2px_rgba(31,36,44,0.04)]">
       <div>
         <strong className="font-semibold">This is our own real, connected Page</strong> — post a comment on{' '}
         <a href={DEMO_POST_URL} target="_blank" rel="noreferrer" className="font-semibold underline">
@@ -53,7 +53,7 @@ export default function LiveDemoPage() {
   return (
     <AppShell clientName={clientName || 'Live demo'} subtitle="Real comments, moderated live">
       {notConfigured ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
+        <div className="rounded-xl border border-line bg-surface p-8 text-center text-sm text-ink-soft">
           Live demo isn&apos;t set up yet.
         </div>
       ) : (
