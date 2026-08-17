@@ -93,7 +93,7 @@ export default function AdminOverviewPage() {
 
       <div className="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <ActivityChart events={overview.recent} />
+          <ActivityChart events={overview.recent} title="Activity Volume" subtitle="Comments processed across every client, last 24 hours" />
         </div>
         <RecentActivity events={overview.recent} />
       </div>
