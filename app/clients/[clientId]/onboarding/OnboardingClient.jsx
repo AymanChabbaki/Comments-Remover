@@ -66,7 +66,7 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
         client_id: igAppId,
         redirect_uri: redirectUri,
         response_type: 'code',
-        scope: 'instagram_business_basic,instagram_business_manage_comments',
+        scope: 'instagram_business_basic,instagram_business_manage_comments,instagram_business_manage_messages',
         state: clientId,
       });
       window.location.href = `https://www.instagram.com/oauth/authorize?${params.toString()}`;
@@ -89,7 +89,7 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
     if (fbConfigId) {
       params.set('config_id', fbConfigId);
     } else {
-      params.set('scope', 'pages_show_list,pages_read_engagement,pages_manage_engagement,pages_read_user_content,pages_manage_metadata');
+      params.set('scope', 'pages_show_list,pages_read_engagement,pages_manage_engagement,pages_read_user_content,pages_manage_metadata,pages_messaging');
     }
     window.location.href = `https://www.facebook.com/dialog/oauth?${params.toString()}`;
   }

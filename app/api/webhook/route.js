@@ -5,6 +5,7 @@ import { shouldDelete } from '../../../lib/moderation';
 import * as eventLog from '../../../lib/eventLog';
 import * as blocklist from '../../../lib/blocklist';
 import * as clients from '../../../lib/clients';
+import { handleIncomingMessages, queueRules } from '../../../lib/messaging';
 
 export const runtime = 'nodejs';
 
@@ -107,6 +108,8 @@ async function processEntries(entries, object) {
     const client = object === 'instagram' ? await clients.getByIgUserId(entry.id) : await clients.getByPageId(entry.id);
     if (!client || !client.active) continue;
 
+    await handleIncomingMessages(client, entry, object === 'instagram' ? 'instagram' : 'facebook');
+
     for (const change of entry.changes || []) {
       const comment = extractComment(change);
       if (!comment) continue;
@@ -142,6 +145,10 @@ async function processEntries(entries, object) {
           commentId, text, verdict, deleted: deleteResult.ok, platform,
           author: authorName, authorId, autoBlocked: isRepeatOffender,
         });
+
+        if (verdict === 'KEEP') {
+          await queueRules(client, platform, 'comment', commentId, authorId, text);
+        }
 
         if (verdict === 'DELETE' && !isRepeatOffender) {
           await blocklist.block(client.id, platform, authorId, authorName, commentId);

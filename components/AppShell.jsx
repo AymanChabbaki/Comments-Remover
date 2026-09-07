@@ -121,6 +121,7 @@ export default function AppShell({ clientId, clientName, isAdmin, subtitle, head
               <>
                 <NavItem href={`${base}/dashboard`} icon={LayoutDashboard} label="Dashboard" active={pathname === `${base}/dashboard`} collapsed={collapsed} />
                 <NavItem href={`${base}/comments`} icon={MessageSquare} label="Comments" active={pathname === `${base}/comments`} collapsed={collapsed} />
+                <NavItem href={`${base}/messages`} icon={MessageSquare} label="Auto Messages" active={pathname === `${base}/messages`} collapsed={collapsed} />
                 <NavItem href={`${base}/blacklist`} icon={ShieldOff} label="Blacklist" active={pathname === `${base}/blacklist`} collapsed={collapsed} />
                 <NavItem href={`${base}/settings`} icon={SettingsIcon} label="Settings" active={pathname === `${base}/settings`} collapsed={collapsed} />
                 <NavItem href={`${base}/profile`} icon={UserCircle} label="Profile" active={pathname === `${base}/profile`} collapsed={collapsed} />
