@@ -97,6 +97,55 @@ If comments don't get processed, set `DEBUG_WEBHOOK_PAYLOAD=true`, redeploy, pos
 
 ## How it works
 
+### Auto Messages
+
+Open **Auto Messages** in a client's sidebar. Create keyword rules for public
+comment replies, a private reply to a comment, or incoming DM replies. Rules
+start disabled. Only the first matching rule runs per event, and comments marked
+for deletion do not trigger replies.
+
+For a recipient list, paste up to 500 numeric **messaging-scoped recipient IDs**
+(one per line or comma-separated), or choose **Use recent contacts**. Preview
+eligibility, write a message, then send. Arbitrary usernames, profile URLs, and
+comment-author IDs cannot be substituted for messaging recipient IDs. Only
+contacts observed through incoming message webhooks for the currently connected
+account in the last 24 hours are eligible. Existing conversations are not backfilled;
+ask a test contact to send a new DM after setup. Eligibility is checked again
+immediately before each send. Unknown/expired contacts are skipped.
+
+Deployment setup:
+
+1. Add `pages_messaging` (Facebook) and `instagram_business_manage_messages`
+   (Instagram Login) to the Meta app's permissions and complete the required
+   access review for client accounts. If using `FB_CONFIG_ID`, also add
+   `pages_messaging` to that Facebook Login for Business configuration.
+2. Reconnect each account through Settings to grant the new scopes. The connection
+   code subscribes to `messages` in addition to existing comment fields. Also
+   enable the `messages` field for the respective webhook object in Meta's dashboard.
+3. Set a long random `CRON_SECRET`. The included Vercel cron calls
+   `/api/messaging/process` every minute. Use a hosting plan supporting that
+   frequency, or configure an external scheduler to GET the same URL every minute
+   with `Authorization: Bearer <CRON_SECRET>` and remove the Vercel cron config.
+   Without a scheduler, queued replies only run when **Process queued messages**
+   is clicked. List sends also process batches while the page remains open.
+4. `MESSAGING_GRAPH_API_VERSION` defaults to `v25.0` independently of the older
+   moderation API configuration. Test with an app tester's account before enabling rules.
+
+The worker processes five messages per request with atomic database claims.
+Webhook event keys and list request IDs prevent duplicate sends on repeated
+requests. Failed sends are recorded without automatic retry; interrupted or timed-out
+sends are marked `unknown` because Meta may have accepted them. Check the actual
+conversation before sending again. `sent` means API acceptance, not read/delivery
+confirmation. Pending messages can be cancelled; disabling a rule does not cancel
+messages it already queued. Private comment replies are a single initial response;
+they do not establish permission for continued unsolicited DMs. Meta enforces
+additional account, comment-age, and live-broadcast restrictions.
+
+Run `node --test tests/messaging.test.js` for messaging validation checks.
+
+References: [Meta Instagram Send API](https://www.postman.com/meta/instagram/folder/uxudqu0/send-api)
+and [Meta Messenger Send API](https://www.postman.com/meta/messenger-platform-api/folder/vilwbh4/send-api).
+
 - `POST /api/webhook` — verified via `X-Hub-Signature-256` (HMAC-SHA256, checked against `FB_APP_SECRET` and, if set, `IG_APP_SECRET`) before anything else runs. Awaited synchronously (not fire-and-forget) since this runs as a Vercel serverless function — there's no guarantee of continued execution after a response is sent the way there is on an always-on server.
 - Text isn't reliably included in the webhook payload, so it's fetched via `GET /{comment-id}?fields=message` (Facebook) or `?fields=text` (Instagram) — requesting the wrong platform's field name errors out the whole call rather than just omitting it, see `lib/facebook.js` — then sent to `gpt-4o-mini` to decide `DELETE` or `KEEP`.
 - The moderation prompt currently deletes on hate speech/spam/toxicity **or any negative sentiment at all** (complaints, "I don't recommend this", mild criticism) — not just abuse. It also reads Arabic script and Darija/Arabizi. Adjust `lib/moderation.js` if that's more aggressive than intended for a given use case — this is a product/reputation decision, not just a technical one.
