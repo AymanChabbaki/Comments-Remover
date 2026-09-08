@@ -11,10 +11,14 @@ import { CARD, Switch } from './dashboardUi';
  * watches moderation happen. Reads and writes the settings endpoint,
  * so both places stay in sync on reload.
  *
+ * Off pauses deletion only: comments are still detected and scored, and
+ * auto-replies still go out. Flagged comments just stay up until you
+ * remove them by hand.
+ *
  * `onChange` lets the parent react (the dashboard re-polls its events,
  * since pausing changes what shows up in the log).
  */
-export default function ModerationToggle({ clientId, onChange }) {
+export default function ModerationToggle({ clientId, flaggedCount = 0, onChange }) {
   const [enabled, setEnabled] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -81,12 +85,12 @@ export default function ModerationToggle({ clientId, onChange }) {
             'New comments are checked by AI and removed when they break your rules.'
           ) : (
             <>
-              Paused — nothing is deleted automatically. New comments are still logged, so you can review and remove
-              them yourself on the{' '}
+              Deletion is paused — comments are still detected and scored, and auto-replies still go out. Flagged
+              comments stay up until you remove them on the{' '}
               <Link href={`/clients/${clientId}/comments`} className="text-primary hover:underline">
                 Comments page
               </Link>
-              .
+              {flaggedCount > 0 ? ` (${flaggedCount} waiting).` : '.'}
             </>
           )}
         </p>

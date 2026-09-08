@@ -95,7 +95,12 @@ export default function SettingsClient({ clientId, clientName, igAppId, fbAppId,
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || 'Could not save');
-      setMsg({ text: next ? 'Auto-deletion is on.' : 'Auto-deletion is off — comments are logged only.', ok: true });
+      setMsg({
+        text: next
+          ? 'Auto-deletion is on.'
+          : 'Auto-deletion is off — comments are still detected, just not removed automatically.',
+        ok: true,
+      });
     } catch (err) {
       setStatus((s) => ({ ...s, moderationEnabled: !next }));
       setMsg({ text: err.message, ok: false });
@@ -212,7 +217,7 @@ export default function SettingsClient({ clientId, clientName, igAppId, fbAppId,
                 <p className="mt-1 text-xs text-on-surface-variant">
                   {status.moderationEnabled
                     ? 'New comments are checked by AI and removed when they break your rules.'
-                    : 'Paused. New comments are still logged on the Comments page, but nothing is deleted automatically — you can delete them by hand there.'}
+                    : 'Deletion is paused. Comments are still detected and scored, and auto-replies still go out — flagged comments just stay up until you remove them on the Comments page.'}
                 </p>
               </div>
               <Switch

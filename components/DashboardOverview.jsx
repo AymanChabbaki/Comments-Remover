@@ -21,8 +21,11 @@ export default function DashboardOverview({ clientId, events, ctaBanner, onModer
     const errors = events.filter((e) => e.error).length;
     const facebook = events.filter((e) => e.platform === 'facebook').length;
     const instagram = events.filter((e) => e.platform === 'instagram').length;
+    // Flagged by the AI but still live -- what builds up while
+    // auto-deletion is paused, and what manual review works through.
+    const flagged = events.filter((e) => e.verdict === 'DELETE' && !e.deleted && !e.error).length;
     const rate = total ? Math.round((deleted / total) * 100) : 0;
-    return { total, deleted, kept, errors, facebook, instagram, rate };
+    return { total, deleted, kept, errors, facebook, instagram, flagged, rate };
   }, [events]);
 
   return (
@@ -30,7 +33,9 @@ export default function DashboardOverview({ clientId, events, ctaBanner, onModer
       {ctaBanner}
 
       {/* Client dashboards only -- the public demo pages have no client to toggle. */}
-      {clientId && <ModerationToggle clientId={clientId} onChange={onModerationChange} />}
+      {clientId && (
+        <ModerationToggle clientId={clientId} flaggedCount={stats.flagged} onChange={onModerationChange} />
+      )}
 
       <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Total Processed" value={stats.total} icon={MessageSquare} color="neutral" delay={0} />
