@@ -6,13 +6,14 @@ import StatCard from './StatCard';
 import ActivityChart from './ActivityChart';
 import PlatformDonut from './PlatformDonut';
 import AccountStatusCard from './AccountStatusCard';
+import ModerationToggle from './ModerationToggle';
 
 /**
  * Dashboard page content: KPIs, the 24h activity chart, platform split,
  * and connected account status. Comments and the blocklist each have
  * their own page.
  */
-export default function DashboardOverview({ clientId, events, ctaBanner }) {
+export default function DashboardOverview({ clientId, events, ctaBanner, onModerationChange }) {
   const stats = useMemo(() => {
     const total = events.length;
     const deleted = events.filter((e) => e.deleted).length;
@@ -27,6 +28,9 @@ export default function DashboardOverview({ clientId, events, ctaBanner }) {
   return (
     <div className="flex flex-col gap-8">
       {ctaBanner}
+
+      {/* Client dashboards only -- the public demo pages have no client to toggle. */}
+      {clientId && <ModerationToggle clientId={clientId} onChange={onModerationChange} />}
 
       <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Total Processed" value={stats.total} icon={MessageSquare} color="neutral" delay={0} />

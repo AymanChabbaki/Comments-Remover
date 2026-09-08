@@ -15,6 +15,32 @@ export function relativeTime(iso) {
 /** Shared card chrome -- one definition so surfaces stay consistent. */
 export const CARD = 'rounded-xl border border-surface-container-high bg-surface-container-lowest shadow-[0_2px_12px_rgba(0,0,0,0.03)]';
 
+/**
+ * Shared on/off switch -- one definition so the dashboard's
+ * auto-deletion control and the Settings page look and behave alike.
+ */
+export function Switch({ checked, disabled, onChange, label }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      disabled={disabled}
+      onClick={onChange}
+      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-50 ${
+        checked ? 'bg-primary' : 'bg-surface-container-high'
+      }`}
+    >
+      <span
+        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${
+          checked ? 'left-[22px]' : 'left-0.5'
+        }`}
+      />
+    </button>
+  );
+}
+
 export function PlatformBadge({ platform }) {
   const isIg = platform === 'instagram';
   return (
