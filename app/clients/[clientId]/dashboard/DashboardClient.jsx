@@ -25,7 +25,7 @@ export default function DashboardClient({ clientId, clientName }) {
 
   return (
     <AppShell clientId={clientId} clientName={clientName} subtitle="Overview">
-      <DashboardOverview clientId={clientId} events={events} />
+      <DashboardOverview clientId={clientId} events={events} onModerationChange={load} />
     </AppShell>
   );
 }

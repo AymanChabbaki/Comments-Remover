@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import AppShell from '../../../../components/AppShell';
+import { Switch } from '../../../../components/dashboardUi';
 
 export default function SettingsClient({ clientId, clientName, igAppId, fbAppId, fbConfigId }) {
   const [status, setStatus] = useState(null);
@@ -214,7 +215,12 @@ export default function SettingsClient({ clientId, clientName, igAppId, fbAppId,
                     : 'Paused. New comments are still logged on the Comments page, but nothing is deleted automatically — you can delete them by hand there.'}
                 </p>
               </div>
-              <Switch checked={!!status.moderationEnabled} disabled={togglingModeration} onChange={toggleModeration} />
+              <Switch
+                checked={!!status.moderationEnabled}
+                disabled={togglingModeration}
+                onChange={toggleModeration}
+                label="Automatic comment deletion"
+              />
             </div>
           </div>
         )}
@@ -332,28 +338,6 @@ function StatusPill({ label, connected, optional }) {
       <span className="h-1.5 w-1.5 rounded-full bg-current" />
       {label}: {connected ? 'Connected' : optional ? 'Not connected (optional)' : 'Not connected'}
     </span>
-  );
-}
-
-function Switch({ checked, disabled, onChange }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label="Automatic comment deletion"
-      disabled={disabled}
-      onClick={onChange}
-      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-50 ${
-        checked ? 'bg-primary' : 'bg-surface-container-high'
-      }`}
-    >
-      <span
-        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${
-          checked ? 'left-[22px]' : 'left-0.5'
-        }`}
-      />
-    </button>
   );
 }
 
