@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Small shared pieces (badges, time formatting) used across the
  * Dashboard/Comments/Blacklist pages.
