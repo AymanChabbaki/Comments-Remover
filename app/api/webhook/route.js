@@ -132,40 +132,33 @@ async function processEntries(entries, object) {
       const text = typeof inlineText === 'string' ? inlineText : await getCommentText(commentId, platform, token);
       if (typeof text !== 'string') continue;
 
-      // Auto-deletion turned off in Settings: log the comment so it
-      // still shows up in the dashboard as a manual review queue, but
-      // skip the OpenAI call, the Graph API delete and the blocklist
-      // write. Messaging rules keep running -- they're a separate
-      // feature, and nothing here is being removed.
-      if (!client.moderationEnabled) {
-        console.log(`[${client.id}] Comment ${commentId}: SKIPPED (auto-moderation off)`);
-        await eventLog.record(client.id, {
-          commentId, text, verdict: 'SKIPPED', deleted: false, platform,
-          author: authorName, authorId,
-        });
-        await queueRules(client, platform, 'comment', commentId, authorId, text);
-        continue;
-      }
-
       // A previously-deleted author's comments get removed on sight,
       // skipping the OpenAI call entirely -- both faster and cheaper
       // than re-evaluating someone who's already shown they post junk.
       const isRepeatOffender = await blocklist.isBlocked(client.id, platform, authorId);
 
+      // "Auto-deletion off" pauses ONLY the irreversible half. Detection
+      // still runs and the verdict is still logged, so the dashboard
+      // keeps showing which comments the AI would remove -- they're just
+      // left up for you to delete by hand. The blocklist write is
+      // suppressed too, since blocklisting an author is what makes their
+      // *next* comment get deleted on sight.
+      const autoDelete = client.moderationEnabled;
+
       try {
         const verdict = isRepeatOffender ? 'DELETE' : (await shouldDelete(text)) ? 'DELETE' : 'KEEP';
-        const deleteResult = verdict === 'DELETE' ? await deleteComment(commentId, platform, token) : { ok: false };
-        console.log(`[${client.id}] Comment ${commentId}: ${verdict}${isRepeatOffender ? ' (blocklisted author, skipped AI check)' : ''}`);
+        const deleteResult = verdict === 'DELETE' && autoDelete ? await deleteComment(commentId, platform, token) : { ok: false };
+        console.log(`[${client.id}] Comment ${commentId}: ${verdict}${isRepeatOffender ? ' (blocklisted author, skipped AI check)' : ''}${verdict === 'DELETE' && !autoDelete ? ' (flagged only -- auto-deletion off)' : ''}`);
         await eventLog.record(client.id, {
           commentId, text, verdict, deleted: deleteResult.ok, platform,
-          author: authorName, authorId, autoBlocked: isRepeatOffender,
+          author: authorName, authorId, autoBlocked: isRepeatOffender && autoDelete,
         });
 
         if (verdict === 'KEEP') {
           await queueRules(client, platform, 'comment', commentId, authorId, text);
         }
 
-        if (verdict === 'DELETE' && !isRepeatOffender) {
+        if (verdict === 'DELETE' && !isRepeatOffender && autoDelete) {
           await blocklist.block(client.id, platform, authorId, authorName, commentId);
         }
       } catch (err) {

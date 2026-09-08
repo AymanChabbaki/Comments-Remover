@@ -59,20 +59,22 @@ export function PlatformBadge({ platform }) {
 
 export function VerdictBadge({ event }) {
   const isError = !!event.error;
-  // SKIPPED = logged while auto-deletion was switched off in Settings.
+  // Flagged = the AI said DELETE but the comment is still up -- either
+  // auto-deletion is paused, or the Graph API delete didn't go through.
+  const isFlagged = event.verdict === 'DELETE' && !event.deleted && !isError;
   const label = isError
     ? 'Error'
-    : event.verdict === 'DELETE'
-      ? 'Deleted'
-      : event.verdict === 'SKIPPED'
-        ? 'Not moderated'
+    : isFlagged
+      ? 'Flagged'
+      : event.verdict === 'DELETE'
+        ? 'Deleted'
         : 'Kept';
   const cls = isError
     ? 'bg-secondary-container text-on-secondary-container'
-    : event.verdict === 'DELETE'
-      ? 'bg-primary/10 text-primary'
-      : event.verdict === 'SKIPPED'
-        ? 'bg-surface-container text-on-surface-variant'
+    : isFlagged
+      ? 'bg-secondary/10 text-secondary'
+      : event.verdict === 'DELETE'
+        ? 'bg-primary/10 text-primary'
         : 'bg-good-soft text-good';
   return (
     <span className={`inline-flex items-center rounded-md px-2.5 py-1 text-label-sm font-medium ${cls}`}>
