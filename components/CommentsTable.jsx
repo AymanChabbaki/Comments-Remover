@@ -26,7 +26,7 @@ export default function CommentsTable({ events, onDelete, onRefresh, readOnly })
       if (verdict === 'ERROR' && !e.error) return false;
       if (verdict === 'DELETE' && e.verdict !== 'DELETE') return false;
       if (verdict === 'KEEP' && e.verdict !== 'KEEP') return false;
-      if (verdict === 'SKIPPED' && e.verdict !== 'SKIPPED') return false;
+      if (verdict === 'FLAGGED' && !(e.verdict === 'DELETE' && !e.deleted && !e.error)) return false;
       if (search) {
         const hay = `${e.text || ''} ${e.author || ''}`.toLowerCase();
         if (!hay.includes(search.toLowerCase())) return false;
@@ -75,7 +75,7 @@ export default function CommentsTable({ events, onDelete, onRefresh, readOnly })
             <option value="">All verdicts</option>
             <option value="DELETE">Deleted</option>
             <option value="KEEP">Kept</option>
-            <option value="SKIPPED">Not moderated</option>
+            <option value="FLAGGED">Flagged, still up</option>
             <option value="ERROR">Errors</option>
           </select>
           <div className="flex min-w-[180px] flex-1 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-2.5 py-1.5 transition-colors focus-within:border-primary">
@@ -142,18 +142,17 @@ export default function CommentsTable({ events, onDelete, onRefresh, readOnly })
             <tbody className="divide-y divide-surface-container-high bg-surface-container-lowest">
               {filtered.map((e) => {
                 const isError = !!e.error;
-                // SKIPPED = logged while auto-deletion was switched off
-                // in Settings; the row's Delete button is how you act on it.
-                const isSkipped = e.verdict === 'SKIPPED';
-                const actionCls = isError
+                // Flagged = AI said DELETE but the comment is still up
+                // (auto-deletion paused, or the delete call didn't land).
+                // The row's Delete button is how you act on it.
+                const isFlagged = e.verdict === 'DELETE' && !e.deleted && !isError;
+                const actionCls = isError || isFlagged
                   ? 'bg-secondary/10 text-secondary'
                   : e.verdict === 'DELETE'
                     ? 'bg-primary/10 text-primary'
-                    : isSkipped
-                      ? 'bg-surface-container text-on-surface-variant'
-                      : 'bg-good-soft text-good';
-                const ActionIcon = isError || isSkipped ? Eye : e.verdict === 'DELETE' ? Trash2 : CircleCheck;
-                const actionLabel = isError ? 'Error' : e.verdict === 'DELETE' ? 'Deleted' : isSkipped ? 'Not moderated' : 'Kept';
+                    : 'bg-good-soft text-good';
+                const ActionIcon = isError || isFlagged ? Eye : e.verdict === 'DELETE' ? Trash2 : CircleCheck;
+                const actionLabel = isError ? 'Error' : isFlagged ? 'Flagged' : e.verdict === 'DELETE' ? 'Deleted' : 'Kept';
                 return (
                   <tr key={e.commentId} className="transition-colors hover:bg-surface-container-lowest/50">
                     <td className="px-6 py-4">
