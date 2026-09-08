@@ -23,6 +23,7 @@ export async function GET(request, { params }) {
     hasIgToken: !!client.igAccessToken,
     igUsername: client.igUsername,
     igProfilePicUrl: client.igProfilePicUrl,
+    moderationEnabled: client.moderationEnabled,
   });
 }
 
@@ -42,6 +43,11 @@ export async function PATCH(request, { params }) {
     if (typeof body[key] === 'string' && body[key].trim() !== '') {
       fields[key] = body[key].trim();
     }
+  }
+  // The auto-moderation switch is a real boolean, so false has to be
+  // saved rather than treated as "leave unchanged" like a blank token.
+  if (typeof body.moderationEnabled === 'boolean') {
+    fields.moderationEnabled = body.moderationEnabled;
   }
 
   try {

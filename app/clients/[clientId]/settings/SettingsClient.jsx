@@ -14,6 +14,7 @@ export default function SettingsClient({ clientId, clientName, igAppId, fbAppId,
   const [fbResult, setFbResult] = useState(null);
   const [fbReason, setFbReason] = useState(null);
   const [showManualFb, setShowManualFb] = useState(false);
+  const [togglingModeration, setTogglingModeration] = useState(false);
 
   async function load() {
     const res = await fetch(`/api/clients/${clientId}/settings`);
@@ -77,6 +78,31 @@ export default function SettingsClient({ clientId, clientName, igAppId, fbAppId,
     return (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
   }
 
+  // Saves on its own PATCH rather than waiting for the form's Save
+  // button -- a kill switch you have to remember to submit isn't much
+  // of a kill switch. Optimistic, then rolled back if the write fails.
+  async function toggleModeration() {
+    const next = !status?.moderationEnabled;
+    setMsg(null);
+    setTogglingModeration(true);
+    setStatus((s) => ({ ...s, moderationEnabled: next }));
+    try {
+      const res = await fetch(`/api/clients/${clientId}/settings`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ moderationEnabled: next }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Could not save');
+      setMsg({ text: next ? 'Auto-deletion is on.' : 'Auto-deletion is off — comments are logged only.', ok: true });
+    } catch (err) {
+      setStatus((s) => ({ ...s, moderationEnabled: !next }));
+      setMsg({ text: err.message, ok: false });
+    } finally {
+      setTogglingModeration(false);
+    }
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setMsg(null);
@@ -109,6 +135,14 @@ export default function SettingsClient({ clientId, clientName, igAppId, fbAppId,
           <div className="mb-5 flex flex-wrap items-center gap-3">
             <StatusPill label="Facebook Page" connected={!!status.pageId && status.hasPageToken} />
             <StatusPill label="Instagram" connected={!!status.igUserId && status.hasIgToken} optional />
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
+                status.moderationEnabled ? 'bg-good-soft text-good' : 'bg-secondary-container text-on-secondary-container'
+              }`}
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-current" />
+              Auto-deletion: {status.moderationEnabled ? 'On' : 'Off'}
+            </span>
             {status.igUserId && status.hasIgToken && status.igUsername && (
               <span className="inline-flex items-center gap-1.5 text-xs text-on-surface-variant">
                 {status.igProfilePicUrl && (
@@ -166,6 +200,22 @@ export default function SettingsClient({ clientId, clientName, igAppId, fbAppId,
           <div className="mb-4 rounded-lg border border-error/40 bg-error-container px-3 py-2.5 text-sm text-error">
             Facebook connection failed. Make sure you&apos;ve accepted the Facebook tester invite, then try again.
             {fbReason && <div className="mt-1 break-words font-mono text-xs opacity-80">{fbReason}</div>}
+          </div>
+        )}
+
+        {status && (
+          <div className="mb-4 rounded-xl border border-surface-container-high bg-surface-container-lowest p-6 shadow-[0_1px_2px_rgba(31,36,44,0.04)]">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-sm font-semibold text-on-surface">Automatic comment deletion</h2>
+                <p className="mt-1 text-xs text-on-surface-variant">
+                  {status.moderationEnabled
+                    ? 'New comments are checked by AI and removed when they break your rules.'
+                    : 'Paused. New comments are still logged on the Comments page, but nothing is deleted automatically — you can delete them by hand there.'}
+                </p>
+              </div>
+              <Switch checked={!!status.moderationEnabled} disabled={togglingModeration} onChange={toggleModeration} />
+            </div>
           </div>
         )}
 
@@ -282,6 +332,28 @@ function StatusPill({ label, connected, optional }) {
       <span className="h-1.5 w-1.5 rounded-full bg-current" />
       {label}: {connected ? 'Connected' : optional ? 'Not connected (optional)' : 'Not connected'}
     </span>
+  );
+}
+
+function Switch({ checked, disabled, onChange }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label="Automatic comment deletion"
+      disabled={disabled}
+      onClick={onChange}
+      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-50 ${
+        checked ? 'bg-primary' : 'bg-surface-container-high'
+      }`}
+    >
+      <span
+        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${
+          checked ? 'left-[22px]' : 'left-0.5'
+        }`}
+      />
+    </button>
   );
 }
 

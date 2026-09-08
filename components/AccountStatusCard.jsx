@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ThumbsUp, Camera, CheckCircle2, Plus } from 'lucide-react';
+import { ThumbsUp, Camera, CheckCircle2, Plus, PauseCircle } from 'lucide-react';
 import { CARD } from './dashboardUi';
 
 function PageRow({ icon: Icon, tone, name, detail, connected, settingsHref }) {
@@ -67,6 +67,15 @@ export default function AccountStatusCard({ clientId }) {
           <div className="py-10 text-center text-sm text-on-surface-variant">Loading…</div>
         ) : (
           <>
+            {status.moderationEnabled === false && (
+              <Link
+                href={settingsHref}
+                className="flex items-center gap-2 rounded-lg border border-secondary/40 bg-secondary-container px-3 py-2 text-xs font-medium text-on-secondary-container transition-colors hover:border-secondary"
+              >
+                <PauseCircle size={14} strokeWidth={2.25} />
+                Auto-deletion is off — comments are logged only.
+              </Link>
+            )}
             <PageRow icon={ThumbsUp} tone="bg-fb" name="Facebook Page" detail={status.pageId} connected={fbConnected} settingsHref={settingsHref} />
             <PageRow
               icon={Camera}

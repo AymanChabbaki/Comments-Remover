@@ -132,6 +132,21 @@ async function processEntries(entries, object) {
       const text = typeof inlineText === 'string' ? inlineText : await getCommentText(commentId, platform, token);
       if (typeof text !== 'string') continue;
 
+      // Auto-deletion turned off in Settings: log the comment so it
+      // still shows up in the dashboard as a manual review queue, but
+      // skip the OpenAI call, the Graph API delete and the blocklist
+      // write. Messaging rules keep running -- they're a separate
+      // feature, and nothing here is being removed.
+      if (!client.moderationEnabled) {
+        console.log(`[${client.id}] Comment ${commentId}: SKIPPED (auto-moderation off)`);
+        await eventLog.record(client.id, {
+          commentId, text, verdict: 'SKIPPED', deleted: false, platform,
+          author: authorName, authorId,
+        });
+        await queueRules(client, platform, 'comment', commentId, authorId, text);
+        continue;
+      }
+
       // A previously-deleted author's comments get removed on sight,
       // skipping the OpenAI call entirely -- both faster and cheaper
       // than re-evaluating someone who's already shown they post junk.
