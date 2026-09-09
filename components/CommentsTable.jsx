@@ -169,7 +169,7 @@ export default function CommentsTable({ events, onDelete, onRefresh, readOnly })
                       <div className="flex items-center gap-2">
                         <PlatformBadge platform={e.platform} />
                         {e.author && (() => {
-                          const profileUrl = authorProfileUrl(e.platform, e.author, e.authorUrl);
+                          const profileUrl = authorProfileUrl(e.platform, e.author);
                           return profileUrl ? (
                             <a
                               href={profileUrl}

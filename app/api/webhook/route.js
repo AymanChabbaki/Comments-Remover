@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { isValidMetaSignature } from '../../../lib/verifySignature';
-import { getCommentText, deleteComment, getPostPermalink, getAuthorProfileLink } from '../../../lib/facebook';
+import { getCommentText, deleteComment, getPostPermalink } from '../../../lib/facebook';
 import { shouldDelete } from '../../../lib/moderation';
 import * as eventLog from '../../../lib/eventLog';
 import * as blocklist from '../../../lib/blocklist';
@@ -156,9 +156,6 @@ async function processEntries(entries, object) {
       if (postUrl === null && platform === 'instagram') {
         postUrl = await getPostPermalink(commentId, platform, token);
       }
-      // Best-effort, usually null -- see getAuthorProfileLink's own
-      // comment for why this frequently won't resolve to anything.
-      const authorUrl = await getAuthorProfileLink(authorId, platform, token);
 
       // A previously-deleted author's comments get removed on sight,
       // skipping the OpenAI call entirely -- both faster and cheaper
@@ -179,7 +176,7 @@ async function processEntries(entries, object) {
         console.log(`[${client.id}] Comment ${commentId}: ${verdict}${isRepeatOffender ? ' (blocklisted author, skipped AI check)' : ''}${verdict === 'DELETE' && !autoDelete ? ' (flagged only -- auto-deletion off)' : ''}`);
         await eventLog.record(client.id, {
           commentId, text, verdict, deleted: deleteResult.ok, platform,
-          author: authorName, authorId, autoBlocked: isRepeatOffender && autoDelete, postUrl, authorUrl,
+          author: authorName, authorId, autoBlocked: isRepeatOffender && autoDelete, postUrl,
         });
 
         // Reply unless the comment was actually removed -- not just
@@ -194,11 +191,11 @@ async function processEntries(entries, object) {
         }
 
         if (verdict === 'DELETE' && !isRepeatOffender && autoDelete) {
-          await blocklist.block(client.id, platform, authorId, authorName, commentId, authorUrl);
+          await blocklist.block(client.id, platform, authorId, authorName, commentId);
         }
       } catch (err) {
         console.error(`[${client.id}] Error moderating comment ${commentId}:`, err.message);
-        await eventLog.record(client.id, { commentId, text, verdict: null, deleted: false, error: err.message, platform, author: authorName, authorId, postUrl, authorUrl });
+        await eventLog.record(client.id, { commentId, text, verdict: null, deleted: false, error: err.message, platform, author: authorName, authorId, postUrl });
       }
     }
   }

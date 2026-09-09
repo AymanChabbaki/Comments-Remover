@@ -18,32 +18,23 @@ export function relativeTime(iso) {
 export const CARD = 'rounded-xl border border-surface-container-high bg-surface-container-lowest shadow-[0_2px_12px_rgba(0,0,0,0.03)]';
 
 /**
- * Best-effort link to the commenter's own profile.
- *
- * Instagram comments carry a real username, so this is always a direct,
- * reliable profile URL. Facebook Page comments only carry an APP-SCOPED
- * ID (unique to this app + that person, confirmed against a real
- * comment) -- not their actual global user ID -- and facebook.com/{id}
- * does not resolve an app-scoped ID to a profile. That's Meta's own
- * privacy design (an app is deliberately not allowed to turn an ID into
- * an identity lookup), not something fixable client-side.
- *
- * `resolvedUrl` is the webhook's best-effort server-side attempt (see
- * getAuthorProfileLink in lib/facebook.js) to resolve that ID to a real
- * link anyway -- it works sometimes, not always. When it's not present,
- * this returns null rather than a name-search link: a search that may or
- * may not land on the right person isn't a real substitute for a profile
- * link, and reaching the actual account is still possible from the
- * "View post" link -- Facebook's own logged-in UI resolves identity
- * correctly for a Page admin viewing their own post, even though the API
- * won't hand that same resolution to a third-party app.
+ * Link to the commenter's own profile -- Instagram only. Instagram
+ * comments carry a real username, so this is a direct, reliable profile
+ * URL. Facebook Page comments only carry an app/Page-scoped ID (unique to
+ * this app + that person), never their real global user ID, and there is
+ * no Graph API call that resolves one to a profile: confirmed against
+ * live data, GET /{that-id}?fields=link comes back with error_subcode 33,
+ * Meta's own documented code for "this ID/token combination cannot be
+ * queried at all" -- not a missing field, the whole lookup is rejected.
+ * That's Meta's scoped-ID system working as designed (an app isn't meant
+ * to turn an ID into an identity), not something fixable here. For
+ * Facebook, reaching the actual account means opening "View post" and
+ * clicking through from Facebook's own logged-in UI, which resolves
+ * identity correctly for a Page admin in a way the API deliberately
+ * doesn't expose to third-party apps.
  */
-export function authorProfileUrl(platform, author, resolvedUrl) {
-  if (resolvedUrl) return resolvedUrl;
-  if (platform === 'instagram') {
-    return author ? `https://www.instagram.com/${encodeURIComponent(author)}/` : null;
-  }
-  return null;
+export function authorProfileUrl(platform, author) {
+  return platform === 'instagram' && author ? `https://www.instagram.com/${encodeURIComponent(author)}/` : null;
 }
 
 /**
