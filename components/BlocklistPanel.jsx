@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ShieldOff, ChevronRight } from 'lucide-react';
-import { relativeTime, PlatformBadge, CARD } from './dashboardUi';
+import { relativeTime, PlatformBadge, CARD, authorProfileUrl } from './dashboardUi';
 
 /**
  * Full blocked-authors list -- the standalone content of the Blacklist
@@ -34,7 +34,19 @@ export default function BlocklistPanel({ blocked, onUnblock, readOnly, compact }
         {blocked.map((b) => (
           <tr key={b.authorId} className="transition-colors hover:bg-surface-container-lowest/50">
             <td className="px-4 py-3"><PlatformBadge platform={b.platform} /></td>
-            <td className="px-4 py-3 font-medium text-on-surface">{b.authorName || <span className="font-normal text-on-surface-variant">{b.authorId}</span>}</td>
+            <td className="px-4 py-3 font-medium text-on-surface">
+              {(() => {
+                const profileUrl = authorProfileUrl(b.platform, b.authorId, b.authorName);
+                if (!b.authorName) return <span className="font-normal text-on-surface-variant">{b.authorId}</span>;
+                return profileUrl ? (
+                  <a href={profileUrl} target="_blank" rel="noreferrer" className="underline decoration-dotted underline-offset-2 hover:text-primary">
+                    {b.authorName}
+                  </a>
+                ) : (
+                  b.authorName
+                );
+              })()}
+            </td>
             <td className="px-4 py-3 text-on-surface-variant">{relativeTime(b.blockedAt)}</td>
             {!readOnly && (
               <td className="px-4 py-3 text-right">

@@ -18,6 +18,20 @@ export function relativeTime(iso) {
 export const CARD = 'rounded-xl border border-surface-container-high bg-surface-container-lowest shadow-[0_2px_12px_rgba(0,0,0,0.03)]';
 
 /**
+ * Best-effort link to the commenter's own profile -- Instagram comments
+ * carry a username (a real profile URL), Facebook comments carry a
+ * numeric user ID (facebook.com/{id} resolves to that person's profile).
+ * Neither is guaranteed present (a deleted/restricted account, or a
+ * comment authored before this field existed), so this can return null.
+ */
+export function authorProfileUrl(platform, authorId, author) {
+  if (platform === 'instagram') {
+    return author ? `https://www.instagram.com/${encodeURIComponent(author)}/` : null;
+  }
+  return authorId ? `https://www.facebook.com/${encodeURIComponent(authorId)}` : null;
+}
+
+/**
  * Shared on/off switch -- one definition so the dashboard's
  * auto-deletion control and the Settings page look and behave alike.
  */

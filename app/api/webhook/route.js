@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { isValidMetaSignature } from '../../../lib/verifySignature';
-import { getCommentText, deleteComment } from '../../../lib/facebook';
+import { getCommentText, deleteComment, getPostPermalink } from '../../../lib/facebook';
 import { shouldDelete } from '../../../lib/moderation';
 import * as eventLog from '../../../lib/eventLog';
 import * as blocklist from '../../../lib/blocklist';
@@ -95,6 +95,9 @@ function extractComment(change) {
       // fine; the post itself was a Reel). permalink_url containing
       // "/reel/" is the only signal Meta's webhook payload gives us for this.
       isReel: typeof value.post?.permalink_url === 'string' && value.post.permalink_url.includes('/reel/'),
+      // Facebook's payload gives this inline, whatever the post type --
+      // a regular post, photo, video, or Reel all use the same field.
+      postUrl: typeof value.post?.permalink_url === 'string' ? value.post.permalink_url : null,
     };
   }
 
@@ -129,6 +132,9 @@ async function processEntries(entries, object) {
 
       const { commentId, authorId, authorName, inlineText, platform, postId, parentId, isReel } = comment;
       if (!commentId) continue;
+      // Facebook gives this inline (see extractComment); Instagram doesn't,
+      // so it needs its own lookup once we have a token, below.
+      let postUrl = comment.postUrl ?? null;
 
       // Skip the Page/IG account's own comments/replies so the bot
       // never evaluates or deletes its own activity.
@@ -144,6 +150,12 @@ async function processEntries(entries, object) {
       // text inline on current Graph API versions, so fetch it if missing.
       const text = typeof inlineText === 'string' ? inlineText : await getCommentText(commentId, platform, token);
       if (typeof text !== 'string') continue;
+
+      // Best-effort, never blocks moderation if it fails -- see
+      // getPostPermalink's own comment for why this only applies to IG.
+      if (postUrl === null && platform === 'instagram') {
+        postUrl = await getPostPermalink(commentId, platform, token);
+      }
 
       // A previously-deleted author's comments get removed on sight,
       // skipping the OpenAI call entirely -- both faster and cheaper
@@ -164,7 +176,7 @@ async function processEntries(entries, object) {
         console.log(`[${client.id}] Comment ${commentId}: ${verdict}${isRepeatOffender ? ' (blocklisted author, skipped AI check)' : ''}${verdict === 'DELETE' && !autoDelete ? ' (flagged only -- auto-deletion off)' : ''}`);
         await eventLog.record(client.id, {
           commentId, text, verdict, deleted: deleteResult.ok, platform,
-          author: authorName, authorId, autoBlocked: isRepeatOffender && autoDelete,
+          author: authorName, authorId, autoBlocked: isRepeatOffender && autoDelete, postUrl,
         });
 
         // Reply unless the comment was actually removed -- not just
@@ -183,7 +195,7 @@ async function processEntries(entries, object) {
         }
       } catch (err) {
         console.error(`[${client.id}] Error moderating comment ${commentId}:`, err.message);
-        await eventLog.record(client.id, { commentId, text, verdict: null, deleted: false, error: err.message, platform, author: authorName, authorId });
+        await eventLog.record(client.id, { commentId, text, verdict: null, deleted: false, error: err.message, platform, author: authorName, authorId, postUrl });
       }
     }
   }

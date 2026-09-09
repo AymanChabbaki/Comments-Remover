@@ -1,8 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { RefreshCw, Search, Inbox, Trash2, CircleCheck, Eye } from 'lucide-react';
-import { relativeTime, PlatformBadge, CARD } from './dashboardUi';
+import { RefreshCw, Search, Inbox, Trash2, CircleCheck, Eye, ExternalLink } from 'lucide-react';
+import { relativeTime, PlatformBadge, CARD, authorProfileUrl } from './dashboardUi';
 
 const FIELD =
   'rounded-lg border border-outline-variant bg-surface-container-lowest px-2.5 py-1.5 text-sm text-on-surface outline-none transition-colors focus:border-primary';
@@ -168,12 +168,36 @@ export default function CommentsTable({ events, onDelete, onRefresh, readOnly })
                     <td className="whitespace-nowrap px-6 py-4">
                       <div className="flex items-center gap-2">
                         <PlatformBadge platform={e.platform} />
-                        {e.author && <span className="text-on-surface-variant">{e.author}</span>}
+                        {e.author && (() => {
+                          const profileUrl = authorProfileUrl(e.platform, e.authorId, e.author);
+                          return profileUrl ? (
+                            <a
+                              href={profileUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-on-surface-variant underline decoration-dotted underline-offset-2 transition-colors hover:text-primary"
+                            >
+                              {e.author}
+                            </a>
+                          ) : (
+                            <span className="text-on-surface-variant">{e.author}</span>
+                          );
+                        })()}
                       </div>
                     </td>
                     <td className="max-w-[320px] px-6 py-4 text-on-surface-variant">
                       <div className="truncate">{e.text}</div>
                       {e.error && <div className="mt-1 truncate text-xs text-secondary">{e.error}</div>}
+                      {e.postUrl && (
+                        <a
+                          href={e.postUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                        >
+                          <ExternalLink size={11} /> View post
+                        </a>
+                      )}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right text-xs text-on-surface-variant">
                       <div title={new Date(e.timestamp).toLocaleString()}>{relativeTime(e.timestamp)}</div>
