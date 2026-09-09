@@ -30,8 +30,8 @@ export function Switch({ checked, disabled, onChange, label }) {
       aria-label={label}
       disabled={disabled}
       onClick={onChange}
-      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-50 ${
-        checked ? 'bg-primary' : 'bg-surface-container-high'
+      className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors disabled:opacity-50 ${
+        checked ? 'border-primary bg-primary' : 'border-outline-variant bg-surface-container-high'
       }`}
     >
       <span
