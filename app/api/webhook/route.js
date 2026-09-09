@@ -82,6 +82,12 @@ function extractComment(change) {
       authorName: value.from?.name,
       inlineText: value.message,
       platform: 'facebook',
+      // For a top-level comment, parent_id === post_id; for a reply to
+      // another comment, parent_id is that comment's id instead. Needed
+      // to catch a doomed private-reply attempt before it ever hits the
+      // Graph API -- see the comment in lib/messaging.js queueRules().
+      postId: value.post_id,
+      parentId: value.parent_id,
     };
   }
 
@@ -114,7 +120,7 @@ async function processEntries(entries, object) {
       const comment = extractComment(change);
       if (!comment) continue;
 
-      const { commentId, authorId, authorName, inlineText, platform } = comment;
+      const { commentId, authorId, authorName, inlineText, platform, postId, parentId } = comment;
       if (!commentId) continue;
 
       // Skip the Page/IG account's own comments/replies so the bot
@@ -161,7 +167,8 @@ async function processEntries(entries, object) {
         // the Settings copy ("comments removed by moderation receive no
         // reply") actually promises.
         if (!deleteResult.ok) {
-          await queueRules(client, platform, 'comment', commentId, authorId, text);
+          const isNestedReply = platform === 'facebook' && !!postId && !!parentId && parentId !== postId;
+          await queueRules(client, platform, 'comment', commentId, authorId, text, new Date(), { isNestedReply });
         }
 
         if (verdict === 'DELETE' && !isRepeatOffender && autoDelete) {
