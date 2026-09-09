@@ -1,0 +1,26 @@
+name: Process messaging queue
+
+# Vercel's own Cron feature is Hobby-plan-limited to once per day, which
+# would leave queued auto-replies/DMs sitting for up to 24h -- badly
+# degrading a feature whose whole point is timeliness. GitHub Actions has
+# no such limit (its practical floor is ~5 minutes), so this workflow
+# calls the same authenticated endpoint Vercel Cron used to, on a normal
+# GitHub account, for free.
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call /api/messaging/process
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://comments.techermanos.org' }}
+        run: |
+          curl -sf -X GET "$SITE_URL/api/messaging/process" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -o response.json -w "\nHTTP %{http_code}\n"
+          cat response.json
