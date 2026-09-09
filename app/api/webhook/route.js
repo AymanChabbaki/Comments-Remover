@@ -5,7 +5,7 @@ import { shouldDelete } from '../../../lib/moderation';
 import * as eventLog from '../../../lib/eventLog';
 import * as blocklist from '../../../lib/blocklist';
 import * as clients from '../../../lib/clients';
-import { handleIncomingMessages, queueRules } from '../../../lib/messaging';
+import { handleIncomingMessages, queueRules, hasMatchingReplyRule } from '../../../lib/messaging';
 
 export const runtime = 'nodejs';
 
@@ -171,9 +171,19 @@ async function processEntries(entries, object) {
       const autoDelete = client.moderationEnabled;
 
       try {
-        const verdict = isRepeatOffender ? 'DELETE' : (await shouldDelete(text)) ? 'DELETE' : 'KEEP';
+        // A comment matching one of the client's own reply-trigger
+        // keywords (e.g. "free", "price" on a comment->DM rule) is a
+        // lead, not spam -- the moderation model has no way to know a
+        // specific short word matters to this business, and would
+        // otherwise flag exactly the comments this feature exists to
+        // capture. Checked (and skips the AI call entirely) before
+        // moderation runs, not after, so it can never be deleted in the
+        // first place -- catching it post-delete would be too late, since
+        // a deleted comment never gets a reply queued either.
+        const isReplyTrigger = !isRepeatOffender && await hasMatchingReplyRule(client, platform, text);
+        const verdict = isRepeatOffender ? 'DELETE' : isReplyTrigger ? 'KEEP' : (await shouldDelete(text)) ? 'DELETE' : 'KEEP';
         const deleteResult = verdict === 'DELETE' && autoDelete ? await deleteComment(commentId, platform, token) : { ok: false };
-        console.log(`[${client.id}] Comment ${commentId}: ${verdict}${isRepeatOffender ? ' (blocklisted author, skipped AI check)' : ''}${verdict === 'DELETE' && !autoDelete ? ' (flagged only -- auto-deletion off)' : ''}`);
+        console.log(`[${client.id}] Comment ${commentId}: ${verdict}${isRepeatOffender ? ' (blocklisted author, skipped AI check)' : ''}${isReplyTrigger ? ' (matches a reply-trigger keyword, protected from moderation)' : ''}${verdict === 'DELETE' && !autoDelete ? ' (flagged only -- auto-deletion off)' : ''}`);
         await eventLog.record(client.id, {
           commentId, text, verdict, deleted: deleteResult.ok, platform,
           author: authorName, authorId, autoBlocked: isRepeatOffender && autoDelete, postUrl,
