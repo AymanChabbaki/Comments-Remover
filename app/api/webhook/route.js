@@ -154,7 +154,13 @@ async function processEntries(entries, object) {
           author: authorName, authorId, autoBlocked: isRepeatOffender && autoDelete,
         });
 
-        if (verdict === 'KEEP') {
+        // Reply unless the comment was actually removed -- not just
+        // "verdict === KEEP". A DELETE verdict with auto-deletion off
+        // (flagged, left up) or a failed Graph API delete both leave the
+        // comment live, and should still get a reply; this is also what
+        // the Settings copy ("comments removed by moderation receive no
+        // reply") actually promises.
+        if (!deleteResult.ok) {
           await queueRules(client, platform, 'comment', commentId, authorId, text);
         }
 
