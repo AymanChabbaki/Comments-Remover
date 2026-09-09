@@ -88,6 +88,13 @@ function extractComment(change) {
       // Graph API -- see the comment in lib/messaging.js queueRules().
       postId: value.post_id,
       parentId: value.parent_id,
+      // Meta's Private Reply edge (/private_replies) is Feed-post only --
+      // it does not exist for comments on Reels, confirmed against a real
+      // payload where this was the actual cause of a "does not support
+      // this operation" failure (permissions and nesting both checked out
+      // fine; the post itself was a Reel). permalink_url containing
+      // "/reel/" is the only signal Meta's webhook payload gives us for this.
+      isReel: typeof value.post?.permalink_url === 'string' && value.post.permalink_url.includes('/reel/'),
     };
   }
 
@@ -120,7 +127,7 @@ async function processEntries(entries, object) {
       const comment = extractComment(change);
       if (!comment) continue;
 
-      const { commentId, authorId, authorName, inlineText, platform, postId, parentId } = comment;
+      const { commentId, authorId, authorName, inlineText, platform, postId, parentId, isReel } = comment;
       if (!commentId) continue;
 
       // Skip the Page/IG account's own comments/replies so the bot
@@ -168,7 +175,7 @@ async function processEntries(entries, object) {
         // reply") actually promises.
         if (!deleteResult.ok) {
           const isNestedReply = platform === 'facebook' && !!postId && !!parentId && parentId !== postId;
-          await queueRules(client, platform, 'comment', commentId, authorId, text, new Date(), { isNestedReply });
+          await queueRules(client, platform, 'comment', commentId, authorId, text, new Date(), { isNestedReply, isReel });
         }
 
         if (verdict === 'DELETE' && !isRepeatOffender && autoDelete) {
