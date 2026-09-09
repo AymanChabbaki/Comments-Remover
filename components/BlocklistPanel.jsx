@@ -36,7 +36,7 @@ export default function BlocklistPanel({ blocked, onUnblock, readOnly, compact }
             <td className="px-4 py-3"><PlatformBadge platform={b.platform} /></td>
             <td className="px-4 py-3 font-medium text-on-surface">
               {(() => {
-                const profileUrl = authorProfileUrl(b.platform, b.authorId, b.authorName);
+                const profileUrl = authorProfileUrl(b.platform, b.authorName);
                 if (!b.authorName) return <span className="font-normal text-on-surface-variant">{b.authorId}</span>;
                 return profileUrl ? (
                   <a href={profileUrl} target="_blank" rel="noreferrer" className="underline decoration-dotted underline-offset-2 hover:text-primary">

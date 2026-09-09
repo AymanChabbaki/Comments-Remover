@@ -18,17 +18,23 @@ export function relativeTime(iso) {
 export const CARD = 'rounded-xl border border-surface-container-high bg-surface-container-lowest shadow-[0_2px_12px_rgba(0,0,0,0.03)]';
 
 /**
- * Best-effort link to the commenter's own profile -- Instagram comments
- * carry a username (a real profile URL), Facebook comments carry a
- * numeric user ID (facebook.com/{id} resolves to that person's profile).
- * Neither is guaranteed present (a deleted/restricted account, or a
- * comment authored before this field existed), so this can return null.
+ * Best-effort link to the commenter's own profile.
+ *
+ * Instagram comments carry a real username, so this is a direct,
+ * reliable profile URL. Facebook Page comments only carry an APP-SCOPED
+ * ID (unique to this app + that person, confirmed against a real
+ * comment) -- not their actual global user ID -- and facebook.com/{id}
+ * does not resolve an app-scoped ID to a profile. That's Meta's own
+ * privacy design (an app is deliberately not allowed to turn an ID into
+ * an identity lookup), not something fixable on our end. The closest
+ * available fallback is a name search, which isn't guaranteed to land on
+ * the right person if the name is common.
  */
-export function authorProfileUrl(platform, authorId, author) {
+export function authorProfileUrl(platform, author) {
   if (platform === 'instagram') {
     return author ? `https://www.instagram.com/${encodeURIComponent(author)}/` : null;
   }
-  return authorId ? `https://www.facebook.com/${encodeURIComponent(authorId)}` : null;
+  return author ? `https://www.facebook.com/search/people/?q=${encodeURIComponent(author)}` : null;
 }
 
 /**
