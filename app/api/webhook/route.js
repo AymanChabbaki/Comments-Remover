@@ -194,7 +194,7 @@ async function processEntries(entries, object) {
         }
 
         if (verdict === 'DELETE' && !isRepeatOffender && autoDelete) {
-          await blocklist.block(client.id, platform, authorId, authorName, commentId);
+          await blocklist.block(client.id, platform, authorId, authorName, commentId, authorUrl);
         }
       } catch (err) {
         console.error(`[${client.id}] Error moderating comment ${commentId}:`, err.message);
