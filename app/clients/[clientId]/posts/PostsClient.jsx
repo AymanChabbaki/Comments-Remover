@@ -20,11 +20,14 @@ export default function PostsClient({ clientId, clientName, connected }) {
   const [progress, setProgress] = useState({ instagram: 0, facebook: 0 });
   const [errors, setErrors] = useState({});
   const [deleting, setDeleting] = useState(null);
+  const [selected, setSelected] = useState([]);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const loadVersion = useRef(0);
 
   const loadAll = useCallback(async () => {
     const version = ++loadVersion.current;
     setPosts([]);
+    setSelected([]);
     setErrors({});
     setProgress({ instagram: 0, facebook: 0 });
     setLoading(true);
@@ -62,19 +65,24 @@ export default function PostsClient({ clientId, clientName, connected }) {
     return () => { loadVersion.current += 1; };
   }, [loadAll]);
 
+  async function deletePostRequest(post) {
+    const response = await fetch(`/api/clients/${clientId}/posts/${encodeURIComponent(post.id)}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ platform: post.platform }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Could not delete the post.');
+  }
+
   async function removePost(post) {
     if (!window.confirm('Delete this Facebook post permanently? This cannot be undone.')) return;
     setDeleting(post.id);
     setErrors((current) => ({ ...current, delete: null }));
     try {
-      const response = await fetch(`/api/clients/${clientId}/posts/${encodeURIComponent(post.id)}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ platform: post.platform }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Could not delete the post.');
+      await deletePostRequest(post);
       setPosts((current) => current.filter((item) => !(item.platform === post.platform && item.id === post.id)));
+      setSelected((current) => current.filter((id) => id !== post.id));
       setProgress((current) => ({ ...current, [post.platform]: Math.max(0, current[post.platform] - 1) }));
     } catch (error) {
       setErrors((current) => ({ ...current, delete: error.message }));
@@ -84,6 +92,60 @@ export default function PostsClient({ clientId, clientName, connected }) {
   }
 
   const visiblePosts = filter === 'all' ? posts : posts.filter((post) => post.platform === filter);
+  const selectablePosts = visiblePosts.filter((post) => post.canDelete);
+  const selectedPosts = posts.filter((post) => post.canDelete && selected.includes(post.id));
+  const allVisibleSelected = selectablePosts.length > 0 && selectablePosts.every((post) => selected.includes(post.id));
+
+  function togglePost(postId) {
+    setSelected((current) => current.includes(postId) ? current.filter((id) => id !== postId) : [...current, postId]);
+  }
+
+  function toggleAllVisible() {
+    const visibleIds = selectablePosts.map((post) => post.id);
+    setSelected((current) => {
+      if (allVisibleSelected) return current.filter((id) => !visibleIds.includes(id));
+      return [...new Set([...current, ...visibleIds])];
+    });
+  }
+
+  async function deleteSelected() {
+    const targets = selectedPosts;
+    if (!targets.length) return;
+    if (!window.confirm(`Delete ${targets.length} selected Facebook post${targets.length === 1 ? '' : 's'} permanently? This cannot be undone.`)) return;
+
+    setBulkDeleting(true);
+    setErrors((current) => ({ ...current, delete: null }));
+    const removed = [];
+    const failures = [];
+
+    // Small batches avoid flooding Meta while still making large selections practical.
+    for (let index = 0; index < targets.length; index += 3) {
+      const batch = targets.slice(index, index + 3);
+      const results = await Promise.allSettled(batch.map((post) => deletePostRequest(post)));
+      results.forEach((result, resultIndex) => {
+        const post = batch[resultIndex];
+        if (result.status === 'fulfilled') removed.push(post.id);
+        else failures.push(`${post.id}: ${result.reason?.message || 'unknown error'}`);
+      });
+      if (removed.length) {
+        const removedSet = new Set(removed);
+        setPosts((current) => current.filter((post) => !removedSet.has(post.id)));
+        setSelected((current) => current.filter((id) => !removedSet.has(id)));
+      }
+    }
+
+    if (removed.length) {
+      setProgress((current) => ({ ...current, facebook: Math.max(0, current.facebook - removed.length) }));
+    }
+    if (failures.length) {
+      setErrors((current) => ({
+        ...current,
+        delete: `${removed.length} deleted; ${failures.length} failed. ${failures.slice(0, 3).join(' | ')}`,
+      }));
+    }
+    setBulkDeleting(false);
+  }
+
   const availableFilters = [
     { id: 'all', label: `All (${posts.length})`, show: true },
     { id: 'instagram', label: `Instagram (${progress.instagram})`, show: connected.instagram },
@@ -151,6 +213,43 @@ export default function PostsClient({ clientId, clientName, connected }) {
           </div>
         )}
 
+        {(selectablePosts.length > 0 || selectedPosts.length > 0) && (
+          <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-surface-container-high bg-surface-container-lowest/95 p-4 shadow-sm backdrop-blur">
+            <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
+              <input
+                type="checkbox"
+                checked={allVisibleSelected}
+                onChange={toggleAllVisible}
+                disabled={loading || bulkDeleting}
+                className="h-4 w-4 accent-primary"
+              />
+              Select all Facebook posts in this view
+            </label>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-on-surface-variant">{selectedPosts.length} selected</span>
+              {selectedPosts.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setSelected([])}
+                  disabled={bulkDeleting}
+                  className="text-sm font-medium underline disabled:opacity-50"
+                >
+                  Clear
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={deleteSelected}
+                disabled={!selectedPosts.length || bulkDeleting}
+                className="inline-flex items-center gap-2 rounded-lg bg-error px-4 py-2 text-sm font-semibold text-on-error disabled:opacity-40"
+              >
+                {bulkDeleting ? <LoaderCircle size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                {bulkDeleting ? 'Deleting…' : `Delete selected (${selectedPosts.length})`}
+              </button>
+            </div>
+          </div>
+        )}
+
         {!loading && !visiblePosts.length && !Object.values(errors).some(Boolean) && (
           <div className="rounded-2xl border border-dashed border-outline-variant bg-surface-container-lowest p-12 text-center">
             <Images size={36} className="mx-auto text-on-surface-variant" />
@@ -162,7 +261,19 @@ export default function PostsClient({ clientId, clientName, connected }) {
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {visiblePosts.map((post) => (
             <article key={`${post.platform}:${post.id}`} className="overflow-hidden rounded-2xl border border-surface-container-high bg-surface-container-lowest shadow-[0_1px_2px_rgba(31,36,44,0.04)]">
-              <div className="aspect-square bg-surface-container">
+              <div className="relative aspect-square bg-surface-container">
+                {post.canDelete && (
+                  <label className="absolute left-3 top-3 z-[1] flex cursor-pointer items-center gap-2 rounded-lg bg-white/95 px-2.5 py-2 text-xs font-semibold text-on-surface shadow-md">
+                    <input
+                      type="checkbox"
+                      checked={selected.includes(post.id)}
+                      onChange={() => togglePost(post.id)}
+                      disabled={bulkDeleting || deleting === post.id}
+                      className="h-4 w-4 accent-primary"
+                    />
+                    Select
+                  </label>
+                )}
                 {post.imageUrl ? (
                   // Meta's media hosts vary, so use a plain image instead of a fixed Next.js remote-host allowlist.
                   // eslint-disable-next-line @next/next/no-img-element
@@ -200,7 +311,7 @@ export default function PostsClient({ clientId, clientName, connected }) {
                     <button
                       type="button"
                       onClick={() => removePost(post)}
-                      disabled={deleting === post.id}
+                      disabled={deleting === post.id || bulkDeleting}
                       className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-error-container px-3 py-2 text-sm font-medium text-on-error-container disabled:opacity-50"
                     >
                       {deleting === post.id ? <LoaderCircle size={15} className="animate-spin" /> : <Trash2 size={15} />}
