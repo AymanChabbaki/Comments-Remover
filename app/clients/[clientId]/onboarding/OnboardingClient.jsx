@@ -89,7 +89,7 @@ export default function OnboardingClient({ clientId, clientName, clientEmail, ig
     if (fbConfigId) {
       params.set('config_id', fbConfigId);
     } else {
-      params.set('scope', 'pages_show_list,pages_read_engagement,pages_manage_engagement,pages_read_user_content,pages_manage_metadata,pages_messaging');
+      params.set('scope', 'pages_show_list,pages_read_engagement,pages_manage_engagement,pages_read_user_content,pages_manage_metadata,pages_manage_posts,pages_messaging');
     }
     window.location.href = `https://www.facebook.com/dialog/oauth?${params.toString()}`;
   }

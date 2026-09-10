@@ -52,7 +52,7 @@ connect their own Page.
 
 **Manual fallback** (for self-serve signup or manual admin add, or when `FB_APP_ID` is unset):
 
-1. [Graph API Explorer](https://developers.facebook.com/tools/explorer) → select your app → request a **User** token with scopes: `pages_show_list`, `pages_read_engagement`, `pages_manage_engagement`, `pages_read_user_content`, `pages_manage_metadata` (the last one is required to subscribe the Page to webhook events, next step).
+1. [Graph API Explorer](https://developers.facebook.com/tools/explorer) → select your app → request a **User** token with scopes: `pages_show_list`, `pages_read_engagement`, `pages_manage_engagement`, `pages_read_user_content`, `pages_manage_metadata`, `pages_manage_posts` (the last permission lets the Posts page delete Facebook Page posts; `pages_manage_metadata` subscribes the Page to webhook events).
 2. `GET /me/accounts?access_token=<user-token>` → take the `access_token` field for their Page from the response. That's the Page Access Token — not the user token.
 3. Subscribe the Page to actually send events (the App Dashboard toggle alone isn't enough — this has no dashboard UI, it's API-only):
    ```
@@ -140,6 +140,20 @@ confirmation. Pending messages can be cancelled; disabling a rule does not cance
 messages it already queued. Private comment replies are a single initial response;
 they do not establish permission for continued unsolicited DMs. Meta enforces
 additional account, comment-age, and live-broadcast restrictions.
+
+### Posts library
+
+The client sidebar's **Posts** page automatically follows Meta pagination until
+all available posts from every connected account are loaded. Instagram media
+uses `instagram_business_basic`. Facebook Page posts use
+`pages_read_engagement`; deleting a Facebook Page post also requires
+`pages_manage_posts`. If `FB_CONFIG_ID` is configured, add
+`pages_manage_posts` to that Facebook Login for Business configuration and
+reconnect the Page so its token receives the permission.
+
+Meta's Instagram API does not expose deletion for already-published media. The
+dashboard therefore opens Instagram posts at their permalink for deletion in
+Instagram itself. Facebook Page posts can be deleted directly in the dashboard.
 
 Run `node --test tests/messaging.test.js` for messaging validation checks.
 
